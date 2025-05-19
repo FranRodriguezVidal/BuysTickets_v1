@@ -19,16 +19,19 @@ const AdminSolicitudesYReportes = () => {
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/solicitudes-discapacidad");
+            const res = await axios.get("http://localhost:5000/solicitudes/solicitudes-discapacidad");
+            console.log("Datos recibidos:", res.data); // 👈 Verifica qué llega
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
             } else {
-                setSolicitudes(res.data);
+                setSolicitudes(res.data.solicitudes); // ✅ Ahora debería funcionar correctamente
             }
-        } catch {
+        } catch (error) {
+            console.error("Error al cargar las solicitudes:", error.message);
             setError("Error al cargar las solicitudes");
         }
     };
+
 
     const obtenerReportes = async () => {
         try {
@@ -55,7 +58,7 @@ const AdminSolicitudesYReportes = () => {
     const actualizarEstadoSolicitud = async (id, nuevoEstado) => {
         try {
             // Hacer la solicitud al backend para actualizar el estado
-            const res = await axios.post("http://localhost:5000/actualizar-estado-solicitud", {
+            const res = await axios.post("http://localhost:5000/solicitudes/actualizar-estado-solicitud", {
                 id,
                 estado: nuevoEstado
             });
@@ -81,7 +84,7 @@ const AdminSolicitudesYReportes = () => {
     // Actualizar el estado de un reporte
     const actualizarEstadoReporte = async (id, nuevoEstado) => {
         try {
-            const res = await axios.post("http://localhost:5000/actualizar-reporte", {
+            const res = await axios.post("http://localhost:5000/reportes/actualizar-reporte", {
                 id,
                 estado: nuevoEstado
             });
@@ -111,7 +114,7 @@ const AdminSolicitudesYReportes = () => {
     // Eliminar reporte
     const eliminarReporte = async (id) => {
         try {
-            const res = await axios.post("http://localhost:5000/actualizar-reporte", {
+            const res = await axios.post("http://localhost:5000/reportes/actualizar-reporte", {
                 id,
                 estado: "eliminado"
             });
@@ -144,7 +147,7 @@ const AdminSolicitudesYReportes = () => {
         }
 
         try {
-            const res = await axios.post("http://localhost:5000/enviar-correo-estado", {
+            const res = await axios.post("http://localhost:5000/reportes/enviar-correo-estado", {
                 usuario: reporteSeleccionado.usuario,
                 estado: reporteSeleccionado.estado,
                 mensaje: respuesta

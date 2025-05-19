@@ -274,7 +274,7 @@ const Configuracion = () => {
         if (archivoDiscapacidad) formData.append("archivo", archivoDiscapacidad);
 
         try {
-            const res = await axios.post("http://localhost:5000/solicitar-discapacidad", formData, {
+            const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
@@ -297,7 +297,7 @@ const Configuracion = () => {
         if (!reporte) return;
     
         try {
-            const response = await axios.post("http://localhost:5000/reportar-error", {
+            const response = await axios.post("http://localhost:5000/reportes/reportar-error", {
                 user: usuario.user,
                 reporte: reporte,
                 estado: "pendiente" // Estado inicial del reporte

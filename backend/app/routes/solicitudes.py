@@ -57,29 +57,29 @@ def solicitar_discapacidad():
 @solicitudes_bp.route('/solicitudes-discapacidad', methods=['GET'])
 def listar_solicitudes_discapacidad():
     try:
+        # ✅ Asegurarte de que el cursor devuelva diccionarios
+        cursor = db.cursor(dictionary=True)
+        
         cursor.execute(""" 
             SELECT id, nombre, apellido, dni, grado_discapacidad, archivo_nombre, estado 
             FROM solicitudes_discapacidad
         """)
+        
         solicitudes = cursor.fetchall()
+        
+        # ✅ Verificación rápida para saber si hay datos
+        print("Solicitudes encontradas:", solicitudes)
 
         if not solicitudes:
             return jsonify(success=False, message="No hay solicitudes de discapacidad disponibles.")
 
         # Formatear las solicitudes para respuesta JSON
-        solicitudes_formateadas = [{
-            'id': solicitud['id'],
-            'nombre': solicitud['nombre'],
-            'apellido': solicitud['apellido'],
-            'dni': solicitud['dni'],
-            'grado_discapacidad': solicitud['grado_discapacidad'],
-            'archivo_nombre': solicitud['archivo_nombre'],
-            'estado': solicitud['estado']
-        } for solicitud in solicitudes]
+        solicitudes_formateadas = [dict(solicitud) for solicitud in solicitudes]
 
         return jsonify(success=True, solicitudes=solicitudes_formateadas), 200
 
     except mysql.connector.Error as err:
+        print(f"Error al obtener solicitudes: {err}")
         return jsonify(success=False, message=f"Error al obtener solicitudes: {str(err)}"), 500
 
 @solicitudes_bp.route('/archivo-solicitud/<int:solicitud_id>', methods=['GET'])
