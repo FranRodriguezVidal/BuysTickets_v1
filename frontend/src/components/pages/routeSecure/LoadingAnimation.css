@@ -1,0 +1,103 @@
+.loading-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #f0f4f8, #e2ecf5); /* Fondo claro */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    z-index: 999;
+}
+
+.floating-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.shape {
+    position: absolute;
+    background-color: transparent;
+    border-radius: 50%;
+    border: 3px solid;
+    animation: floatShape 6s linear infinite;
+    animation-delay: calc(-1s * var(--i));
+    top: 100%;
+    left: calc(100% * var(--i) / 12);
+    --i: 1;
+    opacity: 0.85;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Tamaños y colores variados de pompas tipo burbuja */
+.shape:nth-child(1)  { --i: 1;  width: 40px; height: 40px; border-color: #ff6b6b; }
+.shape:nth-child(2)  { --i: 2;  width: 25px; height: 25px; border-color: #6bcfff; }
+.shape:nth-child(3)  { --i: 3;  width: 30px; height: 30px; border-color: #ffd93d; }
+.shape:nth-child(4)  { --i: 4;  width: 50px; height: 50px; border-color: #a66bff; }
+.shape:nth-child(5)  { --i: 5;  width: 22px; height: 22px; border-color: #ff85d1; }
+.shape:nth-child(6)  { --i: 6;  width: 35px; height: 35px; border-color: #4effb1; }
+.shape:nth-child(7)  { --i: 7;  width: 28px; height: 28px; border-color: #ffa56b; }
+.shape:nth-child(8)  { --i: 8;  width: 42px; height: 42px; border-color: #6be6ff; }
+.shape:nth-child(9)  { --i: 9;  width: 24px; height: 24px; border-color: #ffd36b; }
+.shape:nth-child(10) { --i: 10; width: 38px; height: 38px; border-color: #8a6bff; }
+.shape:nth-child(11) { --i: 11; width: 26px; height: 26px; border-color: #ff6bb3; }
+.shape:nth-child(12) { --i: 12; width: 32px; height: 32px; border-color: #50ffaf; }
+
+@keyframes floatShape {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(-120vh) scale(1.5);
+        opacity: 0;
+    }
+}
+
+.loading-message {
+    z-index: 2;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.loading-message h4 {
+    color: #333;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+/* Línea animada de carga */
+.line-loader {
+    position: relative;
+    width: 200px;
+    height: 4px;
+    background: #ccc;
+    overflow: hidden;
+    border-radius: 3px;
+    z-index: 2;
+}
+
+.line-loader::before {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 100%;
+    background: linear-gradient(90deg, #00cfff, #00ffaa);
+    animation: loadingLine 1.5s linear infinite;
+    border-radius: 3px;
+}
+
+@keyframes loadingLine {
+    0% {
+        left: -60px;
+    }
+    100% {
+        left: 100%;
+    }
+}

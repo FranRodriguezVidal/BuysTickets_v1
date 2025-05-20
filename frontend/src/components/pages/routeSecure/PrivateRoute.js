@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../../../context/UserContext";
+import LoadingAnimation from "./LoadingAnimation"; // Ajusta ruta
 
 const PrivateRoute = ({ children }) => {
     const { usuario } = useContext(UserContext);
@@ -15,19 +15,14 @@ const PrivateRoute = ({ children }) => {
                 setShouldRedirect(true);
             }
             setShowSpinner(false);
-        }, 2000);
+        }, 5000);
 
         return () => clearTimeout(timer);
     }, [usuario]);
 
-    if (showSpinner) {
-        return (
-            <div style={{ textAlign: "center", marginTop: "100px" }}>
-                <Spinner animation="border" role="status" />
-                <div style={{ marginTop: "20px", fontSize: "18px" }}></div>
-            </div>
-        );
-    }
+if (showSpinner) {
+    return <LoadingAnimation message="Verificando sesión de usuario..." />;
+}
 
     if (shouldRedirect) {
         return <Navigate to="/inicio" />;
