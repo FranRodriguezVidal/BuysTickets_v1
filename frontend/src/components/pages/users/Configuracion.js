@@ -1,4 +1,3 @@
-import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js"; // Importamos los nuevos componentes de PayPal
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useContext, useEffect, useState } from "react";
