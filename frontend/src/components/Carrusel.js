@@ -61,7 +61,7 @@ const Carrusel = () => {
                         <Col md={4}>
                             <img
                                 className="evento-img w-75"
-                                src="/images/.png"
+                                src="/images/CORRER.png"
                                 alt="Evento 6"
                             />
                         </Col>
@@ -72,21 +72,21 @@ const Carrusel = () => {
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/.png"
+                                src="/images/CORTOMETREJE.png"
                                 alt="Evento 7"
                             />
                         </Col>
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/.png"
+                                src="/images/RAVE.png"
                                 alt="Evento 8"
                             />
                         </Col>
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/.png"
+                                src="/images/THEATRE DEAF.png"
                                 alt="Evento 9"
                             />
                         </Col>
