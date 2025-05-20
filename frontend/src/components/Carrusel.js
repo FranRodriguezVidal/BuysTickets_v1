@@ -1,4 +1,3 @@
-import React from "react";
 import { Carousel, Col, Row } from "react-bootstrap";
 
 const Carrusel = () => {
@@ -8,15 +7,15 @@ const Carrusel = () => {
                 <Row className="justify-content-center">
                     <Col md={4}>
                         <img
-                            className="d-block w-100"
-                            src="/images/ANUNCIO DE PRUEBA.png"
+                            className="d-block w-75"
+                            src="/images/KØRE RAVESYNTH.png"
                             alt="Evento 1"
                         />
                     </Col>
                     <Col md={4}>
                         <img
-                            className="d-block w-100"
-                            src="/images/ANUNCIO2.png"
+                            className="d-block w-75"
+                            src="/images/MILLONARIOS VS CRUZ AZUL.png"
                             alt="Evento 2"
                         />
                     </Col>
@@ -28,10 +27,6 @@ const Carrusel = () => {
                         />
                     </Col>
                 </Row>
-                <Carousel.Caption>
-                    <h3>Eventos Destacados</h3>
-                    <p>Descubre los mejores eventos de la temporada</p>
-                </Carousel.Caption>
             </Carousel.Item>
 
             <Carousel.Item>

@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 import Carrusel from "../Carrusel";
 import "./Inicio.css";
@@ -15,15 +14,20 @@ export default function Inicio() {
                             {t("Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.")}
                         </p>
                         <div className="marquee-images">
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
                     </div>
                     <div className="marquee-item">
@@ -31,15 +35,20 @@ export default function Inicio() {
                             {t("Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.")}
                         </p>
                         <div className="marquee-images">
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
                     </div>
                     <div className="marquee-item">
@@ -47,20 +56,26 @@ export default function Inicio() {
                             {t("Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.")}
                         </p>
                         <div className="marquee-images">
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" /><img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
-                            <img src="/images/logo.png" alt="Descripción" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
+                            <img src="/images/MILLONARIOS VS CRUZ AZUL.png" alt="Millonario vs Cruz azul" className="marquee-image" />
+                            <img src="/images/Ecos de la Oscuridad.png" alt="Teatro" className="marquee-image" />
+                            <img src="/images/KØRE RAVESYNTH.png" alt="KØRE RAVESYNTH" className="marquee-image" />
+                            <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
+                            <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
                     </div>
                 </div>
             </div>
             <Carrusel />
         </div>
-        
+
     );
 }
