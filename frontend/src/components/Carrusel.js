@@ -34,7 +34,7 @@ const Carrusel = () => {
                             <img
                                 className="evento-img"
                                 src="/images/IFEMA NASA.png"
-                                alt="Evento 3"
+                                alt="Evento 4"
                             />
                         </Col>
                     </Row>
@@ -44,8 +44,8 @@ const Carrusel = () => {
                         <Col md={4}>
                             <img
                                 className="evento-img w-75"
-                                src="/images/KØRE RAVESYNTH.png"
-                                alt="Evento 1"
+                                src="/images/Ecos de la oscuridad.png"
+                                alt="Evento 5"
                             />
                         </Col>
                         <Col md={4}>
@@ -61,8 +61,8 @@ const Carrusel = () => {
                         <Col md={4}>
                             <img
                                 className="evento-img w-75"
-                                src="/images/JOWKE.png"
-                                alt="Evento 3"
+                                src="/images/.png"
+                                alt="Evento 6"
                             />
                         </Col>
                     </Row>
@@ -72,29 +72,29 @@ const Carrusel = () => {
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/KØRE RAVESYNTH.png"
-                                alt="Evento 1"
+                                src="/images/.png"
+                                alt="Evento 7"
                             />
                         </Col>
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/MILLONARIOS VS CRUZ AZUL.png"
-                                alt="Evento 2"
+                                src="/images/.png"
+                                alt="Evento 8"
                             />
                         </Col>
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/JOWKE.png"
-                                alt="Evento 3"
+                                src="/images/.png"
+                                alt="Evento 9"
                             />
                         </Col>
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/IFEMA NASA.png"
-                                alt="Evento 3"
+                                src="/images/.png"
+                                alt="Evento 10"
                             />
                         </Col>
                     </Row>
