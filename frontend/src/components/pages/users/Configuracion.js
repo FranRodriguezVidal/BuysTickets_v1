@@ -397,21 +397,7 @@ const Configuracion = () => {
 
                 <div>
                     <h4>{t("Suscríbete ahora a la membresía Premium")}</h4>
-                    <PayPalScriptProvider options={{ "client-id": "ASvkIXiz4RnGPy4svXrR4Uom-V2XscZs-wWSDUZcQbVIbWhgs5_BFB5KHiEoB1rt6eAacvaojsu_OF6W" }}>
-                        <PayPalButtons
-                            style={{ layout: "vertical" }}
-                            createOrder={(data, actions) => {
-                                return actions.order.create({
-                                    purchase_units: [{
-                                        amount: {
-                                            value: "2.99" // Precio de la suscripción Premium
-                                        }
-                                    }]
-                                });
-                            }}
-                            onApprove={handlePaymentSuccess} // Llamar a handlePaymentSuccess después de aprobar el pago
-                        />
-                    </PayPalScriptProvider>
+                    
 
                     {usuario.role === "premium" && (
                         <div className="alert alert-success">
