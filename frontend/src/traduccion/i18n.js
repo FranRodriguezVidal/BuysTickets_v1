@@ -53,6 +53,8 @@ i18n.use(initReactI18next).init({
         "Teléfono": "Teléfono",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.",
+        "Eventos Destacados": "Eventos Destacados",
+        "Una mezcla explosiva de espectáculos": "Una mezcla explosiva de espectáculos",
         //Configuracion usuario
         "Configuración": "Configuración",
         "Premium": "Premium",
@@ -171,6 +173,8 @@ i18n.use(initReactI18next).init({
         "Teléfono": "Phone",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Upcoming events: theaters, cinemas, movies, concerts, nightclubs, and many more.",
+        "Eventos Destacados": "Featured Events",
+        "Una mezcla explosiva de espectáculos": "An explosive mix of shows",
         //Configuracion usuario
         "Configuración": "Configuration",
         "Premium": "Premium",
@@ -199,7 +203,7 @@ i18n.use(initReactI18next).init({
         "ficticio": " fictional ",
         " y solo se utiliza con fines educativos para ilustrar el proceso de integración de ": "and is used only for educational purposes to illustrate the integration process of ",
         "PayPal Sandbox": "  PayPal Sandbox ",
-        "No se realizará ninguna transacción real, y no se almacenará dinero ni información financiera" : "No real transactions will occur, and no money or financial information will be stored.",
+        "No se realizará ninguna transacción real, y no se almacenará dinero ni información financiera": "No real transactions will occur, and no money or financial information will be stored.",
         ". Es importante que sepas que la información ingresada, aunque se procese a través de un sistema simulado, no será utilizada para ningún otro fin fuera del ámbito de esta prueba educativa.": " It is important to note that the information entered, even though it is processed through a simulated system, will not be used for any purpose other than this educational test.",
         //Condiciones de Política
         "Este sitio web tiene como objetivo mostrar un ": "This website aims to showcase a",
@@ -226,7 +230,7 @@ i18n.use(initReactI18next).init({
         "No recopilamos información personal": " We do not collect personal information",
         ". Esta web está diseñada para demostrar las capacidades técnicas del equipo de desarrollo en un entorno de aprendizaje. Cualquier dato que el usuario ingrese es ": " This website is designed to demonstrate the technical capabilities of the development team in a learning environment. Any data that the user enters is ",
         "solo para fines de prueba y no se almacena ni se utiliza con fines comerciales": "only for testing purposes and is not stored or used for commercial purposes",
-        "Este sitio web utiliza ": "This website uses " ,
+        "Este sitio web utiliza ": "This website uses ",
         "cookies": " cookies ",
         " únicamente con el propósito de garantizar una experiencia de navegación adecuada, permitiendo la simulación de transacciones, el funcionamiento de formularios de contacto y la personalización de la interfaz según las preferencias del usuario. Sin embargo, ninguna de estas cookies recoge ni procesa datos personales identificables. Si el usuario desea, puede configurar su navegador para bloquear las cookies, aunque esto podría afectar algunas de las funcionalidades del sitio web.": "only for the purpose of ensuring a proper browsing experience, allowing the simulation of transactions, functioning of contact forms, and customization of the interface according to user preferences. However, none of these cookies collect or process identifiable personal data. If the user wishes, they can configure their browser to block cookies, though this may affect some functionalities of the website.",
         "Recuerda que las imágenes utilizadas en este sitio son ": "Remember that the images used on this site are",
@@ -289,6 +293,8 @@ i18n.use(initReactI18next).init({
         "Teléfono": "Telefon",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Nadchodzące wydarzenia: teatry, kina, filmy, koncerty, kluby nocne i wiele więcej.",
+        "Eventos Destacados": "Wyróżnione wydarzenia",
+        "Una mezcla explosiva de espectáculos": "Ekscytująca mieszanka wydarzeń",
         //Configuracion usuario
         "Configuración": "Konfiguracja",
         "Premium": "Premium",
@@ -322,7 +328,7 @@ i18n.use(initReactI18next).init({
         //Condiciones de Política
         "Este sitio web tiene como objetivo mostrar un ": "Ta strona internetowa ma na celu pokazanie ",
         " de desarrollo web. Su propósito es proporcionar una plataforma en la que los estudiantes puedan demostrar su capacidad para desarrollar aplicaciones web con funcionalidades como simulación de pagos, interacción con sistemas de backend, y la implementación de procesos complejos de usuario.": "projektu rozwoju aplikacji internetowych. Jego celem jest zapewnienie platformy, na której studenci mogą wykazać swoją zdolność do tworzenia aplikacji internetowych z funkcjami, takimi jak symulacja płatności, interakcja z systemami backendowymi i implementacja złożonych procesów użytkownika.",
-        "Al utilizar este sitio, estás aceptando que " : "Korzystając z tej strony, zgadzasz się na to, że",
+        "Al utilizar este sitio, estás aceptando que ": "Korzystając z tej strony, zgadzasz się na to, że",
         "el proceso de pago es simulado y no tiene ningún valor real": "proces płatności jest symulowany i nie ma żadnej rzeczywistej wartości ",
         ". La plataforma utiliza ": "Platforma korzysta z",
         "PayPal Sandbox": " PayPal Sandbox ",
@@ -407,6 +413,8 @@ i18n.use(initReactI18next).init({
         "Teléfono": "الهاتف",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "الفعاليات القادمة: المسارح، دور السينما، الأفلام، الحفلات الموسيقية، النوادي الليلية والمزيد.",
+        "Eventos Destacados": "الفعاليات المميزة",
+        "Una mezcla explosiva de espectáculos": "مزيج مثير من العروض",
         //Configuracion usuario
         "Configuración": "إعدادات",
         "Premium": "بريميوم",
@@ -465,7 +473,7 @@ i18n.use(initReactI18next).init({
         "Este sitio web utiliza ": "يستخدم هذا الموقع",
         "cookies": "ملفات تعريف الارتباط",
         " únicamente con el propósito de garantizar una experiencia de navegación adecuada, permitiendo la simulación de transacciones, el funcionamiento de formularios de contacto y la personalización de la interfaz según las preferencias del usuario. Sin embargo, ninguna de estas cookies recoge ni procesa datos personales identificables. Si el usuario desea, puede configurar su navegador para bloquear las cookies, aunque esto podría afectar algunas de las funcionalidades del sitio web.": "فقط من أجل ضمان تجربة تصفح مناسبة، مما يسمح بمحاكاة المعاملات، وتشغيل نماذج الاتصال، وتخصيص واجهة المستخدم وفقًا لتفضيلات المستخدم. ومع ذلك، لا تجمع أي من هذه الملفات ملفات تعريف الارتباط أو تعالج البيانات الشخصية القابلة للتحديد. إذا رغب المستخدم في ذلك، يمكنه تكوين متصفحه لحظر ملفات تعريف الارتباط، على الرغم من أن هذا قد يؤثر على بعض وظائف الموقع.",
-        "Recuerda que las imágenes utilizadas en este sitio son " : "تذكر أن الصور المستخدمة في هذا الموقع هي",
+        "Recuerda que las imágenes utilizadas en este sitio son ": "تذكر أن الصور المستخدمة في هذا الموقع هي",
         "libres de derechos de autor": "خالية من حقوق الطبع والنشر",
         " y se han obtenido de ": "وقد تم الحصول عليها من",
         "Canva": "Canva",
