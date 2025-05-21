@@ -91,8 +91,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center; /* Centra las filas en cada columna */
-    flex: 0 0 auto; /* Que no se estiren */
+    align-items: center;
+    /* Centra las filas en cada columna */
+    flex: 0 0 auto;
+    /* Que no se estiren */
 }
 
 .collage-img {
@@ -119,4 +121,38 @@
 .collage-col.derecha {
     align-self: flex-end;
     margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .carrusel-container {
+        padding: 1rem;
+    }
+
+    .evento-img {
+        width: 90% !important;
+        margin-bottom: 1rem;
+    }
+
+    .slide-text-wrapper {
+        padding: 1rem;
+    }
+
+    .carrusel-titulo {
+        font-size: 1.5rem;
+    }
+
+    .carrusel-subtitulo {
+        font-size: 1rem;
+    }
+
+    .carousel .carousel-item .row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .carousel .carousel-item .col-md-3,
+    .carousel .carousel-item .col-md-4 {
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
 }

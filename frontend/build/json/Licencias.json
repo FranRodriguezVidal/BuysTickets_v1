@@ -58,5 +58,30 @@
         "nombre": "Playa con coctel",
         "ruta": "/images/playa.jpg",
         "origen": "https://www.hippopx.com/es/beach-beverage-caribbean-cocktail-drink-exotic-glass-73437"
+    },
+    {
+        "nombre": "Zapatillas",
+        "ruta": "/images/ZAPATILLAS.jpg",
+        "origen": "https://www.hippopx.com/es/jogging-run-sport-jog-sporty-race-continuous-operation-3862"
+    },
+     {
+        "nombre": "THEATRE DEAF",
+        "ruta": "/images/THEATRE DEAF.png",
+        "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
+    },
+     {
+        "nombre": "RAVE",
+        "ruta": "/images/RAVE.png",
+        "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
+    },
+    {
+        "nombre": "CORRER",
+        "ruta": "/images/CORRER.png",
+        "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
+    },
+    {
+        "nombre": "CORTOMETREJE",
+        "ruta": "/images/CORTOMETREJE.png",
+        "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
     }
 ]

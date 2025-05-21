@@ -23,7 +23,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
@@ -35,7 +35,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
@@ -54,7 +54,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
@@ -66,7 +66,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
@@ -85,7 +85,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
@@ -97,7 +97,7 @@ export default function Inicio() {
                             <img src="/images/CORTOMETREJE.png" alt="CORTOMETREJE" className="marquee-image" />
                             <img src="/images/RAVE.png" alt="RAVE" className="marquee-image" />
                             <img src="/images/THEATRE DEAF.png" alt="THEATRE DEAF" className="marquee-image" />
-                            <img src="/images/mundial.png" alt="MUNDIAL" className="marquee-image" />
+                            <img src="/images/mundial.png" alt="mundial" className="marquee-image" />
                             <img src="/images/IFEMA NASA.png" alt="Exposicion" className="marquee-image" />
                             <img src="/images/JOWKE.png" alt="JOWKE" className="marquee-image" />
                         </div>
