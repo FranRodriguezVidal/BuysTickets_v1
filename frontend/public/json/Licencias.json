@@ -83,5 +83,20 @@
         "nombre": "CORTOMETREJE",
         "ruta": "/images/CORTOMETREJE.png",
         "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
+    },
+    {
+        "nombre": "MUNDIAL",
+        "ruta": "/images/mundial.png",
+        "origen": "https://www.canva.com/es_es/politicas-legales/free-media/"
+    },
+    {
+        "nombre": "ESCUDO PSG",
+        "ruta": "/images/psg.png",
+        "origen": "https://en.wikipedia.org/wiki/File:Paris_Saint-Germain_F.C..svg"
+    },
+    {
+          "nombre": "ESCUDO ATLETICO",
+        "ruta": "/images/atletico.png",
+        "origen": "https://en.wikipedia.org/wiki/File:Atletico_Madrid_Logo_2024.svg"
     }
 ]

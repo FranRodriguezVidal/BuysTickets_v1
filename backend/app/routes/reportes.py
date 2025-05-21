@@ -43,7 +43,7 @@ def reportar_error():
 # 📌 **2️⃣ Obtener reportes**
 # ==============================
 
-@reportes_bp.route('/reportes', methods=['GET'])
+@reportes_bp.route('/', methods=['GET'])
 def obtener_reportes():
 
     estado = request.args.get('estado')

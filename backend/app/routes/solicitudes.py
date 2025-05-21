@@ -54,34 +54,27 @@ def solicitar_discapacidad():
         db.rollback()  # Hacer rollback en caso de error
         return jsonify(success=False, message="Error en la solicitud: " + str(err))
 
-@solicitudes_bp.route('/solicitudes-discapacidad', methods=['GET'])
+@solicitudes_bp.route('/discapacidad', methods=['GET'])
 def listar_solicitudes_discapacidad():
     try:
-        # ✅ Asegurarte de que el cursor devuelva diccionarios
-        cursor = db.cursor(dictionary=True)
-        
+        cursor = db.cursor(dictionary=True)  # Creamos un cursor local
+
         cursor.execute(""" 
             SELECT id, nombre, apellido, dni, grado_discapacidad, archivo_nombre, estado 
             FROM solicitudes_discapacidad
         """)
         
         solicitudes = cursor.fetchall()
-        
-        # ✅ Verificación rápida para saber si hay datos
-        print("Solicitudes encontradas:", solicitudes)
+        cursor.close()  # ✅ Cerramos el cursor después de usarlo
 
         if not solicitudes:
             return jsonify(success=False, message="No hay solicitudes de discapacidad disponibles.")
 
-        # Formatear las solicitudes para respuesta JSON
-        solicitudes_formateadas = [dict(solicitud) for solicitud in solicitudes]
-
-        return jsonify(success=True, solicitudes=solicitudes_formateadas), 200
+        return jsonify(success=True, solicitudes=solicitudes), 200
 
     except mysql.connector.Error as err:
         print(f"Error al obtener solicitudes: {err}")
         return jsonify(success=False, message=f"Error al obtener solicitudes: {str(err)}"), 500
-
 @solicitudes_bp.route('/archivo-solicitud/<int:solicitud_id>', methods=['GET'])
 def descargar_archivo_blob(solicitud_id):
     try:

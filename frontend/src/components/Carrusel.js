@@ -93,7 +93,7 @@ const Carrusel = () => {
                         <Col md={3}>
                             <img
                                 className="evento-img"
-                                src="/images/.png"
+                                src="/images/mundial.png"
                                 alt="Evento 10"
                             />
                         </Col>

@@ -19,7 +19,7 @@ const AdminSolicitudesYReportes = () => {
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/solicitudes/solicitudes-discapacidad");
+          const res = await axios.get("http://localhost:5000/solicitudes/discapacidad");
             console.log("Datos recibidos:", res.data); // 👈 Verifica qué llega
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
@@ -36,12 +36,14 @@ const AdminSolicitudesYReportes = () => {
     const obtenerReportes = async () => {
         try {
             const res = await axios.get("http://localhost:5000/reportes");
+              console.log("Reportes recibidos:", res.data);
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
             } else {
                 setReportes(res.data.reportes);
             }
-        } catch {
+        } catch (error){
+            console.error("Error al cargar los reportes:", error.message); 
             setError("Error al cargar los reportes");
         }
     };
@@ -51,7 +53,13 @@ const AdminSolicitudesYReportes = () => {
         obtenerSolicitudes();
         obtenerReportes();
     }, []);
+    useEffect(() => {
+    console.log("Solicitudes cargadas:", solicitudes);
+}, [solicitudes]);
 
+useEffect(() => {
+    console.log("Reportes cargados:", reportes);
+}, [reportes]);
 
 
     // Actualizar el estado de una solicitud
