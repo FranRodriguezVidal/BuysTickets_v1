@@ -49,7 +49,6 @@ i18n.use(initReactI18next).init({
         "Redes Sociales": "Redes Sociales",
         "BuysTickets": "BuysTickets",
         "Todos los derechos reservados": "Todos los derechos reservados.",
-        "Contacto": "Contacto",
         "Teléfono": "Teléfono",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.",
@@ -169,7 +168,6 @@ i18n.use(initReactI18next).init({
         "Redes Sociales": "Social Media",
         "BuysTickets": "BuysTickets",
         "Todos los derechos reservados": "All rights reserved.",
-        "Contacto": "Contact",
         "Teléfono": "Phone",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Upcoming events: theaters, cinemas, movies, concerts, nightclubs, and many more.",
@@ -289,7 +287,6 @@ i18n.use(initReactI18next).init({
         "Redes Sociales": "Media społecznościowe",
         "BuysTickets": "BuysTickets",
         "Todos los derechos reservados": "Wszelkie prawa zastrzeżone.",
-        "Contacto": "Kontakt",
         "Teléfono": "Telefon",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "Nadchodzące wydarzenia: teatry, kina, filmy, koncerty, kluby nocne i wiele więcej.",
@@ -409,7 +406,6 @@ i18n.use(initReactI18next).init({
         "Redes Sociales": "وسائل التواصل الاجتماعي",
         "BuysTickets": "BuysTickets",
         "Todos los derechos reservados": "جميع الحقوق محفوظة.",
-        "Contacto": "اتصل بنا",
         "Teléfono": "الهاتف",
         //Inicio
         "Próximos eventos: teatros, cines, películas, conciertos, discotecas y muchos más.": "الفعاليات القادمة: المسارح، دور السينما، الأفلام، الحفلات الموسيقية، النوادي الليلية والمزيد.",
