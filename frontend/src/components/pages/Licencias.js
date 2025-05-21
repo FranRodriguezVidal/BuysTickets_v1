@@ -7,7 +7,7 @@ export default function Licencias() {
     const [licencias, setLicencias] = useState([]);
 
     useEffect(() => {
-        fetch("/json/licencias.json")
+        fetch("/json/Licencias.json")
             .then((res) => res.json())
             .then((data) => setLicencias(data))
             .catch((err) => console.error("Error cargando licencias:", err));
