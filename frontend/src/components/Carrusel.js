@@ -44,7 +44,7 @@ const Carrusel = () => {
                         <Col md={4}>
                             <img
                                 className="evento-img w-75"
-                                src="/images/Ecos de la oscuridad.png"
+                                src="/images/Ecos de la Oscuridad.png"
                                 alt="Evento 5"
                             />
                         </Col>
