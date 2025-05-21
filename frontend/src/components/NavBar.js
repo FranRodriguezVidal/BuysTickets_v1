@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Alert, Button, Container, Dropdown, Form, InputGroup, Modal, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { FaCog, FaGlobe, FaMicrophone, FaSearch, FaSignOutAlt, FaTicketAlt, FaUser } from "react-icons/fa";
@@ -17,7 +17,7 @@ const NavBar = () => {
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
     const [email, setEmail] = useState("");
-    const [role, setRole] = useState("estandar");
+    //const [role, setRole] = useState("estandar");
     const [profile, setProfile] = useState("");
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -60,7 +60,7 @@ const NavBar = () => {
         };
 
         verificarUsuario();
-    }, []);
+    }, [logout, navigate]);
 
 
     const handleLogout = () => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
 
 export default function Ventas() {
@@ -6,7 +5,7 @@ export default function Ventas() {
 
     return (
         <div>
-            <h1>Eventos Probandooooo</h1>
+            <h2>{t("Ventas Realizadas")}</h2>
         </div>
         
     );

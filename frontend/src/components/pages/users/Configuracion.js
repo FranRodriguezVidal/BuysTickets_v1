@@ -24,14 +24,14 @@ const Configuracion = () => {
     const [profileImage, setProfileImage] = useState(null);
     const [editMessage, setEditMessage] = useState("");
     const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
-    const [showRecovery, setShowRecovery] = useState(false);
+    //const [showRecovery, setShowRecovery] = useState(false);
     const [userRecovery, setUserRecovery] = useState("");
-    const [codigoEnviado, setCodigoEnviado] = useState(false);
+    //const [codigoEnviado, setCodigoEnviado] = useState(false);
     const [codigoIngresado, setCodigoIngresado] = useState("");
-    const [verificado, setVerificado] = useState(false);
+    //const [verificado, setVerificado] = useState(false);
     const [nuevaPassword, setNuevaPassword] = useState("");
-    const [recoveryError, setRecoveryError] = useState("");
-    const [recoverySuccess, setRecoverySuccess] = useState("");
+    //const [recoveryError, setRecoveryError] = useState("");
+    //const [recoverySuccess, setRecoverySuccess] = useState("");
     const [showSolicitudModal, setShowSolicitudModal] = useState(false);
     const [nombreSolicitud, setNombreSolicitud] = useState("");
     const [apellidoSolicitud, setApellidoSolicitud] = useState("");
@@ -175,36 +175,9 @@ const Configuracion = () => {
         }
     };
 
-    // PayPal Button Success Handler
-    const handlePaymentSuccess = async (details, data) => {
-        const user_id = usuario.id;
-        const payment_status = data.status;
-
-        if (payment_status === "COMPLETED") {
-            try {
-                const response = await axios.post("http://localhost:5000/update-role-to-premium", {
-                    user_id,
-                    payment_status
-                });
-
-                if (response.data.success) {
-                    // Actualiza la fecha de expiración de la suscripción en el frontend
-                    setSubscriptionExpiry(response.data.expiry_date); // Actualiza la fecha de expiración que viene del backend
-                    alert("Felicidades, ahora eres miembro Premium.");
-                } else {
-                    alert("Error al actualizar el rol.");
-                }
-            } catch (error) {
-                console.error("Error en la actualización del rol:", error);
-                alert("Hubo un problema al actualizar tu rol.");
-            }
-        } else {
-            alert("El pago no se completó.");
-        }
-    };
 
     // Lógica para enviar código
-    const handleEnviarCodigo = async () => {
+    /*const handleEnviarCodigo = async () => {
         setRecoveryError("");
         try {
             const res = await axios.post("http://localhost:5000/send-recovery-code", { user: userRecovery });
@@ -260,7 +233,7 @@ const Configuracion = () => {
         } catch {
             setRecoveryError(t("Error al cambiar la contraseña."));
         }
-    };
+    }; */
 
     // Lógica para enviar solicitud de discapacidad
     const handleEnviarSolicitudDiscapacidad = async () => {

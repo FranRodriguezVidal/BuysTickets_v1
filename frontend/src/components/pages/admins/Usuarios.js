@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap"; // Asegúrate de tener Bootstrap y React-Bootstrap instalados
 import { useTranslation } from "react-i18next";
 
@@ -126,7 +126,7 @@ export default function Usuarios() {
 
     return (
         <div className="container mt-4">
-            <h1>Usuarios</h1>
+            <h1>{t("Usuarios registrados")}</h1>
 
             {/* Botón para abrir el modal */}
             <Button variant="primary" className="my-3" onClick={() => setShowModal(true)}>
