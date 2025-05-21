@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useContext, useEffect, useState } from "react";
 import { Alert, Button, Container, Form, Modal, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../context/UserContext";
 
 const Configuracion = () => {
@@ -13,7 +12,7 @@ const Configuracion = () => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [countdown, setCountdown] = useState(3);
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
     const { t } = useTranslation();
     const { usuario, logout } = useContext(UserContext);
     const [nombre, setNombre] = useState("");
@@ -25,11 +24,11 @@ const Configuracion = () => {
     const [editMessage, setEditMessage] = useState("");
     const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
     //const [showRecovery, setShowRecovery] = useState(false);
-    const [userRecovery, setUserRecovery] = useState("");
+    //const [userRecovery, setUserRecovery] = useState("");
     //const [codigoEnviado, setCodigoEnviado] = useState(false);
-    const [codigoIngresado, setCodigoIngresado] = useState("");
+    //const [codigoIngresado, setCodigoIngresado] = useState("");
     //const [verificado, setVerificado] = useState(false);
-    const [nuevaPassword, setNuevaPassword] = useState("");
+    //const [nuevaPassword, setNuevaPassword] = useState("");
     //const [recoveryError, setRecoveryError] = useState("");
     //const [recoverySuccess, setRecoverySuccess] = useState("");
     const [showSolicitudModal, setShowSolicitudModal] = useState(false);

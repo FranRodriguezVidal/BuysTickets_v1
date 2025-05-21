@@ -14,7 +14,7 @@ const AdminSolicitudesYReportes = () => {
     const [respuesta, setRespuesta] = useState(""); // Respuesta del administrador
     const [mensajeAnuncio, setMensajeAnuncio] = useState(""); // Mensaje del anuncio
     const [imagenAnuncio, setImagenAnuncio] = useState(null); // Imagen para el anuncio
-    const [usuarios, setUsuarios] = useState([]); // Usuarios para enviar anuncio
+    //const [usuarios, setUsuarios] = useState([]); // Usuarios para enviar anuncio
 
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
