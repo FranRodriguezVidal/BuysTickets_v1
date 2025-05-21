@@ -5,6 +5,7 @@ from .routes.premium import premium_bp
 from .routes.solicitudes import solicitudes_bp
 from .routes.reportes import reportes_bp
 from .routes.admin_control import admin_bp
+from .routes.anuncio import anuncio_bp
 from flask_cors import CORS
 
 def create_app():
@@ -17,6 +18,7 @@ def create_app():
     app.register_blueprint(solicitudes_bp, url_prefix='/solicitudes')
     app.register_blueprint(reportes_bp, url_prefix='/reportes')
     app.register_blueprint(admin_bp)
+    app.register_blueprint(anuncio_bp,url_prefix='/anuncios')
 
 
     return app

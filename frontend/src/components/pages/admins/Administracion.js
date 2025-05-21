@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Alert, Button, Container, Form, Modal, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+
 const AdminSolicitudesYReportes = () => {
     const { t } = useTranslation();
     const [solicitudes, setSolicitudes] = useState([]);
@@ -12,6 +13,7 @@ const AdminSolicitudesYReportes = () => {
     const [showModal, setShowModal] = useState(false); // Estado para mostrar el modal
     const [reporteSeleccionado, setReporteSeleccionado] = useState(null); // Reporte seleccionado
     const [respuesta, setRespuesta] = useState(""); // Respuesta del administrador
+    const [asuntoAnuncio, setAsuntoAnuncio] = useState("");
     const [mensajeAnuncio, setMensajeAnuncio] = useState(""); // Mensaje del anuncio
     const [imagenAnuncio, setImagenAnuncio] = useState(null); // Imagen para el anuncio
     //const [usuarios, setUsuarios] = useState([]); // Usuarios para enviar anuncio
@@ -19,7 +21,7 @@ const AdminSolicitudesYReportes = () => {
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
         try {
-          const res = await axios.get("http://localhost:5000/solicitudes/discapacidad");
+            const res = await axios.get("http://localhost:5000/solicitudes/discapacidad");
             console.log("Datos recibidos:", res.data); // 👈 Verifica qué llega
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
@@ -36,14 +38,14 @@ const AdminSolicitudesYReportes = () => {
     const obtenerReportes = async () => {
         try {
             const res = await axios.get("http://localhost:5000/reportes");
-              console.log("Reportes recibidos:", res.data);
+            console.log("Reportes recibidos:", res.data);
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
             } else {
                 setReportes(res.data.reportes);
             }
-        } catch (error){
-            console.error("Error al cargar los reportes:", error.message); 
+        } catch (error) {
+            console.error("Error al cargar los reportes:", error.message);
             setError("Error al cargar los reportes");
         }
     };
@@ -54,12 +56,12 @@ const AdminSolicitudesYReportes = () => {
         obtenerReportes();
     }, []);
     useEffect(() => {
-    console.log("Solicitudes cargadas:", solicitudes);
-}, [solicitudes]);
+        console.log("Solicitudes cargadas:", solicitudes);
+    }, [solicitudes]);
 
-useEffect(() => {
-    console.log("Reportes cargados:", reportes);
-}, [reportes]);
+    useEffect(() => {
+        console.log("Reportes cargados:", reportes);
+    }, [reportes]);
 
 
     // Actualizar el estado de una solicitud
@@ -183,13 +185,15 @@ useEffect(() => {
         }
 
         const formData = new FormData();
+        formData.append("asunto", asuntoAnuncio);
         formData.append("mensaje", mensajeAnuncio);
         if (imagenAnuncio) {
             formData.append("imagen", imagenAnuncio);
         }
 
+
         try {
-            const res = await axios.post("http://localhost:5000/enviar-anuncio", formData, {
+            const res = await axios.post("http://localhost:5000/anuncios/enviar-anuncio", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -206,6 +210,7 @@ useEffect(() => {
     };
 
     const limpiarFormularioAnuncio = () => {
+            setMensajeAnuncio("");
         setMensajeAnuncio("");
         setImagenAnuncio(null);
     };
@@ -282,6 +287,17 @@ useEffect(() => {
             {/* Anuncios */}
             <h3 className="mt-5">{t("Enviar un Anuncio a Todos los Usuarios")}</h3>
             <Form>
+                {/* Input para Asunto */}
+                <Form.Group controlId="formAsunto" className="mt-3">
+                    <Form.Label>{t("Asunto del Anuncio")}</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={asuntoAnuncio}
+                        onChange={(e) => setAsuntoAnuncio(e.target.value)}
+                        placeholder={t("Escribe el asunto del anuncio")}
+                    />
+                </Form.Group>
+
                 <Form.Group controlId="formMensaje">
                     <Form.Label>{t("Mensaje del Anuncio")}</Form.Label>
                     <Form.Control
