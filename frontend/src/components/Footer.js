@@ -1,4 +1,3 @@
-import React from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
@@ -22,13 +21,13 @@ const Footer = () => {
                     <Col md={4} className="text-center">
                         <h5>{t("Redes Sociales")}</h5>
                         <div className="social-icons">
-                            <a href="#" className="text-light mx-3" aria-label="Facebook">
+                            <a href="https://www.facebook.com/?locale=es_ES" className="text-light mx-3" aria-label="Facebook">
                                 <FaFacebook size={30} />
                             </a>
-                            <a href="#" className="text-light mx-3" aria-label="Twitter">
+                            <a href="https://x.com/?lang=es" className="text-light mx-3" aria-label="Twitter">
                                 <FaTwitter size={30} />
                             </a>
-                            <a href="#" className="text-light mx-3" aria-label="Instagram">
+                            <a href="https://x.com/?lang=es" className="text-light mx-3" aria-label="Instagram">
                                 <FaInstagram size={30} />
                             </a>
                         </div>
