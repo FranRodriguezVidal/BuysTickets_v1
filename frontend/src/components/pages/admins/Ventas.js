@@ -61,206 +61,287 @@ export default function Ventas() {
             });
     }
 
-return (
-    <div className="p-6 max-w-6xl mx-auto space-y-12">
-        <header className="text-center">
-            <h1 className="text-4xl font-bold text-gray-800">🎫 Gestión de Eventos</h1>
-            <p className="text-gray-500 text-sm">Administra y supervisa todos los eventos de forma centralizada</p>
-        </header>
+    return (
+        <div className="p-6 max-w-6xl mx-auto space-y-12" style={{ width: '90%' }}>
+            <header className="text-center">
+                <h1 className="text-4xl font-bold text-gray-800">🎫 Gestión de Eventos</h1>
+            </header>
 
-        <section className="bg-white p-8 rounded-2xl shadow-lg space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-                <Plus className="w-5 h-5 text-indigo-600" />
-                <h2 className="text-2xl font-semibold text-gray-800">Crear Nuevo Evento</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input className="w-full rounded-md border border-gray-300 px-4 py-2" onChange={e => setForm({ ...form, nombre_evento: e.target.value })} placeholder="Nombre del Evento" />
-                <input type="date" className="w-full rounded-md border border-gray-300 px-4 py-2" onChange={e => setForm({ ...form, fecha: e.target.value })} />
-                <input className="w-full rounded-md border border-gray-300 px-4 py-2" onChange={e => setForm({ ...form, lugar: e.target.value })} placeholder="Lugar" />
-                <input className="w-full rounded-md border border-gray-300 px-4 py-2" onChange={e => setForm({ ...form, artista_nombre: e.target.value })} placeholder="Artista" />
-                <textarea className="md:col-span-2 w-full rounded-md border border-gray-300 px-4 py-2" rows={3} onChange={e => setForm({ ...form, informacion: e.target.value })} />
-                <input type="number" step="0.01" className="w-full rounded-md border border-gray-300 px-4 py-2" onChange={e => setForm({ ...form, precio: e.target.value })} />
-                <div className="flex items-center mt-2">
-                    <input type="checkbox" id="mayores18" className="h-4 w-4 text-indigo-600 border-gray-300 rounded" onChange={e => setForm({ ...form, mayores_18: e.target.checked })} />
-                    <label htmlFor="mayores18" className="ml-2 text-sm text-gray-700">Solo mayores de 18 años</label>
-                </div>
-                <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Evento</label>
-                    <div className="flex items-center">
-                        <label className="cursor-pointer bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            Seleccionar archivo
-                            <input type="file" accept="image/*" className="sr-only" onChange={e => setImagen(e.target.files[0])} />
-                        </label>
-                        <span className="ml-3 text-sm text-gray-500">{imagen ? imagen.name : 'Ningún archivo seleccionado'}</span>
+            <section className="card border shadow-sm mb-5">
+                <div className="card-header bg-light border-bottom d-flex align-items-center">
+                    <div className="d-flex align-items-center">
+                        <Plus className="me-2 text-primary" size={20} />
+                        <h2 className="h5 mb-0 text-primary">Crear Nuevo Evento</h2>
                     </div>
                 </div>
-            </div>
-            <div className="pt-4 text-center">
-                <button onClick={crearEvento} className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition shadow-md">
-                    <Plus className="w-5 h-5" /> Crear Evento
-                </button>
-            </div>
-        </section>
 
-        <section className="bg-white p-6 rounded-xl shadow-md">
-            <div className="flex items-center mb-6">
-                <CalendarCheck2 className="w-6 h-6 text-indigo-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800">Eventos Programados</h2>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 text-center">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
-                            <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                            <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Artista</th>
-                            <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {eventos.map(ev => (
-                            <tr key={ev.id}>
-                                <td className="px-6 py-4">
-                                    <div className="font-medium text-gray-900">{ev.nombre_evento}</div>
-                                    <div className="text-sm text-gray-500">{ev.lugar}</div>
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{new Date(ev.fecha).toLocaleDateString()}</td>
-                                <td className="px-6 py-4 text-sm text-gray-500">{ev.nombre_artista}</td>
-                                <td className="px-6 py-4 text-sm font-medium">
-                                    <button onClick={() => { setSelected(ev); setModalVisible(true); }} className="text-blue-600 hover:text-blue-800 mr-4">Editar</button>
-                                    <button onClick={() => { setEventoAEliminar(ev.id); setConfirmVisible(true); }} className="text-red-600 hover:text-red-800">Eliminar</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                <div className="card-body bg-light">
+                    <div className="row g-3">
+                        <div className="col-md-6">
+                            <label className="form-label">Nombre del Evento</label>
+                            <input
+                                type="text"
+                                className="form-control border rounded"
+                                placeholder="Nombre del evento"
+                                onChange={e => setForm({ ...form, nombre_evento: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <label className="form-label">Fecha</label>
+                            <input
+                                type="date"
+                                className="form-control border rounded"
+                                onChange={e => setForm({ ...form, fecha: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <label className="form-label">Lugar</label>
+                            <input
+                                type="text"
+                                className="form-control border rounded"
+                                placeholder="Lugar"
+                                onChange={e => setForm({ ...form, lugar: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <label className="form-label">Artista</label>
+                            <input
+                                type="text"
+                                className="form-control border rounded"
+                                placeholder="Nombre del artista"
+                                onChange={e => setForm({ ...form, artista_nombre: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-12">
+                            <label className="form-label">Descripción</label>
+                            <textarea
+                                className="form-control border rounded"
+                                rows={3}
+                                placeholder="Detalles del evento"
+                                onChange={e => setForm({ ...form, informacion: e.target.value })}
+                            />
+                        </div>
+                        <div className="col-md-6">
+                            <label className="form-label">Precio (€)</label>
+                            <input
+                                type="number"
+                                step="0.01"
+                                className="form-control border rounded"
+                                placeholder="Precio"
+                                onChange={e => setForm({ ...form, precio: e.target.value })}
+                            />
+                        </div>
+                        <div style={{ backgroundColor: 'blue-ligth' }} className="col-md-6 d-flex align-items-center pt-4">
+                            <input
+                                type="checkbox"
+                                className="form-check-input me-2"
+                                id="mayores18"
+                                onChange={e => setForm({ ...form, mayores_18: e.target.checked })}
+                            />
+                            <label className="form-check-label" htmlFor="mayores18">
+                                Solo mayores de 18 años
+                            </label>
+                        </div>
+                        <div className="col-12">
+                            <label className="form-label">Imagen del Evento</label>
+                            <div className="d-flex align-items-center">
+                                <label className="btn btn-outline-secondary">
+                                    Seleccionar archivo
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="d-none"
+                                        onChange={e => setImagen(e.target.files[0])}
+                                    />
+                                </label>
+                                <span className="ms-3 small text-muted">
+                                    {imagen ? imagen.name : 'Ningún archivo seleccionado'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-        <section className="bg-white p-6 rounded-xl shadow-md">
-            <div className="flex items-center mb-6">
-                <BarChart2 className="w-6 h-6 text-indigo-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800">Estadísticas de Ventas</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                <div className="bg-indigo-100 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-indigo-800">HOY</h3>
-                    <p className="text-2xl font-semibold text-gray-900">{estadisticas?.dia?.cantidad || 0}</p>
-                    <p className="text-sm text-indigo-600">entradas vendidas</p>
-                    <p className="text-lg font-medium text-indigo-700 mt-2">{estadisticas?.dia?.total || 0} €</p>
+                    <hr className="my-4" />
+
+                    <div className="text-center">
+                        <button
+                            onClick={crearEvento}
+                            className="btn btn-primary px-5 py-2 shadow"
+                        >
+                            <Plus className="me-2" size={18} /> Crear Evento
+                        </button>
+                    </div>
                 </div>
-                <div className="bg-blue-100 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-blue-800">ESTA SEMANA</h3>
-                    <p className="text-2xl font-semibold text-gray-900">{estadisticas?.semana?.cantidad || 0}</p>
-                    <p className="text-sm text-blue-600">entradas vendidas</p>
-                    <p className="text-lg font-medium text-blue-700 mt-2">{estadisticas?.semana?.total || 0} €</p>
+            </section>
+
+
+            <section className="card border shadow-sm mb-5">
+                <div className="card-header bg-light border-bottom d-flex align-items-center">
+                    <CalendarCheck2 className="me-2 text-primary" size={20} />
+                    <h2 className="h5 mb-0 text-primary">Eventos Programados</h2>
                 </div>
-                <div className="bg-purple-100 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-purple-800">ESTE MES</h3>
-                    <p className="text-2xl font-semibold text-gray-900">{estadisticas?.mes?.cantidad || 0}</p>
-                    <p className="text-sm text-purple-600">entradas vendidas</p>
-                    <p className="text-lg font-medium text-purple-700 mt-2">{estadisticas?.mes?.total || 0} €</p>
+
+                <div className="card-body p-0">
+                    <div className="table-responsive">
+                        <table className="table table-hover table-bordered text-center mb-0">
+                            <thead className="table-light text-uppercase small text-muted">
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Fecha</th>
+                                    <th>Artista</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {eventos.map(ev => (
+                                    <tr key={ev.id}>
+                                        <td>
+                                            <div className="fw-semibold text-dark">{ev.nombre_evento}</div>
+                                            <div className="text-muted small">{ev.lugar}</div>
+                                        </td>
+                                        <td className="text-muted">{new Date(ev.fecha).toLocaleDateString()}</td>
+                                        <td className="text-muted">{ev.nombre_artista}</td>
+                                        <td>
+                                            <button
+                                                className="btn btn-sm btn-outline-primary me-2"
+                                                onClick={() => { setSelected(ev); setModalVisible(true); }}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                className="btn btn-sm btn-outline-danger"
+                                                onClick={() => { setEventoAEliminar(ev.id); setConfirmVisible(true); }}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+
+            <section className="card border shadow-sm mb-5">
+                <div className="card-header bg-light border-bottom d-flex align-items-center">
+                    <BarChart2 className="me-2 text-primary" size={20} />
+                    <h2 className="h5 mb-0 text-primary">Estadísticas de Ventas</h2>
+                </div>
+
+                <div className="card-body">
+                    <div className="row text-center">
+                        <div className="col-md-4 mb-4">
+                            <div className="bg-primary-subtle border rounded p-3 h-100">
+                                <h5 className="text-primary">HOY</h5>
+                                <p className="display-6 fw-bold mb-0 text-dark">{estadisticas?.dia?.cantidad || 0}</p>
+                                <p className="text-muted small mb-1">entradas vendidas</p>
+                                <p className="h6 fw-semibold text-primary mt-2">{estadisticas?.dia?.total || 0} €</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4 mb-4">
+                            <div className="bg-info-subtle border rounded p-3 h-100">
+                                <h5 className="text-info">ESTA SEMANA</h5>
+                                <p className="display-6 fw-bold mb-0 text-dark">{estadisticas?.semana?.cantidad || 0}</p>
+                                <p className="text-muted small mb-1">entradas vendidas</p>
+                                <p className="h6 fw-semibold text-info mt-2">{estadisticas?.semana?.total || 0} €</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4 mb-4">
+                            <div className="bg-purple border rounded p-3 h-100" style={{ backgroundColor: '#f3e8ff' }}>
+                                <h5 className="text-purple" style={{ color: '#6f42c1' }}>ESTE MES</h5>
+                                <p className="display-6 fw-bold mb-0 text-dark">{estadisticas?.mes?.cantidad || 0}</p>
+                                <p className="text-muted small mb-1">entradas vendidas</p>
+                                <p className="h6 fw-semibold" style={{ color: '#6f42c1' }}>{estadisticas?.mes?.total || 0} €</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* Modal de Edición */}
             {modalVisible && selected && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-medium text-gray-900">Editar Evento</h3>
-                                <button
-                                    onClick={() => setModalVisible(false)}
-                                    className="text-gray-400 hover:text-gray-500"
-                                >
-                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                <div className="modal show fade d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                        <div className="modal-content border border-primary-subtle shadow-lg">
+                            <div className="modal-header bg-primary-subtle">
+                                <h5 className="modal-title text-primary">Editar Evento</h5>
+                                <button type="button" className="btn-close" onClick={() => setModalVisible(false)}></button>
+                            </div>
+                            <div className="modal-body bg-light">
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Nombre</label>
+                                        <input
+                                            value={selected.nombre_evento}
+                                            onChange={e => setSelected({ ...selected, nombre_evento: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Fecha</label>
+                                        <input
+                                            type="date"
+                                            value={selected.fecha}
+                                            onChange={e => setSelected({ ...selected, fecha: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Lugar</label>
+                                        <input
+                                            value={selected.lugar}
+                                            onChange={e => setSelected({ ...selected, lugar: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Artista</label>
+                                        <input
+                                            value={selected.nombre_artista}
+                                            onChange={e => setSelected({ ...selected, nombre_artista: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-12">
+                                        <label className="form-label">Descripción</label>
+                                        <textarea
+                                            rows={3}
+                                            value={selected.informacion}
+                                            onChange={e => setSelected({ ...selected, informacion: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Precio (€)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={selected.precio}
+                                            onChange={e => setSelected({ ...selected, precio: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="col-md-6 d-flex align-items-center pt-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.mayores_18}
+                                            onChange={e => setSelected({ ...selected, mayores_18: e.target.checked })}
+                                            className="form-check-input me-2"
+                                        />
+                                        <label className="form-check-label">Solo mayores de 18 años</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="modal-footer bg-light">
+                                <button onClick={() => setModalVisible(false)} className="btn btn-secondary">
+                                    Cancelar
+                                </button>
+                                <button onClick={actualizarEvento} className="btn btn-primary">
+                                    Guardar Cambios
                                 </button>
                             </div>
-                        </div>
-                        <div className="px-6 py-4 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                                    <input
-                                        value={selected.nombre_evento}
-                                        onChange={e => setSelected({ ...selected, nombre_evento: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                                    <input
-                                        type="date"
-                                        value={selected.fecha}
-                                        onChange={e => setSelected({ ...selected, fecha: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Lugar</label>
-                                    <input
-                                        value={selected.lugar}
-                                        onChange={e => setSelected({ ...selected, lugar: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Artista</label>
-                                    <input
-                                        value={selected.nombre_artista}
-                                        onChange={e => setSelected({ ...selected, nombre_artista: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                                    <textarea
-                                        rows={3}
-                                        value={selected.informacion}
-                                        onChange={e => setSelected({ ...selected, informacion: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Precio (€)</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={selected.precio}
-                                        onChange={e => setSelected({ ...selected, precio: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    />
-                                </div>
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selected.mayores_18}
-                                        onChange={e => setSelected({ ...selected, mayores_18: e.target.checked })}
-                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                    />
-                                    <label className="ml-2 block text-sm text-gray-700">
-                                        Solo mayores de 18 años
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                            <button
-                                onClick={() => setModalVisible(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={actualizarEvento}
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Guardar Cambios
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -268,38 +349,39 @@ return (
 
             {/* Modal de Confirmación de Eliminación */}
             {confirmVisible && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                        <div className="px-6 py-4 border-b border-gray-200">
-                            <h3 className="text-lg font-medium text-gray-900">Confirmar Eliminación</h3>
-                        </div>
-                        <div className="px-6 py-4">
-                            <p className="text-gray-700">¿Estás seguro que deseas eliminar este evento? Esta acción no se puede deshacer.</p>
-                        </div>
-                        <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                            <button
-                                onClick={() => setConfirmVisible(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={() => {
-                                    fetch(`http://localhost:5000/eventos/${eventoAEliminar}`, {
-                                        method: "DELETE"
-                                    }).then(() => {
-                                        setConfirmVisible(false);
-                                        window.location.reload();
-                                    });
-                                }}
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                            >
-                                Eliminar
-                            </button>
+                <div className="modal show fade d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border border-danger-subtle shadow-lg">
+                            <div className="modal-header bg-danger-subtle">
+                                <h5 className="modal-title text-danger">Confirmar Eliminación</h5>
+                                <button type="button" className="btn-close" onClick={() => setConfirmVisible(false)}></button>
+                            </div>
+                            <div className="modal-body bg-light">
+                                <p>¿Estás seguro que deseas eliminar este evento? Esta acción no se puede deshacer.</p>
+                            </div>
+                            <div className="modal-footer bg-light">
+                                <button className="btn btn-secondary" onClick={() => setConfirmVisible(false)}>
+                                    Cancelar
+                                </button>
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={() => {
+                                        fetch(`http://localhost:5000/eventos/${eventoAEliminar}`, {
+                                            method: "DELETE"
+                                        }).then(() => {
+                                            setConfirmVisible(false);
+                                            window.location.reload();
+                                        });
+                                    }}
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 };
