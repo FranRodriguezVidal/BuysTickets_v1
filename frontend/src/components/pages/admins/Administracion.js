@@ -210,7 +210,7 @@ const AdminSolicitudesYReportes = () => {
     };
 
     const limpiarFormularioAnuncio = () => {
-            setMensajeAnuncio("");
+        setMensajeAnuncio("");
         setMensajeAnuncio("");
         setImagenAnuncio(null);
     };

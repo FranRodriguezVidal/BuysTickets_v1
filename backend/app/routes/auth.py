@@ -1,9 +1,15 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 from app.utils.db import cursor, db
-import base64, re
+import base64, re, os
 
 auth_bp = Blueprint('auth', __name__)
+UPLOAD_FOLDER = 'uploads'
+
+# Asegurarse de que exista la carpeta de subidas
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Ruta para login
 @auth_bp.route('/login', methods=['POST'])
@@ -22,7 +28,10 @@ def login():
         # Convertir imagen a base64 si existe
         profile_base64 = None
         if user_data['profile']:
-            profile_base64 = f"data:image/png;base64,{base64.b64encode(user_data['profile']).decode('utf-8')}"
+            profile_path = os.path.join(UPLOAD_FOLDER, user_data['profile'])
+            if os.path.exists(profile_path):
+                with open(profile_path, 'rb') as img_file:
+                    profile_base64 = f"data:image/png;base64,{base64.b64encode(img_file.read()).decode('utf-8')}"
 
         return jsonify(
             success=True,
@@ -63,15 +72,20 @@ def register():
     if cursor.fetchone():
         return jsonify(success=False, message="Correo ya registrado.")
 
-    # Leer imagen si se envió
-    profile = request.files['profile'].read() if 'profile' in request.files else None
+    # Manejo de imagen de perfil
+    profile_filename = None
+    if 'profile' in request.files:
+        profile_file = request.files['profile']
+        profile_filename = secure_filename(profile_file.filename)
+        profile_file.save(os.path.join(UPLOAD_FOLDER, profile_filename))
+
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
     try:
         cursor.execute("""
             INSERT INTO users (user, password, name, surname, email, role, profile)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (user, hashed_password, nombre, apellido, email, role, profile))
+        """, (user, hashed_password, nombre, apellido, email, role, profile_filename))
         db.commit()
         return jsonify(success=True)
     except Exception as err:

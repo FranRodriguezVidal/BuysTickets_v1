@@ -15,62 +15,74 @@ solicitudes_bp = Blueprint('solicitudes', __name__)
 
 @solicitudes_bp.route('/solicitar-discapacidad', methods=['POST'])
 def solicitar_discapacidad():
-    nombre = request.form.get("nombre")
-    apellido = request.form.get("apellido")
-    dni = request.form.get("dni")
-    grado_discapacidad = request.form.get("grado_discapacidad")
-    usuario = request.form.get("usuario")
-    archivo = request.files.get("archivo")
-
-    if not all([nombre, apellido, dni, grado_discapacidad, usuario]):
-        return jsonify(success=False, message="Faltan datos obligatorios.")
-
-    # Verificamos si el archivo existe
-    archivo_bytes = None
-    archivo_nombre = None
-    if archivo:
-        archivo_nombre = secure_filename(archivo.filename)
-        archivo_bytes = archivo.read()  # Se guarda como BLOB
-
     try:
-        # Verificar si ya existe una solicitud con ese DNI o usuario
+        # Obtener datos
+        nombre = request.form.get("nombre")
+        apellido = request.form.get("apellido")
+        dni = request.form.get("dni")
+        grado_discapacidad = request.form.get("grado_discapacidad")
+        usuario = request.form.get("usuario")
+        archivo = request.files.get("archivo")
+
+        if not all([nombre, apellido, dni, grado_discapacidad, usuario]):
+            return jsonify(success=False, message="Faltan datos obligatorios."), 400
+
+        archivo_bytes = None
+        archivo_nombre = None
+        if archivo:
+            archivo_nombre = secure_filename(archivo.filename)
+            archivo_bytes = archivo.read()
+
+        # Verificar duplicados
         cursor.execute("SELECT id FROM solicitudes_discapacidad WHERE dni = %s OR usuario = %s", (dni, usuario))
         if cursor.fetchone():
-            return jsonify(success=False, message="Ya existe una solicitud para este usuario o DNI.")
+            return jsonify(success=False, message="Ya existe una solicitud para este usuario o DNI."), 409
 
-        # Insertar solicitud con archivo como BLOB
+        # Insertar solicitud
         cursor.execute(""" 
             INSERT INTO solicitudes_discapacidad 
             (nombre, apellido, dni, grado_discapacidad, archivo, archivo_nombre, estado, fecha_solicitud, usuario) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), %s)
         """, (nombre, apellido, dni, grado_discapacidad, archivo_bytes, archivo_nombre, "pendiente", usuario))
 
-        # Marcar al usuario como cuenta con discapacidad
+        # Actualizar usuario
         cursor.execute("UPDATE users SET discapacidad = %s WHERE user = %s", ("sí", usuario))
 
         db.commit()
-        return jsonify(success=True)
+
+        # Solo aquí devuelves éxito, después de commit sin errores
+        return jsonify(success=True, message="Solicitud registrada correctamente."), 201
+
     except mysql.connector.Error as err:
-        db.rollback()  # Hacer rollback en caso de error
-        return jsonify(success=False, message="Error en la solicitud: " + str(err))
+        db.rollback()
+        print("Error base de datos:", err)
+        return jsonify(success=False, message=f"Error en la solicitud: {err}"), 500
+
+    except Exception as e:
+        db.rollback()
+        print("Error inesperado:", e)
+        return jsonify(success=False, message="Error inesperado en el servidor."), 500
 
 @solicitudes_bp.route('/discapacidad', methods=['GET'])
 def listar_solicitudes_discapacidad():
     try:
-        cursor = db.cursor(dictionary=True)  # Creamos un cursor local
-
+        cursor = db.cursor(dictionary=True)
         cursor.execute(""" 
             SELECT id, nombre, apellido, dni, grado_discapacidad, archivo_nombre, estado 
             FROM solicitudes_discapacidad
+            WHERE estado = 'pendiente'
         """)
-        
         solicitudes = cursor.fetchall()
-        cursor.close()  # ✅ Cerramos el cursor después de usarlo
+        cursor.close()
 
         if not solicitudes:
-            return jsonify(success=False, message="No hay solicitudes de discapacidad disponibles.")
+            return jsonify(success=False, message="No hay solicitudes pendientes.")
 
         return jsonify(success=True, solicitudes=solicitudes), 200
+
+    except mysql.connector.Error as err:
+        return jsonify(success=False, message=f"Error al obtener solicitudes: {str(err)}"), 500
+
 
     except mysql.connector.Error as err:
         print(f"Error al obtener solicitudes: {err}")
@@ -157,23 +169,25 @@ def actualizar_estado_solicitud():
 
         # Actualizar el estado de la solicitud
         cursor.execute("UPDATE solicitudes_discapacidad SET estado = %s WHERE id = %s", (nuevo_estado, solicitud_id))
+
+        # Cambiar campo discapacidad del usuario según el estado
+        nuevo_valor_discapacidad = "sí" if nuevo_estado == "aprobada" else "no"
+        cursor.execute("UPDATE users SET discapacidad = %s WHERE user = %s", (nuevo_valor_discapacidad, usuario))
+
         db.commit()
 
-        # Verificar si la actualización fue exitosa
-        if cursor.rowcount > 0:
-            # Enviar correo de notificación al usuario
-            cursor.execute("SELECT email FROM users WHERE user = %s", (usuario,))
-            user_info = cursor.fetchone()
-            email = user_info["email"] if user_info else None
+        # Enviar correo al usuario
+        cursor.execute("SELECT email FROM users WHERE user = %s", (usuario,))
+        user_info = cursor.fetchone()
+        email = user_info["email"] if user_info else None
 
-            if email:
-                enviar_correo_estado(email, usuario, nuevo_estado)
+        if email:
+            enviar_correo_estado(email, usuario, nuevo_estado)
 
-            return jsonify(success=True, message="Estado de la solicitud actualizado")
-        else:
-            return jsonify(success=False, message="No se pudo actualizar el estado de la solicitud.")
+        return jsonify(success=True, message="Estado de la solicitud actualizado")
 
     except mysql.connector.Error as err:
+        db.rollback()
         return jsonify(success=False, message="Error al actualizar el estado: " + str(err))
 
 @solicitudes_bp.route('/estado-solicitud/<dni>', methods=['GET'])

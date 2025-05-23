@@ -233,36 +233,37 @@ const Configuracion = () => {
             setRecoveryError(t("Error al cambiar la contraseña."));
         }
     }; */
-
     // Lógica para enviar solicitud de discapacidad
     const handleEnviarSolicitudDiscapacidad = async () => {
-        const formData = new FormData();
-        formData.append("nombre", nombreSolicitud);
-        formData.append("apellido", apellidoSolicitud);
-        formData.append("dni", dniSolicitud);
-        formData.append("grado_discapacidad", gradoDiscapacidad);
-        formData.append("usuario", usuario.user);
-        if (archivoDiscapacidad) formData.append("archivo", archivoDiscapacidad);
+    const formData = new FormData();
+    formData.append("nombre", nombreSolicitud);
+    formData.append("apellido", apellidoSolicitud);
+    formData.append("dni", dniSolicitud);
+    formData.append("grado_discapacidad", gradoDiscapacidad);
+    formData.append("usuario", usuario.user);
+    if (archivoDiscapacidad) {
+        formData.append("archivo", archivoDiscapacidad);
+    }
 
-        try {
-            const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
+  try {
+    const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    });
 
-            if (res.data.success) {
-                const estadoRes = await axios.get(`http://localhost:5000/estado-solicitud/${dniSolicitud}`);
-                const estado = estadoRes.data.success ? estadoRes.data.estado : "pendiente";
-                setEstadoSolicitud(estado);
-                localStorage.setItem("dniSolicitud", dniSolicitud);
-                localStorage.setItem("estadoSolicitud", estado); // Guarda para mantener tras recarga
-                setShowSolicitudModal(false);
-            } else {
-                alert(t(res.data.message || "Error al enviar la solicitud."));
-            }
-        } catch (err) {
-            alert(t(err.response?.data?.message || "Error al conectar con el servidor."));
-        }
-    };
+    if (res.data.success) {
+        alert("Solicitud registrada correctamente.");
+        // Aquí continúa flujo normal
+    } else {
+        alert(res.data.message || "Error al enviar la solicitud.");
+    }
+
+} catch (err) {
+    console.error("Error recibido del servidor:", err.response?.data || err);
+    alert(err.response?.data?.message || "Error al conectar con el servidor.");
+}
+
+};
+
 
     const handleEnviarReporte = async () => {
         if (!reporte) return;
