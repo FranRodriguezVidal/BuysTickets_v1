@@ -1,7 +1,10 @@
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useEffect, useState } from "react";
 
 export default function Eventos() {
     const [eventos, setEventos] = useState([]);
+    const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
 
     useEffect(() => {
         fetch("http://localhost:5000/eventos")
@@ -11,48 +14,99 @@ export default function Eventos() {
             });
     }, []);
 
-    function comprar(id) {
-        alert(`Comprar entradas para el evento ID: ${id}`);
+    function verMas(id) {
+        const evento = eventos.find(e => e.id === id);
+        setEventoSeleccionado(evento);
+        const modal = new window.bootstrap.Modal(document.getElementById("modalCompra"));
+        modal.show();
     }
 
     return (
-        <div className="p-6 max-w-6xl mx-auto">
-            <h1 className="text-4xl font-bold text-center mb-10 text-indigo-800">🎫 Eventos Disponibles</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="container py-5">
+            <h1 className="text-center mb-5 text-primary">🎫 Eventos Disponibles</h1>
+            <div className="row g-4">
                 {eventos.map(ev => (
-                    <div key={ev.id} className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col">
-                        {ev.imagen && (
-                            <img
-                                src={`http://localhost:5000/eventos/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
-                                alt={ev.nombre_evento}
-                                className="w-full h-48 object-cover"
-                            />
-                        )}
+                    <div key={ev.id} className="col-12">
+                        <div
+                            className="card shadow-sm d-flex flex-row align-items-start p-3"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => verMas(ev.id)}
+                        >
+                            {/* Imagen vertical tipo A4 */}
+                            {ev.imagen ? (
+                                <img
+                                    src={`http://localhost:5000/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
+                                    alt={ev.nombre_evento}
+                                    style={{
+                                        width: "150px",
+                                        height: "220px",
+                                        objectFit: "cover",
+                                        borderRadius: "8px"
+                                    }}
+                                    className="me-3"
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        width: "150px",
+                                        height: "220px",
+                                        backgroundColor: "#eee",
+                                        borderRadius: "8px"
+                                    }}
+                                    className="me-3 d-flex justify-content-center align-items-center text-muted"
+                                >
+                                    Sin imagen
+                                </div>
+                            )}
 
-                        <div className="p-4 flex-1 flex flex-col justify-between">
-                            <div>
-                                <h2 className="text-xl font-semibold text-gray-800">{ev.nombre_evento}</h2>
-                                <p className="text-gray-600">📍 {ev.lugar}</p>
-                                <p className="text-gray-600">📅 {ev.fecha}</p>
-                                <p className="text-gray-800 mt-2">{ev.informacion}</p>
-                                <p className="mt-2 text-green-700 font-semibold">💶 {Number(ev.precio).toFixed(2)} €</p>
-                                {ev.mayores_18 && (
-                                    <p className="mt-1 text-red-600 font-bold">🔞 Solo mayores de 18 años</p>
-                                )}
-                            </div>
-                            <div className="mt-4 flex flex-wrap gap-2">
-                                <button className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition" onClick={() => comprar(ev.id)}>
-                                    Comprar
-                                </button>
-                                {ev.lugar.toLowerCase().includes("teatro") && (
-                                    <button className="border border-indigo-600 text-indigo-600 px-4 py-2 rounded hover:bg-indigo-50 transition">
-                                        Ver Asientos
-                                    </button>
-                                )}
+                            {/* Info del evento */}
+                            <div className="flex-grow-1">
+                                <h5 className="mb-1">{ev.nombre_evento}</h5>
+                                <p className="mb-1"><strong>📍 Lugar:</strong> {ev.lugar}</p>
+                                <p className="mb-1"><strong>🎤 Artista:</strong> {ev.nombre_artista}</p>
+                                <p className="mb-0 text-success"><strong>💶 Precio:</strong> {Number(ev.precio).toFixed(2)} €</p>
                             </div>
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* Modal de información */}
+            <div className="modal fade" id="modalCompra" tabIndex="-1" aria-hidden="true">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                        {eventoSeleccionado && (
+                            <>
+                                <div className="modal-header">
+                                    <h5 className="modal-title">{eventoSeleccionado.nombre_evento}</h5>
+                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div className="modal-body">
+                                    <p><strong>📅 Fecha:</strong> {eventoSeleccionado.fecha}</p>
+                                    <p><strong>📍 Lugar:</strong> {eventoSeleccionado.lugar}</p>
+                                    <p><strong>🎤 Artista:</strong> {eventoSeleccionado.nombre_artista}</p>
+                                    <p>{eventoSeleccionado.informacion}</p>
+                                    <p><strong>💶 Precio:</strong> {Number(eventoSeleccionado.precio).toFixed(2)} €</p>
+                                    {eventoSeleccionado.mayores_18 && (
+                                        <p className="text-danger">🔞 Requiere ser mayor de 18 años</p>
+                                    )}
+                                </div>
+                                <div className="modal-footer">
+                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                        onClick={() => {
+                                            alert("Proceso de compra no implementado aún");
+                                        }}
+                                    >
+                                        Confirmar Compra
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
