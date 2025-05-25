@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useContext, useEffect, useState } from "react";
 import { Alert, Button, Container, Form, Modal, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { UserContext } from "../../../context/UserContext";
 
 const Configuracion = () => {
@@ -39,6 +40,16 @@ const Configuracion = () => {
     const [archivoDiscapacidad, setArchivoDiscapacidad] = useState(null);
     const [estadoSolicitud, setEstadoSolicitud] = useState("");
     const [reporte, setReporte] = useState("");
+    const location = useLocation();
+
+useEffect(() => {
+    if (location.hash) {
+        const el = document.getElementById(location.hash.substring(1));
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+}, [location]);
 
     useEffect(() => {
         if (usuario) {
@@ -364,7 +375,7 @@ const Configuracion = () => {
             </Container>
 
             {/* Sección Premium con PayPal */}
-            <Container className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgb(225, 255, 0)" }}>
+            <Container id="premium" className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgb(225, 255, 0)" }}>
                 <h2 className="mb-4">{t("Accede a nuestra membresía Premium")}</h2>
                 <p>{t("Disfruta de beneficios exclusivos como contenido adicional, descuentos y más.")}</p>
 
@@ -389,7 +400,7 @@ const Configuracion = () => {
             </Container>
 
             {/* Solicitud de cuenta en discapacidad */}
-            <Container className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgba(0, 26, 255, 0.6)" }}>
+            <Container id="discapacidad" className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgba(0, 26, 255, 0.6)" }}>
                 <Button variant="primary" onClick={() => setShowSolicitudModal(true)}>
                     {t("Solicitar cuenta con discapacidad")}
                 </Button>

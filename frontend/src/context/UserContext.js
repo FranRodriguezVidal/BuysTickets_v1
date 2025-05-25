@@ -1,13 +1,15 @@
 import { createContext, useState } from "react";
 
 export const UserContext = createContext();
+//const [showLogin, setShowLogin] = useState(false);
 
 export const UserProvider = ({ children }) => {
     const [usuario, setUsuario] = useState(() => {
-        // Cargamos el usuario directamente de localStorage
         const usuarioGuardado = localStorage.getItem("usuario");
         return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
     });
+
+    const [showLogin, setShowLogin] = useState(false); // ✅ ahora está dentro
 
     const login = (userData) => {
         localStorage.setItem("usuario", JSON.stringify(userData));
@@ -20,7 +22,13 @@ export const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ usuario, setUsuario: login, logout }}>
+        <UserContext.Provider value={{
+            usuario,
+            setUsuario: login,
+            logout,
+            showLogin,
+            setShowLogin, // ✅ ahora lo exportas
+        }}>
             {children}
         </UserContext.Provider>
     );

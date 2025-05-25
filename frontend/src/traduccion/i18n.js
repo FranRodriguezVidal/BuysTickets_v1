@@ -251,7 +251,15 @@ i18n.use(initReactI18next).init({
         "Cookies de Publicidad": "Advertising Cookies",
         "Estas cookies se utilizan para mostrar anuncios relevantes.": "These cookies are used to show relevant advertisements.",
         "Cancelar": "Cancel",
-        "Guardar Preferencias": "Save Preferences"
+        "Guardar Preferencias": "Save Preferences",
+        "¿Quieres disfrutar de una cuenta Premium?": "Want to enjoy a Premium account?",
+        "Obtén beneficios exclusivos como descuentos, menos tiempo de espera y contenido prioritario.": "Get exclusive benefits like discounts, shorter waiting times, and priority content.",
+        "La gestión de tu suscripción está disponible desde tu configuración.": "You can manage your subscription from your settings.",
+        "Hazte Premium ahora": "Get Premium now",
+        "¿Tienes una discapacidad?": "Do you have a disability?",
+        "Nuestra plataforma prioriza el acceso y los beneficios para personas con necesidades especiales.": "Our platform prioritizes access and benefits for people with special needs.",
+        "Solicita una cuenta especial desde la configuración y disfruta de ventajas exclusivas.": "Request a special account from settings and enjoy exclusive benefits.",
+        "Solicitar cuenta con discapacidad": "Request disability account"
       },
     },
     pl: {
@@ -376,7 +384,15 @@ i18n.use(initReactI18next).init({
         "Cookies de Publicidad": "Reklamowe pliki cookie",
         "Estas cookies se utilizan para mostrar anuncios relevantes.": "Te pliki cookie służą do wyświetlania odpowiednich reklam.",
         "Cancelar": "Anuluj",
-        "Guardar Preferencias": "Zapisz ustawienia"
+        "Guardar Preferencias": "Zapisz ustawienia",
+        "¿Quieres disfrutar de una cuenta Premium?": "Chcesz korzystać z konta Premium?",
+        "Obtén beneficios exclusivos como descuentos, menos tiempo de espera y contenido prioritario.": "Uzyskaj wyjątkowe korzyści, takie jak zniżki, krótszy czas oczekiwania i priorytetowy dostęp.",
+        "La gestión de tu suscripción está disponible desde tu configuración.": "Zarządzaj subskrypcją w ustawieniach.",
+        "Hazte Premium ahora": "Uzyskaj Premium teraz",
+        "¿Tienes una discapacidad?": "Masz niepełnosprawność?",
+        "Nuestra plataforma prioriza el acceso y los beneficios para personas con necesidades especiales.": "Nasza platforma zapewnia pierwszeństwo dostępu i korzyści dla osób ze specjalnymi potrzebami.",
+        "Solicita una cuenta especial desde la configuración y disfruta de ventajas exclusivas.": "Poproś o konto specjalne w ustawieniach i ciesz się ekskluzywnymi korzyściami.",
+        "Solicitar cuenta con discapacidad": "Poproś o konto dla osób niepełnosprawnych"
       },
     },
     ar: {
@@ -501,7 +517,15 @@ i18n.use(initReactI18next).init({
         "Cookies de Publicidad": "ملفات تعريف الارتباط الإعلانية",
         "Estas cookies se utilizan para mostrar anuncios relevantes.": "تُستخدم هذه الملفات لعرض الإعلانات ذات الصلة.",
         "Cancelar": "إلغاء",
-        "Guardar Preferencias": "حفظ التفضيلات"
+        "Guardar Preferencias": "حفظ التفضيلات",
+        "¿Quieres disfrutar de una cuenta Premium?": "هل ترغب في الحصول على حساب بريميوم؟",
+        "Obtén beneficios exclusivos como descuentos, menos tiempo de espera y contenido prioritario.": "احصل على مزايا حصرية مثل الخصومات وتقليل وقت الانتظار والمحتوى ذو الأولوية.",
+        "La gestión de tu suscripción está disponible desde tu configuración.": "يمكنك إدارة اشتراكك من الإعدادات.",
+        "Hazte Premium ahora": "احصل على بريميوم الآن",
+        "¿Tienes una discapacidad?": "هل لديك إعاقة؟",
+        "Nuestra plataforma prioriza el acceso y los beneficios para personas con necesidades especiales.": "منصتنا تعطي الأولوية للوصول والمزايا للأشخاص ذوي الاحتياجات الخاصة.",
+        "Solicita una cuenta especial desde la configuración y disfruta de ventajas exclusivas.": "اطلب حسابًا خاصًا من الإعدادات واستمتع بالمزايا الحصرية.",
+        "Solicitar cuenta con discapacidad": "طلب حساب لذوي الإعاقة"
       },
     },
   },

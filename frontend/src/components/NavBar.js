@@ -10,7 +10,7 @@ import "./NavBar.css";
 
 
 const NavBar = () => {
-    const [showLogin, setShowLogin] = useState(false);
+    const { showLogin, setShowLogin } = useContext(UserContext);
     const [showRegister, setShowRegister] = useState(false);
     const [user, setUser] = useState("");
     const [password, setPassword] = useState("");
@@ -34,7 +34,7 @@ const NavBar = () => {
     const [nuevaPassword, setNuevaPassword] = useState("");
     const [recoveryError, setRecoveryError] = useState("");
     const [recoverySuccess, setRecoverySuccess] = useState("");
-
+    
 
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
