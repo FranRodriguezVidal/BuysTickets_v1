@@ -34,7 +34,7 @@ const NavBar = () => {
     const [nuevaPassword, setNuevaPassword] = useState("");
     const [recoveryError, setRecoveryError] = useState("");
     const [recoverySuccess, setRecoverySuccess] = useState("");
-    
+
 
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
@@ -172,65 +172,65 @@ const NavBar = () => {
     };
 
 
-// Lógica para enviar código
-const handleEnviarCodigo = async () => {
-    setRecoveryError("");
-    try {
-        const res = await axios.post("http://localhost:5000/send-recovery-code", { user: userRecovery });
-        if (res.data.success) {
-            setCodigoEnviado(true);
-        } else {
-            setRecoveryError(t(res.data.message));
+    // Lógica para enviar código
+    const handleEnviarCodigo = async () => {
+        setRecoveryError("");
+        try {
+            const res = await axios.post("http://localhost:5000/send-recovery-code", { user: userRecovery });
+            if (res.data.success) {
+                setCodigoEnviado(true);
+            } else {
+                setRecoveryError(t(res.data.message));
+            }
+        } catch {
+            setRecoveryError(t("Error al enviar el código. Intenta más tarde."));
         }
-    } catch {
-        setRecoveryError(t("Error al enviar el código. Intenta más tarde."));
-    }
-};
+    };
 
-// Lógica para verificar código
-const handleVerificarCodigo = async () => {
-    try {
-        const res = await axios.post("http://localhost:5000/verify-recovery-code", {
-            user: userRecovery,
-            code: codigoIngresado
-        });
-        if (res.data.success) {
-            setVerificado(true);
-        } else {
-            setRecoveryError(t("Código incorrecto."));
+    // Lógica para verificar código
+    const handleVerificarCodigo = async () => {
+        try {
+            const res = await axios.post("http://localhost:5000/verify-recovery-code", {
+                user: userRecovery,
+                code: codigoIngresado
+            });
+            if (res.data.success) {
+                setVerificado(true);
+            } else {
+                setRecoveryError(t("Código incorrecto."));
+            }
+        } catch {
+            setRecoveryError(t("Error al verificar el código."));
         }
-    } catch {
-        setRecoveryError(t("Error al verificar el código."));
-    }
-};
+    };
 
-// Lógica para cambiar la contraseña
-const handleCambiarPassword = async () => {
-    try {
-        const res = await axios.post("http://localhost:5000/change-password", {
-            user: userRecovery,
-            new_password: nuevaPassword
-        });
-        if (res.data.success) {
-            setRecoverySuccess(t("Contraseña cambiada exitosamente."));
-            setTimeout(() => {
-                setShowRecovery(false);
-                setShowLogin(true);
-                // Reinicia todos los estados
-                setUserRecovery("");
-                setCodigoEnviado(false);
-                setCodigoIngresado("");
-                setVerificado(false);
-                setNuevaPassword("");
-                setRecoverySuccess("");
-            }, 3000);
-        } else {
-            setRecoveryError(t(res.data.message));
+    // Lógica para cambiar la contraseña
+    const handleCambiarPassword = async () => {
+        try {
+            const res = await axios.post("http://localhost:5000/change-password", {
+                user: userRecovery,
+                new_password: nuevaPassword
+            });
+            if (res.data.success) {
+                setRecoverySuccess(t("Contraseña cambiada exitosamente."));
+                setTimeout(() => {
+                    setShowRecovery(false);
+                    setShowLogin(true);
+                    // Reinicia todos los estados
+                    setUserRecovery("");
+                    setCodigoEnviado(false);
+                    setCodigoIngresado("");
+                    setVerificado(false);
+                    setNuevaPassword("");
+                    setRecoverySuccess("");
+                }, 3000);
+            } else {
+                setRecoveryError(t(res.data.message));
+            }
+        } catch {
+            setRecoveryError(t("Error al cambiar la contraseña."));
         }
-    } catch {
-        setRecoveryError(t("Error al cambiar la contraseña."));
-    }
-};
+    };
 
     return (
         <>
@@ -268,11 +268,13 @@ const handleCambiarPassword = async () => {
                                                 <img
                                                     src={usuario.profile}
                                                     alt="Perfil"
-                                                    className="profile-image me-2"
+                                                    className="profile-image me-2 rounded-circle"
+                                                    style={{ width: "52px", height: "52px", objectFit: "cover" }}
                                                 />
                                             ) : (
                                                 <FaUser className="me-1" />
                                             )}
+
                                             {t("¡Hola")}, {usuario.nombre} {usuario.apellido}!
                                         </>
                                     }
@@ -424,10 +426,10 @@ const handleCambiarPassword = async () => {
                     </Form>
                     <div className="text-center mt-3">
                         <p>{t("Tienes una cuenta")}
-                            <Button variant="link" onClick={() =>{ setShowLogin(true); setShowRegister(false); }}>
+                            <Button variant="link" onClick={() => { setShowLogin(true); setShowRegister(false); }}>
                                 {t("Iniciar Sesión")}
                             </Button>
-                        
+
                         </p>
                     </div>
                 </Modal.Body>

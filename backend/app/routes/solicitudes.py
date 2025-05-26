@@ -201,3 +201,35 @@ def obtener_estado_solicitud(dni):
             return jsonify(success=False, message="No se encontró la solicitud."), 404
     except mysql.connector.Error as err:
         return jsonify(success=False, message="Error al consultar el estado: " + str(err)), 500
+
+@solicitudes_bp.route('/estado-discapacidad/<user>', methods=['GET'])
+def estado_discapacidad_usuario(user):
+    try:
+        # Verificar si el usuario existe y obtener su campo discapacidad
+        cursor.execute("SELECT discapacidad FROM users WHERE user = %s", (user,))
+        user_data = cursor.fetchone()
+
+        if not user_data:
+            return jsonify(success=False, message="Usuario no encontrado."), 404
+
+        discapacidad = user_data['discapacidad']
+
+        # Verificar si tiene solicitud pendiente en la tabla
+        cursor.execute("SELECT estado FROM solicitudes_discapacidad WHERE usuario = %s", (user,))
+        solicitud = cursor.fetchone()
+
+        if solicitud:
+            estado_solicitud = solicitud['estado']
+            return jsonify(success=True, estado=estado_solicitud)
+
+        # No hay solicitud pero campo discapacidad tiene valor
+        if discapacidad == "sí":
+            return jsonify(success=True, estado="aprobada")
+        elif discapacidad == "no":
+            return jsonify(success=True, estado="rechazada")
+        else:
+            return jsonify(success=True, estado="no solicitado")
+
+    except Exception as e:
+        print(f"❌ Error al consultar estado discapacidad: {e}")
+        return jsonify(success=False, message="Error al consultar el estado de discapacidad."), 500

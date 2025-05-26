@@ -1,7 +1,7 @@
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useContext, useEffect, useState } from "react";
-import { Alert, Button, Container, Form, Modal, Spinner } from "react-bootstrap";
+import { Alert, Button, Form, Modal, Spinner } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 import { UserContext } from "../../../context/UserContext";
@@ -13,7 +13,6 @@ const Configuracion = () => {
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [countdown, setCountdown] = useState(3);
-    //const navigate = useNavigate();
     const { t } = useTranslation();
     const { usuario, logout } = useContext(UserContext);
     const [nombre, setNombre] = useState("");
@@ -24,14 +23,6 @@ const Configuracion = () => {
     const [profileImage, setProfileImage] = useState(null);
     const [editMessage, setEditMessage] = useState("");
     const [subscriptionExpiry, setSubscriptionExpiry] = useState(null);
-    //const [showRecovery, setShowRecovery] = useState(false);
-    //const [userRecovery, setUserRecovery] = useState("");
-    //const [codigoEnviado, setCodigoEnviado] = useState(false);
-    //const [codigoIngresado, setCodigoIngresado] = useState("");
-    //const [verificado, setVerificado] = useState(false);
-    //const [nuevaPassword, setNuevaPassword] = useState("");
-    //const [recoveryError, setRecoveryError] = useState("");
-    //const [recoverySuccess, setRecoverySuccess] = useState("");
     const [showSolicitudModal, setShowSolicitudModal] = useState(false);
     const [nombreSolicitud, setNombreSolicitud] = useState("");
     const [apellidoSolicitud, setApellidoSolicitud] = useState("");
@@ -42,14 +33,14 @@ const Configuracion = () => {
     const [reporte, setReporte] = useState("");
     const location = useLocation();
 
-useEffect(() => {
-    if (location.hash) {
-        const el = document.getElementById(location.hash.substring(1));
-        if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "start" });
+    useEffect(() => {
+        if (location.hash) {
+            const el = document.getElementById(location.hash.substring(1));
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
         }
-    }
-}, [location]);
+    }, [location]);
 
     useEffect(() => {
         if (usuario) {
@@ -185,107 +176,48 @@ useEffect(() => {
         }
     };
 
-
-    // Lógica para enviar código
-    /*const handleEnviarCodigo = async () => {
-        setRecoveryError("");
-        try {
-            const res = await axios.post("http://localhost:5000/send-recovery-code", { user: userRecovery });
-            if (res.data.success) {
-                setCodigoEnviado(true);
-            } else {
-                setRecoveryError(t(res.data.message));
-            }
-        } catch {
-            setRecoveryError(t("Error al enviar el código. Intenta más tarde."));
-        }
-    };
-
-    // Lógica para verificar código
-    const handleVerificarCodigo = async () => {
-        try {
-            const res = await axios.post("http://localhost:5000/verify-recovery-code", {
-                user: userRecovery,
-                code: codigoIngresado
-            });
-            if (res.data.success) {
-                setVerificado(true);
-            } else {
-                setRecoveryError(t("Código incorrecto."));
-            }
-        } catch {
-            setRecoveryError(t("Error al verificar el código."));
-        }
-    };
-
-    // Lógica para cambiar la contraseña
-    const handleCambiarPassword = async () => {
-        try {
-            const res = await axios.post("http://localhost:5000/change-password", {
-                user: userRecovery,
-                new_password: nuevaPassword
-            });
-            if (res.data.success) {
-                setRecoverySuccess(t("Contraseña cambiada exitosamente."));
-                setTimeout(() => {
-                    setShowRecovery(false);
-                    navigate("/inicio");
-                    setUserRecovery("");
-                    setCodigoEnviado(false);
-                    setCodigoIngresado("");
-                    setVerificado(false);
-                    setNuevaPassword("");
-                    setRecoverySuccess("");
-                }, 3000);
-            } else {
-                setRecoveryError(t(res.data.message));
-            }
-        } catch {
-            setRecoveryError(t("Error al cambiar la contraseña."));
-        }
-    }; */
     // Lógica para enviar solicitud de discapacidad
     const handleEnviarSolicitudDiscapacidad = async () => {
-    const formData = new FormData();
-    formData.append("nombre", nombreSolicitud);
-    formData.append("apellido", apellidoSolicitud);
-    formData.append("dni", dniSolicitud);
-    formData.append("grado_discapacidad", gradoDiscapacidad);
-    formData.append("usuario", usuario.user);
-    if (archivoDiscapacidad) {
-        formData.append("archivo", archivoDiscapacidad);
-    }
+        const formData = new FormData();
+        formData.append("nombre", nombreSolicitud);
+        formData.append("apellido", apellidoSolicitud);
+        formData.append("dni", dniSolicitud);
+        formData.append("grado_discapacidad", gradoDiscapacidad);
+        formData.append("usuario", usuario.user);
+        if (archivoDiscapacidad) {
+            formData.append("archivo", archivoDiscapacidad);
+        }
 
-  try {
-    const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-    });
+        try {
+            const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
 
-    if (res.data.success) {
-        alert("Solicitud registrada correctamente.");
-        // Aquí continúa flujo normal
-    } else {
-        alert(res.data.message || "Error al enviar la solicitud.");
-    }
+            if (res.data.success) {
+                alert("Solicitud registrada correctamente.");
+                // Aquí continúa flujo normal
+            } else {
+                alert(res.data.message || "Error al enviar la solicitud.");
+            }
 
-} catch (err) {
-    console.error("Error recibido del servidor:", err.response?.data || err);
-    alert(err.response?.data?.message || "Error al conectar con el servidor.");
-}
+        } catch (err) {
+            console.error("Error recibido del servidor:", err.response?.data || err);
+            alert(err.response?.data?.message || "Error al conectar con el servidor.");
+        }
 
-};
+    };
 
 
     const handleEnviarReporte = async () => {
         if (!reporte) return;
-    
+
         try {
             const response = await axios.post("http://localhost:5000/reportes/reportar-error", {
                 user: usuario.user,
                 reporte: reporte,
                 estado: "pendiente" // Estado inicial del reporte
             });
-    
+
             if (response.data.success) {
                 alert(t("Reporte enviado exitosamente."));
                 setReporte(""); // Limpiar el campo de reporte
@@ -299,111 +231,79 @@ useEffect(() => {
     };
 
     return (
-        <div>
-            <Container
-                className="p-4 rounded mt-5 text-center"
-                style={{
-                    maxWidth: "90%",
-                    backgroundColor: "#f8f9fa",
-                    boxShadow: "0px 16px 32px rgba(0, 26, 255, 0.6)",
-                }}
-            >
-                <h2 className="mb-4">{t("Configuración")}</h2>
-                <h4 className="mb-4">{t("Editar información personal")}</h4>
-
+        <div className="bg-white py-5">
+            {/* Información Personal */}
+            <section className="container my-5 p-4 rounded shadow-sm bg-light border">
+                <h2 className="text-primary text-center mb-4">{t("Configuración")}</h2>
+                <h4 className="text-center mb-4">{t("Editar información personal")}</h4>
                 <Form>
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Nombre")}</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                        />
+                        <Form.Control type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} />
                     </Form.Group>
-
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Apellido")}</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={apellido}
-                            onChange={(e) => setApellido(e.target.value)}
-                        />
+                        <Form.Control type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} />
                     </Form.Group>
-
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Correo Electrónico")}</Form.Label>
-                        <Form.Control
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     </Form.Group>
-
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Nueva Contraseña")}</Form.Label>
-                        <Form.Control
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                        />
+                        <Form.Control type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                     </Form.Group>
-
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Confirmar Contraseña")}</Form.Label>
-                        <Form.Control
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
+                        <Form.Control type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                     </Form.Group>
-
-                    <Form.Group className="mb-3 text-start">
+                    <Form.Group className="mb-3">
                         <Form.Label>{t("Imagen de Perfil")}</Form.Label>
-                        <Form.Control
-                            type="file"
-                            accept="image/*"
-                            onChange={handleProfileImageChange}
-                        />
+                        <Form.Control type="file" accept="image/*" onChange={handleProfileImageChange} />
                     </Form.Group>
-
                     {editMessage && <Alert variant="info">{editMessage}</Alert>}
+                    <div className="d-grid">
+                        <Button variant="primary" onClick={handleSaveChanges}>{t("Guardar cambios")}</Button>
+                    </div>
 
-                    <Button variant="primary" onClick={handleSaveChanges}>
-                        {t("Guardar cambios")}
-                    </Button>
+                    <p className="text-muted text-center mt-3" style={{ fontSize: "0.9rem" }}>
+                        {t("Los cambios se verán reflejados la próxima vez que inicies sesión.")}
+                    </p>
                 </Form>
-            </Container>
+            </section>
 
-            {/* Sección Premium con PayPal */}
-            <Container id="premium" className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgb(225, 255, 0)" }}>
-                <h2 className="mb-4">{t("Accede a nuestra membresía Premium")}</h2>
-                <p>{t("Disfruta de beneficios exclusivos como contenido adicional, descuentos y más.")}</p>
+            {/* Membresía Premium */}
+            <section id="premium" className="container my-5 p-4 rounded shadow-sm bg-light border">
+                <h2 className="text-warning text-center mb-2">{t("¿Quieres disfrutar de una cuenta Premium?")}</h2>
+                <h5 className="text-center mb-4 text-muted">
+                    {t("Disfruta de beneficios exclusivos como contenido adicional, descuentos y prioridad en eventos.")}
+                </h5>
 
-                <div>
-                    <h4>{t("Suscríbete ahora a la membresía Premium")}</h4>
-                    
+                {usuario.role === "premium" ? (
+                    <div className="alert alert-success text-center">
+                        {t("Eres un usuario Premium.")} <br />
+                        {t("Tu suscripción vence el")} {subscriptionExpiry}.
+                    </div>
+                ) : (
+                    <div className="alert alert-warning text-center">
+                        {t("Eres un usuario estándar. Actualiza tu cuenta para acceder a todas las ventajas.")}
+                    </div>
+                )}
+            </section>
 
-                    {usuario.role === "premium" && (
-                        <div className="alert alert-success">
-                            {t("Eres un usuario Premium.")}
-                            <br />
-                            {t("Tu suscripción vence el")} {subscriptionExpiry}.
-                        </div>
-                    )}
 
-                    {usuario.role === "estandar" && (
-                        <div className="alert alert-warning">
-                            {t("Eres un usuario estándar.")}
-                        </div>
-                    )}
+            {/* Solicitud de Discapacidad */}
+            <section id="discapacidad" className="container my-5 p-4 rounded shadow-sm bg-light border">
+                <h2 className="text-primary text-center mb-2">{t("¿Posees alguna discapacidad?")}</h2>
+                <h5 className="text-muted text-center mb-4">
+                    {t("Solicita una cuenta especial y accede a beneficios como prioridad en eventos, descuentos exclusivos y atención preferente.")}
+                </h5>
+
+                <div className="text-center mb-4">
+                    <Button variant="primary" onClick={() => setShowSolicitudModal(true)}>
+                        {t("Solicitar cuenta con discapacidad")}
+                    </Button>
                 </div>
-            </Container>
-
-            {/* Solicitud de cuenta en discapacidad */}
-            <Container id="discapacidad" className="p-4 my-5 rounded" style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgba(0, 26, 255, 0.6)" }}>
-                <Button variant="primary" onClick={() => setShowSolicitudModal(true)}>
-                    {t("Solicitar cuenta con discapacidad")}
-                </Button>
 
                 <Modal show={showSolicitudModal} onHide={() => setShowSolicitudModal(false)} centered>
                     <Modal.Header closeButton>
@@ -438,7 +338,6 @@ useEffect(() => {
                             >
                                 {t("Enviar solicitud")}
                             </Button>
-
                         </Form>
                     </Modal.Body>
                 </Modal>
@@ -450,22 +349,31 @@ useEffect(() => {
                                 ? "warning"
                                 : estadoSolicitud === "aprobada"
                                     ? "success"
-                                    : "danger"
+                                    : estadoSolicitud === "rechazada"
+                                        ? "danger"
+                                        : "secondary"
                         }
-                        className="mt-3"
+                        className="mt-3 text-center"
                     >
-                        {t("Estado de la solicitud")}: {t(estadoSolicitud)}
+                        {t("Estado de la solicitud")}:{" "}
+                        {estadoSolicitud === "pendiente"
+                            ? t("Pendiente de revisión")
+                            : estadoSolicitud === "aprobada"
+                                ? t("Aprobada")
+                                : estadoSolicitud === "rechazada"
+                                    ? t("Rechazada")
+                                    : t("No se ha realizado ninguna solicitud")}
                     </Alert>
                 )}
-            </Container>
+            </section>
 
-            {/* Reportes de errores o bugs */}
-            <Container
-                className="p-4 my-5 rounded"
-                style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgba(0, 26, 255, 0.6)" }}
-            >
-                <h2 className="mb-4">{t("Reportes de Errores o Fallos")}</h2>
 
+            {/* Reporte de errores */}
+            <section className="container my-5 p-4 rounded shadow-sm bg-light border">
+                <h2 className="text-primary mb-2 text-center">{t("Reportes de Errores o Fallos")}</h2>
+                <h5 className="text-muted text-center mb-4">
+                    {t("Utiliza este apartado para informar sobre errores, fallos o cualquier actividad sospechosa que detectes.")}
+                </h5>
                 <Form>
                     <Form.Group className="mb-3">
                         <Form.Label>{t("Describe el error o fallo")}</Form.Label>
@@ -477,55 +385,53 @@ useEffect(() => {
                             placeholder={t("Escribe el reporte aquí...")}
                         />
                     </Form.Group>
-
-                    <Button
-                        variant="primary"
-                        onClick={handleEnviarReporte}
-                        disabled={!reporte}
-                    >
-                        {t("Enviar reporte")}
-                    </Button>
+                    <div className="d-grid">
+                        <Button
+                            variant="primary"
+                            onClick={handleEnviarReporte}
+                            disabled={!reporte}
+                        >
+                            {t("Enviar reporte")}
+                        </Button>
+                    </div>
                 </Form>
-            </Container>
+            </section>
+
 
             {/* Zona peligrosa */}
-            <Container
-                className="p-4 rounded my-5 text-center"
-                style={{ maxWidth: "90%", backgroundColor: "#f8f9fa", boxShadow: "0px 16px 32px rgba(255, 0, 0, 0.6)" }}
-            >
-                <h2 className="mb-4">{t("Zona peligrosa")}</h2>
-                <p>{t("Si eliminas tu cuenta:")}</p>
-                <ul className="list text-start px-5">
+            <section className="container my-5 p-4 rounded shadow-sm bg-light border">
+                <h2 className="text-danger text-center mb-4">{t("Zona peligrosa")}</h2>
+                <h5 className="text-center text-muted mb-4">{t("Eliminar cuenta")}</h5>
+                <ul className="text-start px-3">
                     <li>{t("No podrás comprar más entradas")}</li>
                     <li>{t("Toda tu información será eliminada permanentemente")}</li>
                     <li>{t("Las entradas impresas o descargadas podrían seguir siendo válidas, pero no podrás acceder a ellas desde tu cuenta")}</li>
                 </ul>
-                <Button variant="danger" onClick={() => setShowPasswordModal(true)}>
-                    {t("Borrar mi cuenta")}
-                </Button>
+                <div className="text-center">
+                    <Button variant="danger" onClick={() => setShowPasswordModal(true)}>
+                        {t("Borrar mi cuenta")}
+                    </Button>
+                </div>
                 {message && (
-                    <Alert variant="success" className="mt-3">
-                        {message}
-                        <br />
-                        {t("Redirigiendo en")} {countdown} {t("segundos...")}
+                    <Alert variant="success" className="mt-3 text-center">
+                        {message}<br />{t("Redirigiendo en")} {countdown} {t("segundos...")}
                     </Alert>
                 )}
-                {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
-            </Container>
+                {error && <Alert variant="danger" className="mt-3 text-center">{error}</Alert>}
+            </section>
 
+            {/* Modal confirmación de eliminación */}
             <Modal show={showPasswordModal} onHide={() => setShowPasswordModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>{t("Confirmar eliminación de cuenta")}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {message ? (
-                        <Alert variant="success">
-                            {message}
-                        </Alert>
+                        <Alert variant="success">{message}</Alert>
                     ) : (
                         <Form onSubmit={(e) => { e.preventDefault(); handleDeleteAccount(); }}>
                             <Form.Group className="mb-3">
-                                <Form.Label>{t("Contraseña")}:</Form.Label>
+                                <Form.Label>{t("Contraseña")}</Form.Label>
                                 <Form.Control
                                     type="password"
                                     value={password}
@@ -536,10 +442,7 @@ useEffect(() => {
                             </Form.Group>
                             <Button variant="danger" type="submit" className="w-100" disabled={loadingDelete}>
                                 {loadingDelete ? (
-                                    <>
-                                        <Spinner animation="border" size="sm" className="me-2" />
-                                        {t("Cargando...")}
-                                    </>
+                                    <><Spinner animation="border" size="sm" className="me-2" />{t("Cargando...")}</>
                                 ) : (
                                     t("Confirmar y eliminar cuenta")
                                 )}
@@ -551,6 +454,7 @@ useEffect(() => {
             </Modal>
         </div>
     );
+
 };
 
 export default Configuracion;
