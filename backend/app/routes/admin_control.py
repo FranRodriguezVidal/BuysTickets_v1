@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash
 import os
 import base64
 import mysql.connector 
+from app.utils.mail import enviar_correo_eliminacion
 
 # Configuración
 UPLOAD_FOLDER = 'uploads'
@@ -18,7 +19,6 @@ admin_bp = Blueprint('admin_bp', __name__)
 # ==========================
 @admin_bp.route('/register-adminControl', methods=['POST'])
 def register_adminControl():
-    # Recoger los datos del formulario
     user = request.form.get('user')
     password = request.form.get('password')
     nombre = request.form.get('nombre')
@@ -67,13 +67,10 @@ def register_adminControl():
 @admin_bp.route('/lista-usuarios-adminControl', methods=['GET'])
 def lista_usuarios_adminControl():
     try:
-        cursor = db.cursor(dictionary=True)  # Crear cursor aquí
+        cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT id, user, role, name, surname, email, discapacidad, profile FROM users")
         users = cursor.fetchall()
-        cursor.close()  # Cerrar cursor tras uso
-
-        print(f"DEBUG: Usuarios obtenidos: {len(users)}")
-        print(users)
+        cursor.close()
 
         if not users:
             return jsonify(success=False, message="No se encontraron usuarios.")
@@ -85,16 +82,14 @@ def lista_usuarios_adminControl():
                 try:
                     profile_value = profile_value.decode('utf-8')
                 except UnicodeDecodeError:
-                    print(f"⚠️ profile no es cadena UTF-8 para usuario {user['user']}, se ignora")
                     profile_value = None
-            
+
             if profile_value and profile_value != 'None':
                 profile_path = os.path.join(UPLOAD_FOLDER, profile_value)
                 if os.path.exists(profile_path):
                     with open(profile_path, "rb") as image_file:
                         user['profile'] = base64.b64encode(image_file.read()).decode('utf-8')
                 else:
-                    print(f"⚠️ Archivo no encontrado para el usuario: {user['user']}")
                     user['profile'] = None
             else:
                 user['profile'] = None
@@ -102,12 +97,11 @@ def lista_usuarios_adminControl():
         return jsonify(success=True, usuarios=users)
 
     except mysql.connector.Error as err:
-        print(f"❌ Error al obtener usuarios: {err}")
         return jsonify(success=False, message=f"Error al obtener la lista de usuarios: {err}")
 
 
 # ==========================
-# 📌 **3️⃣ Actualizar Usuario**
+# 📌 **3️⃣ Actualizar Usuario** (incluye cambio de contraseña)
 # ==========================
 @admin_bp.route('/update-user-adminControl', methods=['POST'])
 def update_user_adminControl():
@@ -141,7 +135,6 @@ def update_user_adminControl():
         if discapacidad:
             cursor.execute("UPDATE users SET discapacidad = %s WHERE id = %s", (discapacidad, user_id))
 
-        # Guardar nueva foto de perfil si existe
         profile = request.files.get('profile')
         if profile:
             profile_filename = secure_filename(profile.filename)
@@ -161,23 +154,25 @@ def update_user_adminControl():
 @admin_bp.route('/delete-user-adminControl/<int:user_id>', methods=['DELETE'])
 def delete_user_adminControl(user_id):
     try:
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT profile FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT user, email, profile FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
 
         if not user:
             return jsonify(success=False, message="Usuario no encontrado.")
 
-        if user['profile']:
-            profile_path = os.path.join(UPLOAD_FOLDER, user['profile'])
+        profile = user.get("profile")
+        if profile and isinstance(profile, str):
+            profile_path = os.path.join(UPLOAD_FOLDER, profile)
             if os.path.exists(profile_path):
                 os.remove(profile_path)
 
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
         db.commit()
 
+        if cursor.rowcount > 0 and user.get("email"):
+            enviar_correo_eliminacion(user["email"], user["user"])
+
         return jsonify(success=True, message="Usuario eliminado exitosamente.")
     except Exception as err:
         db.rollback()
-        print("Error al eliminar usuario:", err)
         return jsonify(success=False, message="Error al eliminar el usuario: " + str(err))

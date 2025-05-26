@@ -2,11 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
+import { FaUser } from "react-icons/fa";
 
 export default function Usuarios() {
   const { t } = useTranslation();
 
   const [userData, setUserData] = useState({
+    id: null,
     user: "",
     password: "",
     nombre: "",
@@ -22,6 +24,7 @@ export default function Usuarios() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [editMode, setEditMode] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,37 +36,33 @@ export default function Usuarios() {
   };
 
   const fetchUsuarios = async () => {
-  setLoading(true);
-  setErrorMsg("");
-  try {
-    const response = await axios.get("http://localhost:5000/admin/lista-usuarios-adminControl");
-
- if (response.data.success === false || !Array.isArray(response.data.usuarios)) {
-  setUsuarios([]);
-  setErrorMsg("No se encontraron usuarios.");
-} else {
-  const usuariosMapeados = response.data.usuarios.map((user) => ({
-    id: user.id,
-    user: user.user,
-    role: user.role,
-    nombre: user.name || "",
-    apellido: user.surname || "",
-    email: user.email,
-    discapacidad: user.discapacidad,
-    profile: user.profile,
-  }));
-  setUsuarios(usuariosMapeados);
-}
-
-  } catch (error) {
-    console.error("Error al cargar usuarios:", error.response || error.message || error);
-    setErrorMsg("Error al cargar la lista de usuarios.");
-    setUsuarios([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const response = await axios.get("http://localhost:5000/admin/lista-usuarios-adminControl");
+      if (!response.data.success || !Array.isArray(response.data.usuarios)) {
+        setUsuarios([]);
+        setErrorMsg("No se encontraron usuarios.");
+      } else {
+        const usuariosMapeados = response.data.usuarios.map((user) => ({
+          id: user.id,
+          user: user.user,
+          role: user.role,
+          nombre: user.name || "",
+          apellido: user.surname || "",
+          email: user.email,
+          discapacidad: user.discapacidad,
+          profile: user.profile,
+        }));
+        setUsuarios(usuariosMapeados);
+      }
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      setErrorMsg("Error al cargar la lista de usuarios.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsuarios();
@@ -73,22 +72,28 @@ export default function Usuarios() {
     e.preventDefault();
     const formData = new FormData();
     Object.entries(userData).forEach(([key, value]) => {
-      formData.append(key, value);
+      if (key !== "id" && value !== null) {
+        formData.append(key, value);
+      }
     });
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/admin/register-adminControl",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const url = editMode
+        ? "http://localhost:5000/admin/update-user-adminControl"
+        : "http://localhost:5000/admin/register-adminControl";
+
+      if (editMode) formData.append("id", userData.id);
+
+      const response = await axios.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       if (response.data.success) {
-        alert("Usuario creado exitosamente");
+        alert(editMode ? "Usuario actualizado" : "Usuario creado exitosamente");
         fetchUsuarios();
         setShowModal(false);
-        // Limpiar formulario
         setUserData({
+          id: null,
           user: "",
           password: "",
           nombre: "",
@@ -98,12 +103,13 @@ export default function Usuarios() {
           role: "estandar",
           discapacidad: "no",
         });
+        setEditMode(false);
       } else {
-        alert(response.data.message || "Error al crear el usuario.");
+        alert(response.data.message || "Error al procesar el usuario.");
       }
     } catch (error) {
-      console.error("Error en el registro:", error);
-      alert("Error al crear el usuario.");
+      console.error("Error en el registro/actualización:", error);
+      alert("Error al procesar el usuario.");
     }
   };
 
@@ -112,107 +118,111 @@ export default function Usuarios() {
   };
 
   const handleEdit = (user) => {
-    alert(`Editar usuario: ${user.user}`);
+    setUserData({
+      id: user.id,
+      user: user.user,
+      password: "",
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      profile: null,
+      role: user.role,
+      discapacidad: user.discapacidad,
+    });
+    setShowModal(true);
+    setEditMode(true);
   };
 
   const handleDelete = async (user) => {
     if (window.confirm(`¿Eliminar a ${user.user}?`)) {
       try {
-        await axios.delete(`http://localhost:5000/admin/delete-user-adminControl/${user.id}`);
-        alert(`Usuario ${user.user} eliminado.`);
-        fetchUsuarios();
-        setSelectedUser(null);
+        const response = await axios.delete(
+          `http://localhost:5000/admin/delete-user-adminControl/${user.id}`
+        );
+        if (response.data.success) {
+          alert(`Usuario ${user.user} eliminado.`);
+          fetchUsuarios();
+          setSelectedUser(null);
+        } else {
+          alert(response.data.message || "No se pudo eliminar el usuario.");
+        }
       } catch (error) {
         console.error("Error al eliminar usuario:", error);
-        alert("Error al eliminar usuario.");
+        alert("Error al eliminar usuario: " + (error.response?.data?.message || error.message));
       }
     }
   };
 
   return (
     <div className="container mt-4">
-      <h1>{t("Usuarios registrados")}</h1>
+      <h1 className="text-primary text-center mb-4">{t("Usuarios registrados")}</h1>
 
-      <Button variant="primary" className="my-3" onClick={() => setShowModal(true)}>
-        Crear Usuario
-      </Button>
+      <div className="text-center mb-4">
+        <Button variant="primary" onClick={() => { setShowModal(true); setEditMode(false); }}>
+          {t("Crear Usuario")}
+        </Button>
+      </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* Modal de creación/edición */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Crear Usuario</Modal.Title>
+          <Modal.Title>{editMode ? t("Editar Usuario") : t("Crear Usuario")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmit}>
             {["user", "password", "nombre", "apellido", "email"].map((field) => (
               <div key={field} className="mb-3">
-                <label className="form-label">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </label>
+                <label className="form-label">{t(field.charAt(0).toUpperCase() + field.slice(1))}</label>
                 <input
                   type={field === "password" ? "password" : "text"}
                   className="form-control"
                   name={field}
                   value={userData[field]}
                   onChange={handleInputChange}
-                  required
+                  required={field !== "password" || !editMode}
                 />
               </div>
             ))}
-
             <div className="mb-3">
-              <label className="form-label">Foto de perfil</label>
+              <label className="form-label">{t("Foto de perfil")}</label>
               <input type="file" className="form-control" onChange={handleFileChange} />
             </div>
-
             <div className="mb-3">
-              <label className="form-label">Rol</label>
-              <select
-                className="form-control"
-                name="role"
-                value={userData.role}
-                onChange={handleInputChange}
-              >
+              <label className="form-label">{t("Rol")}</label>
+              <select className="form-control" name="role" value={userData.role} onChange={handleInputChange}>
                 <option value="estandar">Estandar</option>
                 <option value="premium">Premium</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
-
             <div className="mb-3">
-              <label className="form-label">Discapacidad</label>
-              <select
-                className="form-control"
-                name="discapacidad"
-                value={userData.discapacidad}
-                onChange={handleInputChange}
-              >
+              <label className="form-label">{t("Discapacidad")}</label>
+              <select className="form-control" name="discapacidad" value={userData.discapacidad} onChange={handleInputChange}>
                 <option value="no">No</option>
                 <option value="sí">Sí</option>
               </select>
             </div>
-
-            <button type="submit" className="btn btn-primary">
-              Crear Usuario
-            </button>
+            <div className="d-grid">
+              <button type="submit" className="btn btn-primary">
+                {editMode ? t("Actualizar Usuario") : t("Crear Usuario")}
+              </button>
+            </div>
           </form>
         </Modal.Body>
       </Modal>
 
+      {/* Lista de usuarios */}
       {loading ? (
-        <p>Cargando usuarios...</p>
+        <p className="text-center">{t("Cargando usuarios...")}</p>
       ) : errorMsg ? (
-        <p className="text-danger">{errorMsg}</p>
+        <p className="text-danger text-center">{errorMsg}</p>
       ) : usuarios.length > 0 ? (
         <div className="row">
           {usuarios.map((user) => (
-            <div
-              key={user.id}
-              className="col-md-3 mb-3"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleUserClick(user)}
-            >
-              <div className="card text-center">
+            <div key={user.id} className="col-md-3 mb-4" onClick={() => handleUserClick(user)} style={{ cursor: "pointer" }}>
+              <div className="card shadow-sm text-center border">
                 <div className="card-body">
+
                   {user.profile ? (
                     <img
                       src={`data:image/png;base64,${user.profile}`}
@@ -222,50 +232,59 @@ export default function Usuarios() {
                     />
                   ) : (
                     <div
-                      className="rounded-circle mb-2"
-                      style={{ width: "60px", height: "60px", background: "#ccc" }}
-                    ></div>
+                      className="rounded-circle mb-2 d-flex justify-content-center align-items-center bg-secondary text-white"
+                      style={{ width: "60px", height: "60px" }}
+                    >
+                      <FaUser size={30} />
+                    </div>
                   )}
-                  <h5>{user.user}</h5>
-                  <p>{user.role}</p>
+                  <h5 className="text-primary">{user.user}</h5>
+                  <p className="text-muted mb-0">{user.role}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p>No hay usuarios disponibles.</p>
+        <p className="text-center">{t("No hay usuarios disponibles.")}</p>
       )}
 
+      {/* Modal de detalles del usuario */}
       {selectedUser && (
-        <div className="card mt-4">
-          <div className="card-body">
-            <h3>Detalles de {selectedUser.user}</h3>
-            <p>
-              <strong>Nombre:</strong> {selectedUser.nombre}
-            </p>
-            <p>
-              <strong>Apellido:</strong> {selectedUser.apellido}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedUser.email}
-            </p>
-            <p>
-              <strong>Rol:</strong> {selectedUser.role}
-            </p>
-            <p>
-              <strong>Discapacidad:</strong> {selectedUser.discapacidad}
-            </p>
-            <div>
-              <button className="btn btn-warning me-2" onClick={() => handleEdit(selectedUser)}>
-                Editar
-              </button>
-              <button className="btn btn-danger" onClick={() => handleDelete(selectedUser)}>
-                Eliminar
-              </button>
+        <Modal show={!!selectedUser} onHide={() => setSelectedUser(null)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>{t("Detalles de Usuario")}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="text-center">
+              {selectedUser.profile ? (
+                <img
+                  src={`data:image/png;base64,${selectedUser.profile}`}
+                  alt={selectedUser.user}
+                  className="rounded-circle mb-3"
+                  style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  className="rounded-circle bg-secondary text-white mb-3 d-flex justify-content-center align-items-center"
+                  style={{ width: "80px", height: "80px" }}
+                >
+                  <FaUser size={40} />
+                </div>
+              )}
+              <h4>{selectedUser.user}</h4>
+              <p><strong>{t("Nombre")}:</strong> {selectedUser.nombre}</p>
+              <p><strong>{t("Apellido")}:</strong> {selectedUser.apellido}</p>
+              <p><strong>{t("Email")}:</strong> {selectedUser.email}</p>
+              <p><strong>{t("Rol")}:</strong> {t(selectedUser.role)}</p>
+              <p><strong>{t("Discapacidad")}:</strong> {selectedUser.discapacidad === "sí" ? t("Sí") : t("No")}</p>
+              <div className="d-grid gap-2 mt-3">
+                <button className="btn btn-warning" onClick={() => handleEdit(selectedUser)}>{t("Editar")}</button>
+                <button className="btn btn-danger" onClick={() => handleDelete(selectedUser)}>{t("Eliminar")}</button>
+              </div>
             </div>
-          </div>
-        </div>
+          </Modal.Body>
+        </Modal>
       )}
     </div>
   );
