@@ -1,6 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "rc-slider/assets/index.css";
 import { useContext, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { useLocation } from "react-router-dom";
@@ -17,8 +18,9 @@ export default function Eventos() {
     const [tiposEspacioSeleccionados, setTiposEspacioSeleccionados] = useState([]);
     const [soloMayores, setSoloMayores] = useState(false);
     const [precioMinimo, setPrecioMinimo] = useState(0);
-    const [precioMaximo, setPrecioMaximo] = useState(1000); // cambiará tras cargar eventos
-    const [rangoPrecio, setRangoPrecio] = useState([0, 1000]);
+    const [precioMaximo, setPrecioMaximo] = useState(1000);
+    const [precioSeleccionado, setPrecioSeleccionado] = useState(1000); // valor actual elegido
+    const idAperturaDirecta = queryParams.get("abrir");
 
     useEffect(() => {
         fetch("http://localhost:5000/eventos")
@@ -27,17 +29,34 @@ export default function Eventos() {
                 if (data.success) {
                     setEventos(data.eventos);
 
-                    // Calculamos rango de precios
+                    // Recalcular precios
                     const precios = data.eventos.map(ev => Number(ev.precio));
                     const min = Math.min(...precios);
                     const max = Math.max(...precios);
-
                     setPrecioMinimo(min);
                     setPrecioMaximo(max);
-                    setRangoPrecio([min, max]);
+                    setPrecioSeleccionado(max);
+
+                    // Abrir modal si hay ?abrir=ID
+                    if (idAperturaDirecta) {
+                        setTimeout(() => {
+                            const seleccionado = data.eventos.find(ev => String(ev.id) === idAperturaDirecta);
+                            if (seleccionado) {
+                                setEventoSeleccionado(seleccionado);
+                                const modalEl = document.getElementById("modalCompra");
+                                if (modalEl) {
+                                    const modal = new window.bootstrap.Modal(modalEl, {
+                                        backdrop: true,
+                                        keyboard: true
+                                    });
+                                    modal.show();
+                                }
+                            }
+                        }, 400);
+                    }
                 }
             });
-    }, []);
+    }, [location.search]); // ⚠️ importante
 
     async function iniciarPago(evento) {
         const base = Number(evento.precio);
@@ -60,7 +79,12 @@ export default function Eventos() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 precio: precioFinal,
-                evento: evento.nombre_evento
+                evento: evento.nombre_evento,
+                event_id: evento.id,
+                user_id: usuario.id,
+                asiento: "A12", // o cualquier valor generado
+                nombre_comprador: usuario.nombre,
+                email_comprador: usuario.email
             })
         });
 
@@ -87,31 +111,55 @@ export default function Eventos() {
         );
     };
 
+    useEffect(() => {
+        const modalEl = document.getElementById("modalCompra");
+
+        if (!modalEl) return;
+
+        const handleHidden = () => {
+            // 🔃 Recargar la página al cerrar el modal
+            window.location.href = location.pathname;
+        };
+
+        modalEl.addEventListener("hidden.bs.modal", handleHidden);
+
+        return () => {
+            modalEl.removeEventListener("hidden.bs.modal", handleHidden);
+        };
+    }, [location.search]);
+
+    useEffect(() => {
+        if (!eventos.length || !idAperturaDirecta) return;
+
+        const seleccionado = eventos.find(ev => String(ev.id) === idAperturaDirecta);
+        if (seleccionado) {
+            setEventoSeleccionado(seleccionado);
+            setTimeout(() => {
+                const modalEl = document.getElementById("modalCompra");
+                if (modalEl) {
+                    const modal = new window.bootstrap.Modal(modalEl, {
+                        backdrop: true,
+                        keyboard: true
+                    });
+                    modal.show();
+                }
+            }, 300); // Asegura que el modal esté montado en el DOM
+        }
+    }, [eventos, idAperturaDirecta]);
+
     return (
         <div className="container py-5">
             <h1 className="text-center mb-5 text-primary">🎫 Eventos Disponibles</h1>
             <div className="mb-4">
                 <h5 className="mb-3">🔎 Filtrar eventos:</h5>
 
-                <Form.Label>💶 Rango de precio:</Form.Label>
-                <div className="d-flex gap-2 align-items-center mb-3">
-                    <Form.Control
-                        type="number"
-                        min={precioMinimo}
-                        max={precioMaximo}
-                        value={rangoPrecio[0]}
-                        onChange={(e) => setRangoPrecio([Number(e.target.value), rangoPrecio[1]])}
-                    />
-                    <span> - </span>
-                    <Form.Control
-                        type="number"
-                        min={precioMinimo}
-                        max={precioMaximo}
-                        value={rangoPrecio[1]}
-                        onChange={(e) => setRangoPrecio([rangoPrecio[0], Number(e.target.value)])}
-                    />
-                    <span>€</span>
-                </div>
+                <Form.Label>💶 Precio máximo permitido: {precioSeleccionado} €</Form.Label>
+                <Form.Range
+                    min={precioMinimo}
+                    max={precioMaximo}
+                    value={precioSeleccionado}
+                    onChange={(e) => setPrecioSeleccionado(Number(e.target.value))}
+                />
 
                 <Form.Check
                     type="checkbox"
@@ -137,8 +185,8 @@ export default function Eventos() {
                 </div>
 
                 <div className="mt-3">
-                    <button className="btn btn-outline-danger" onClick={() => {
-                        setRangoPrecio([precioMinimo, precioMaximo]);
+                    <button className="btn btn-outline-danger mt-3" onClick={() => {
+                        setPrecioSeleccionado(precioMaximo);
                         setSoloMayores(false);
                         setTiposEspacioSeleccionados([]);
                     }}>
@@ -149,61 +197,74 @@ export default function Eventos() {
             <div className="row g-4">
                 {eventos
                     .filter(ev =>
-                        Number(ev.precio) >= rangoPrecio[0] &&
-                        Number(ev.precio) <= rangoPrecio[1] &&
+                        Number(ev.precio) <= precioSeleccionado &&
                         (!soloMayores || ev.mayores_18) &&
                         (tiposEspacioSeleccionados.length === 0 || tiposEspacioSeleccionados.includes(ev.tipo_espacio))
                     )
-                    .map(ev => (
-                        <div key={ev.id} className="col-12">
-                            <div
-                                className="card shadow-sm d-flex flex-row align-items-start p-3"
-                                style={{ cursor: "pointer" }}
-                                onClick={() => verMas(ev.id)}
-                            >
-                                {/* Imagen vertical tipo A4 */}
-                                {ev.imagen ? (
-                                    <img
-                                        src={`http://localhost:5000/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
-                                        alt={ev.nombre_evento}
-                                        style={{
-                                            width: "150px",
-                                            height: "220px",
-                                            objectFit: "cover",
-                                            borderRadius: "8px"
-                                        }}
-                                        className="me-3"
-                                    />
-                                ) : (
-                                    <div
-                                        style={{
-                                            width: "150px",
-                                            height: "220px",
-                                            backgroundColor: "#eee",
-                                            borderRadius: "8px"
-                                        }}
-                                        className="me-3 d-flex justify-content-center align-items-center text-muted"
-                                    >
-                                        Sin imagen
-                                    </div>
-                                )}
+                    .map(ev => {
+                        const hoy = new Date();
+                        const fechaEvento = new Date(ev.fecha);
+                        const esPasado = fechaEvento < hoy;
 
-                                {/* Info del evento */}
-                                <div className="flex-grow-1">
-                                    <h5 className="mb-1">{ev.nombre_evento}</h5>
-                                    <p className="mb-1"><strong>📍 Lugar:</strong> {ev.lugar}</p>
-                                    <p className="mb-1"><strong>🎤 Artista:</strong> {ev.nombre_artista}</p>
-                                    <p className="mb-0 text-success"><strong>💶 Precio:</strong> {Number(ev.precio).toFixed(2)} €</p>
-                                    <p className="mb-1">
-                                        <strong>🎟️ Entradas disponibles:</strong> {ev.aforo_total - ev.entradas_vendidas}
-                                        {(ev.aforo_total - ev.entradas_vendidas < ev.aforo_total * 0.1) && (
-                                            <span className="badge bg-danger ms-2">¡Últimas entradas!</span>
+                        return (
+                            <div key={ev.id} className="col-12">
+                                <div
+                                    className={`card shadow-sm d-flex flex-row align-items-start p-3 ${esPasado ? "bg-light text-muted" : ""}`}
+                                    style={{
+                                        cursor: esPasado ? "default" : "pointer",
+                                        opacity: esPasado ? 0.6 : 1
+                                    }}
+                                    onClick={() => !esPasado && verMas(ev.id)}
+                                >
+                                    {/* Imagen */}
+                                    {ev.imagen ? (
+                                        <img
+                                            src={`http://localhost:5000/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
+                                            alt={ev.nombre_evento}
+                                            style={{
+                                                width: "150px",
+                                                height: "220px",
+                                                objectFit: "cover",
+                                                borderRadius: "8px"
+                                            }}
+                                            className="me-3"
+                                        />
+                                    ) : (
+                                        <div
+                                            style={{
+                                                width: "150px",
+                                                height: "220px",
+                                                backgroundColor: "#eee",
+                                                borderRadius: "8px"
+                                            }}
+                                            className="me-3 d-flex justify-content-center align-items-center text-muted"
+                                        >
+                                            Sin imagen
+                                        </div>
+                                    )}
+
+                                    {/* Info */}
+                                    <div className="flex-grow-1">
+                                        <h5 className="mb-1">{ev.nombre_evento}</h5>
+                                        <p className="mb-1"><strong>📍 Lugar:</strong> {ev.lugar}</p>
+                                        <p className="mb-1"><strong>🎤 Artista:</strong> {ev.nombre_artista}</p>
+                                        <p className="mb-0 text-success"><strong>💶 Precio:</strong> {Number(ev.precio).toFixed(2)} €</p>
+                                        <p className="mb-1">
+                                            <strong>🎟️ Entradas disponibles:</strong> {ev.aforo_total - ev.entradas_vendidas}
+                                            {(ev.aforo_total - ev.entradas_vendidas < ev.aforo_total * 0.1) && (
+                                                <span className="badge bg-danger ms-2">¡Últimas entradas!</span>
+                                            )}
+                                        </p>
+                                        {esPasado && (
+                                            <p className="text-muted mt-2">
+                                                ✅ Evento ya realizado
+                                            </p>
                                         )}
-                                    </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
             </div>
 
             {/* Modal de información */}

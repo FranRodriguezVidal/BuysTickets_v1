@@ -247,7 +247,14 @@ def crear_checkout():
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            mode="payment",
+            mode="payment",customer_email=data.get("email_comprador"),
+            metadata={
+                "user_id": data.get("user_id"),
+                "event_id": data.get("event_id"),
+                "asiento": data.get("asiento"),
+                "nombre_comprador": data.get("nombre_comprador"),
+                "email_comprador": data.get("email_comprador")
+            },
             line_items=[{
                 "price_data": {
                     "currency": "eur",
@@ -256,7 +263,7 @@ def crear_checkout():
                 },
                 "quantity": 1,
             }],
-            success_url="http://localhost:3000/success",
+            success_url=f"http://localhost:3000/entrada-generada?email={data.get('email_comprador')}&evento={data.get('evento')}",
             cancel_url="http://localhost:3000/cancel",
         )
         return jsonify(url=session.url)
@@ -277,3 +284,59 @@ def obtener_asientos_ocupados(event_id):
     except Exception as e:
         print("❌ Error al obtener asientos ocupados:", e)
         return jsonify(success=False, message=str(e)), 500
+
+@eventos_bp.route("/stripe/webhook", methods=["POST"])
+def stripe_webhook():
+    payload = request.data
+    sig_header = request.headers.get("stripe-signature")
+    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except stripe.error.SignatureVerificationError:
+        return "Firma inválida", 400
+    except Exception as e:
+        return f"Error: {str(e)}", 400
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        metadata = session.get("metadata", {})
+
+        try:
+            cursor.execute("""
+                INSERT INTO tickets (user_id, event_id, precio_total, asiento, nombre_comprador, email_comprador, fecha_compra)
+                VALUES (%s, %s, %s, %s, %s, %s, NOW())
+            """, (
+                metadata["user_id"],
+                metadata["event_id"],
+                float(session["amount_total"]) / 100,
+                metadata["asiento"],
+                metadata["nombre_comprador"],
+                metadata["email_comprador"]
+            ))
+            db.commit()
+            print("✅ Entrada registrada automáticamente.")
+        except Exception as e:
+            db.rollback()
+            print("❌ Error al registrar entrada:", str(e))
+
+    return "ok", 200
+
+@eventos_bp.route('/tickets-por-email', methods=['GET'])
+def ticket_por_email():
+    email = request.args.get("email")
+    evento = request.args.get("evento")
+
+    cursor.execute("""
+        SELECT t.*, e.nombre_evento
+        FROM tickets t
+        JOIN events e ON t.event_id = e.id
+        WHERE t.email_comprador = %s AND e.nombre_evento = %s
+        ORDER BY t.fecha_compra DESC LIMIT 1
+    """, (email, evento))
+    
+    entrada = cursor.fetchone()
+    if entrada:
+        return jsonify(success=True, entrada=entrada)
+    else:
+        return jsonify(success=False, message="Entrada no encontrada")

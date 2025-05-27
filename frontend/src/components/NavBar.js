@@ -34,7 +34,7 @@ const NavBar = () => {
     const [nuevaPassword, setNuevaPassword] = useState("");
     const [recoveryError, setRecoveryError] = useState("");
     const [recoverySuccess, setRecoverySuccess] = useState("");
-
+    const [sugerencias, setSugerencias] = useState([]);
 
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
@@ -78,10 +78,46 @@ const NavBar = () => {
     };
 
     const handleSearch = () => {
-        if (searchQuery.trim()) {
+        if (sugerencias.length > 0) {
+            const evento = sugerencias[0];
+            navigate(`/eventos?search=${encodeURIComponent(evento.nombre_evento)}&abrir=${evento.id}`);
+        } else if (searchQuery.trim()) {
             navigate(`/eventos?search=${encodeURIComponent(searchQuery.trim())}`);
         }
+
+        setSearchQuery("");
+        setSugerencias([]);
+
+        // opcional: quitar foco
+        document.activeElement?.blur();
     };
+
+
+    useEffect(() => {
+        const fetchSugerencias = async () => {
+            if (searchQuery.length < 2) {
+                setSugerencias([]);
+                return;
+            }
+
+            try {
+                const res = await axios.get("http://localhost:5000/eventos");
+                if (res.data.success) {
+                    const coincidencias = res.data.eventos.filter(ev =>
+                        ev.nombre_evento.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        ev.nombre_artista.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).slice(0, 5); // limitar sugerencias
+                    setSugerencias(coincidencias);
+                }
+            } catch (error) {
+                console.error("Error buscando sugerencias:", error);
+                setSugerencias([]);
+            }
+        };
+
+        fetchSugerencias();
+    }, [searchQuery]);
+
     const handleVoiceSearch = () => {
         if (!('webkitSpeechRecognition' in window)) {
             alert("Tu navegador no soporta el reconocimiento de voz.");
@@ -246,20 +282,72 @@ const NavBar = () => {
                         <Nav className="mx-auto"> {/* Centra los enlaces */}
                             <Nav.Link className="" href="/inicio">{t("Inicio")}</Nav.Link>
                             <Nav.Link className="me-5" href="/eventos">{t("Eventos")}</Nav.Link>
-                            <InputGroup className="ms-5" style={{ width: '90%' }}>
-                                <Form.Control
-                                    type="text"
-                                    placeholder={t("Buscar...")}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                                <Button variant="light" onClick={handleSearch}>
-                                    <FaSearch />
-                                </Button>
-                                <Button variant="light" onClick={handleVoiceSearch}>
-                                    <FaMicrophone />
-                                </Button>
-                            </InputGroup>
+                            <div className="position-relative ms-5" style={{ width: '90%' }}>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder={t("Buscar...")}
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                handleSearch();
+                                            }
+                                        }}
+                                    />
+                                    <Button variant="light" onClick={handleSearch}>
+                                        <FaSearch />
+                                    </Button>
+                                    <Button variant="light" onClick={handleVoiceSearch}>
+                                        <FaMicrophone />
+                                    </Button>
+                                </InputGroup>
+
+                                {sugerencias.length > 0 && (
+                                    <div className="position-absolute bg-white border rounded w-100 shadow mt-1 z-3" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                                        {sugerencias.map((evento, index) => (
+                                            <div
+                                                key={index}
+                                                className="d-flex align-items-center gap-3 px-3 py-2 hover-bg"
+                                                style={{ cursor: "pointer" }}
+                                                onClick={() => {
+                                                    setSearchQuery("");
+                                                    setSugerencias([]);
+                                                    navigate(`/eventos?search=${encodeURIComponent(evento.nombre_evento)}&abrir=${evento.id}`);
+                                                }}
+                                            >
+                                                {evento.imagen ? (
+                                                    <img
+                                                        src={`http://localhost:5000/uploads/${evento.imagen.replace(/^.*[\\/]/, '')}`}
+                                                        alt={evento.nombre_evento}
+                                                        style={{ width: "50px", height: "60px", objectFit: "cover", borderRadius: "4px" }}
+                                                    />
+                                                ) : (
+                                                    <div style={{
+                                                        width: "50px",
+                                                        height: "60px",
+                                                        backgroundColor: "#eee",
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        borderRadius: "4px",
+                                                        fontSize: "12px",
+                                                        color: "#888"
+                                                    }}>Sin<br />imagen</div>
+                                                )}
+
+                                                <div className="flex-grow-1">
+                                                    <strong>{evento.nombre_evento}</strong><br />
+                                                    <small className="text-muted">🎤 {evento.nombre_artista}</small><br />
+                                                    <small className="text-success">💶 {Number(evento.precio).toFixed(2)} €</small>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                            </div>
                         </Nav>
                         {usuario ? (
                             <Nav className="me-5"> {/* Alinea a la derecha */}
