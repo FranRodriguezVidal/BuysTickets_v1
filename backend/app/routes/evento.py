@@ -4,7 +4,11 @@ from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
 from mysql.connector import Error
+import stripe
+from flask import request
 from flask import send_from_directory
+from dotenv import load_dotenv
+load_dotenv()
 
 UPLOAD_FOLDER = "uploads/eventos"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -39,8 +43,11 @@ def crear_evento():
             artista_id = cursor.lastrowid
 
         cursor.execute("""
-            INSERT INTO events (nombre_evento, fecha, lugar, artista_id, mayores_18, informacion, imagen, precio)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO events (
+                nombre_evento, fecha, lugar, artista_id, mayores_18,
+                informacion, imagen, precio, tipo_espacio, aforo_total, entradas_vendidas
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 0)
         """, (
             data["nombre_evento"],
             data["fecha"],
@@ -48,8 +55,10 @@ def crear_evento():
             artista_id,
             data.get("mayores_18", "false") == "true",
             data.get("informacion", ""),
-            imagen_ruta,  # ya está limpio
-            float(data.get("precio", "0.00"))
+            imagen_ruta,
+            float(data.get("precio", "0.00")),
+            data.get("tipo_espacio", "normal"),
+            int(data.get("aforo_total", "1000")),
         ))
         db.commit()
         return jsonify(success=True, message="Evento creado con artista.")
@@ -165,6 +174,26 @@ def comprar_tickets():
         event_id = data["event_id"]
         tickets = data["tickets"]
 
+        # Obtener datos del usuario
+        cursor.execute("SELECT discapacidad, is_premium FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        discapacidad = user["discapacidad"]
+        is_premium = user["is_premium"]
+
+        # Obtener precio base del evento
+        cursor.execute("SELECT aforo_total, entradas_vendidas, precio FROM events WHERE id = %s", (event_id,))
+        event = cursor.fetchone()
+        if not event or event["entradas_vendidas"] + len(tickets) > event["aforo_total"]:
+            return jsonify(success=False, message="No hay suficientes entradas disponibles"), 400
+
+        # Calcular descuento
+        descuento = 0
+        if discapacidad:
+            descuento = 0.50
+        elif is_premium:
+            descuento = 0.25
+        precio_final = float(event["precio"]) * (1 - descuento)
+
         for e in tickets:
             cursor.execute("""
                 INSERT INTO tickets (user_id, event_id, precio_total, asiento, nombre_comprador, email_comprador, fecha_compra)
@@ -172,13 +201,13 @@ def comprar_tickets():
             """, (
                 user_id,
                 event_id,
-                e["precio_total"],
+                precio_final,
                 e["asiento"],
                 e["nombre_comprador"],
                 e["email_comprador"]
             ))
         db.commit()
-        return jsonify(success=True, message="tickets compradas")
+        return jsonify(success=True, message="tickets compradas", precio=precio_final, descuento=descuento)
     except Exception as e:
         db.rollback()
         return jsonify(success=False, message=str(e))
@@ -186,3 +215,65 @@ def comprar_tickets():
 @eventos_bp.route('/uploads/<filename>')
 def serve_uploads(filename):
     return send_from_directory(os.path.abspath(UPLOAD_FOLDER), filename)
+
+@eventos_bp.route('/favoritos', methods=['GET'])
+def obtener_favoritos():
+    cursor.execute("""
+        SELECT f.*, e.nombre_evento, e.fecha, e.lugar, u.user AS nombre_usuario
+        FROM favoritos f
+        JOIN events e ON f.event_id = e.id
+        JOIN users u ON f.user_id = u.id
+    """)
+    return jsonify(success=True, favoritos=cursor.fetchall())
+
+@eventos_bp.route('/favoritos', methods=['POST'])
+def agregar_favorito():
+    data = request.get_json()
+    cursor.execute("INSERT INTO favoritos (user_id, event_id) VALUES (%s, %s)", (data["user_id"], data["event_id"]))
+    db.commit()
+    return jsonify(success=True, message="Favorito agregado")
+
+
+
+# ⚠️ Usa tu clave secreta de Stripe modo prueba (empieza con sk_test_)
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+@eventos_bp.route('/crear-checkout', methods=['POST'])
+def crear_checkout():
+    data = request.get_json()
+    precio = data.get("precio", 1.00)
+    evento = data.get("evento", "Entrada Evento")
+
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            mode="payment",
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {"name": evento},
+                    "unit_amount": int(precio * 100),  # en céntimos
+                },
+                "quantity": 1,
+            }],
+            success_url="http://localhost:3000/success",
+            cancel_url="http://localhost:3000/cancel",
+        )
+        return jsonify(url=session.url)
+    except Exception as e:
+        return jsonify(success=False, message=str(e)), 500
+    
+@eventos_bp.route('/asientos-ocupados/<int:event_id>', methods=['GET'])
+def obtener_asientos_ocupados(event_id):
+    try:
+        # 🔐 Añade esto para asegurarte de consumir cualquier resultado pendiente
+        db.ping(reconnect=True, attempts=3, delay=2)
+        while cursor.nextset():  # ⬅️ fuerza a limpiar resultados anteriores si los hay
+            pass
+
+        cursor.execute("SELECT asiento FROM tickets WHERE event_id = %s", (event_id,))
+        ocupados = [r['asiento'] for r in cursor.fetchall()]
+        return jsonify(success=True, asientos=ocupados)
+    except Exception as e:
+        print("❌ Error al obtener asientos ocupados:", e)
+        return jsonify(success=False, message=str(e)), 500

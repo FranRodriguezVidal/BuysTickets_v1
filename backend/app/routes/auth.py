@@ -38,8 +38,10 @@ def login():
             nombre=user_data['name'],
             apellido=user_data['surname'],
             role=user_data['role'],
+            is_premium=(user_data['role'] == 'premium'),  # ✅ AÑADIDO
+            discapacidad = bool(user_data.get('discapacidad', False)),
             profile=profile_base64,
-            email=user_data['email']
+            email=user_data['email'],
         )
 
     return jsonify(success=False, message="Usuario o contraseña incorrectos.")

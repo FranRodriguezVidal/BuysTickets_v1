@@ -4,6 +4,10 @@ export default function Entradas() {
     const [entradas, setEntradas] = useState([]);
     const [favoritos, setFavoritos] = useState([]);
 
+    const user_id = sessionStorage.getItem("user_id");
+
+    const favoritosUsuario = favoritos.filter(f => String(f.user_id) === String(user_id));
+
     useEffect(() => {
         fetch("http://localhost:5000/entradas") // ajustar a tu ruta real
             .then(res => res.json())
@@ -29,10 +33,11 @@ export default function Entradas() {
 
             <div className="space-y-4 mt-8">
                 <h2 className="text-xl font-semibold">Favoritos</h2>
-                {favoritos.map((f, i) => (
+                {favoritosUsuario.map((f, i) => (
                     <div key={i} className="p-3 bg-white rounded shadow">
                         <strong>{f.nombre_evento}</strong> – {f.fecha}
                         <p>Lugar: {f.lugar}</p>
+                        <p className="text-sm text-gray-500">Añadido por: {f.nombre_usuario}</p>
                     </div>
                 ))}
             </div>

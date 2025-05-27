@@ -159,6 +159,28 @@ export default function Ventas() {
                                 </span>
                             </div>
                         </div>
+                        <div className="col-md-6">
+                            <label className="form-label">Tipo de espacio</label>
+                            <select
+                                className="form-select"
+                                onChange={e => setForm({ ...form, tipo_espacio: e.target.value })}
+                                defaultValue="normal"
+                            >
+                                <option value="normal">Evento normal</option>
+                                <option value="teatro">Teatro (3D)</option>
+                                <option value="estadio">Estadio (3D)</option>
+                            </select>
+                        </div>
+
+                        <div className="col-md-6">
+                            <label className="form-label">Entradas disponibles</label>
+                            <input
+                                type="number"
+                                className="form-control border rounded"
+                                placeholder="Aforo total"
+                                onChange={e => setForm({ ...form, aforo_total: e.target.value })}
+                            />
+                        </div>
                     </div>
 
                     <hr className="my-4" />

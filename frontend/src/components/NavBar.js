@@ -78,7 +78,9 @@ const NavBar = () => {
     };
 
     const handleSearch = () => {
-        console.log("Buscando:", searchQuery);
+        if (searchQuery.trim()) {
+            navigate(`/eventos?search=${encodeURIComponent(searchQuery.trim())}`);
+        }
     };
     const handleVoiceSearch = () => {
         if (!('webkitSpeechRecognition' in window)) {

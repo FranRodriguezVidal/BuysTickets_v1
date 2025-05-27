@@ -29,7 +29,6 @@ const Configuracion = () => {
     const [dniSolicitud, setDniSolicitud] = useState("");
     const [gradoDiscapacidad, setGradoDiscapacidad] = useState("");
     const [archivoDiscapacidad, setArchivoDiscapacidad] = useState(null);
-    const [estadoSolicitud, setEstadoSolicitud] = useState("");
     const [reporte, setReporte] = useState("");
     const location = useLocation();
 
@@ -51,38 +50,6 @@ const Configuracion = () => {
         }
     }, [usuario]);
 
-    useEffect(() => {
-        if (!usuario?.user) return;
-
-        const dniGuardado = localStorage.getItem("dniSolicitud");
-
-        const consultarEstado = async () => {
-            if (dniGuardado) {
-                try {
-                    const res = await axios.get(`http://localhost:5000/estado-solicitud/${dniGuardado}`);
-                    if (res.data.success) {
-                        setEstadoSolicitud(res.data.estado);
-                        localStorage.setItem("estadoSolicitud", res.data.estado);
-                        return;
-                    }
-                } catch (e) {
-                    console.warn("No se encontró solicitud activa. Revisando campo discapacidad...");
-                }
-            }
-
-            try {
-                const res2 = await axios.get(`http://localhost:5000/estado-discapacidad/${usuario.user}`);
-                if (res2.data.success) {
-                    setEstadoSolicitud(res2.data.estado);
-                    localStorage.setItem("estadoSolicitud", res2.data.estado);
-                }
-            } catch (err) {
-                console.error("Error al consultar estado del usuario:", err);
-            }
-        };
-
-        consultarEstado();
-    }, [usuario]);
 
     if (!usuario) {
         return null;
@@ -232,6 +199,11 @@ const Configuracion = () => {
 
     return (
         <div className="bg-white py-5">
+            {usuario.discapacidad === true && (
+                <div className="text-center mb-3">
+                    <span className="badge bg-success">♿ Cuenta con discapacidad activa</span>
+                </div>
+            )}
             {/* Información Personal */}
             <section className="container my-5 p-4 rounded shadow-sm bg-light border">
                 <h2 className="text-primary text-center mb-4">{t("Configuración")}</h2>
@@ -279,7 +251,7 @@ const Configuracion = () => {
                     {t("Disfruta de beneficios exclusivos como contenido adicional, descuentos y prioridad en eventos.")}
                 </h5>
 
-                {usuario.role === "premium" ? (
+                {usuario.is_premium || usuario.role === "premium" ? (
                     <div className="alert alert-success text-center">
                         {t("Eres un usuario Premium.")} <br />
                         {t("Tu suscripción vence el")} {subscriptionExpiry}.
@@ -342,29 +314,15 @@ const Configuracion = () => {
                     </Modal.Body>
                 </Modal>
 
-                {estadoSolicitud && (
-                    <Alert
-                        variant={
-                            estadoSolicitud === "pendiente"
-                                ? "warning"
-                                : estadoSolicitud === "aprobada"
-                                    ? "success"
-                                    : estadoSolicitud === "rechazada"
-                                        ? "danger"
-                                        : "secondary"
-                        }
-                        className="mt-3 text-center"
-                    >
-                        {t("Estado de la solicitud")}:{" "}
-                        {estadoSolicitud === "pendiente"
-                            ? t("Pendiente de revisión")
-                            : estadoSolicitud === "aprobada"
-                                ? t("Aprobada")
-                                : estadoSolicitud === "rechazada"
-                                    ? t("Rechazada")
-                                    : t("No se ha realizado ninguna solicitud")}
-                    </Alert>
-                )}
+                <Alert
+                    variant={Boolean(usuario.discapacidad) ? "success" : "secondary"}
+                    className="mt-3 text-center"
+                >
+                    {t("Estado de la solicitud")}:{" "}
+                    {Boolean(usuario.discapacidad)
+                        ? t("Aprobada (cuenta con discapacidad activa)")
+                        : t("No se ha solicitado o ha sido rechazada")}
+                </Alert>
             </section>
 
 

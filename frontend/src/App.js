@@ -5,6 +5,7 @@ import NavBar from "./components/NavBar";
 import Administracion from "./components/pages/admins/Administracion";
 import Usuarios from "./components/pages/admins/Usuarios";
 import Ventas from "./components/pages/admins/Ventas";
+import Asientos3D from "./components/pages/Asiento3D";
 import Eventos from "./components/pages/Eventos";
 import Inicio from "./components/pages/Inicio";
 import Licencias from "./components/pages/Licencias";
@@ -12,7 +13,7 @@ import AdminRoute from "./components/pages/routeSecure/AdminRoute";
 import PrivateRoute from "./components/pages/routeSecure/PrivateRoute";
 import Configuracion from "./components/pages/users/Configuracion";
 import Entradas from "./components/pages/users/Entradas";
-import { UserProvider } from "./context/UserContext"; // ✅ Importamos el contexto
+import { UserProvider } from "./context/UserContext";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<Navigate to="/inicio" />} />
           <Route path="/inicio" element={<Inicio />} />
           <Route path="/eventos" element={<Eventos />} />
+          <Route path="/seleccionar-asientos/:id" element={<Asientos3D />} />
           <Route path="/configuracion" element={
             <PrivateRoute>
               <Configuracion />
@@ -50,6 +52,7 @@ function App() {
             </AdminRoute>
           } />
           <Route path="/licencia" element={<Licencias />} />
+        <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
         <Footer />
       </Router>

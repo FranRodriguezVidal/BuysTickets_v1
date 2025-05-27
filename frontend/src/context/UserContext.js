@@ -1,19 +1,27 @@
 import { createContext, useState } from "react";
 
 export const UserContext = createContext();
-//const [showLogin, setShowLogin] = useState(false);
+
+function normalizarUsuario(data) {
+    return {
+        ...data,
+        discapacidad: data.discapacidad === true || data.discapacidad === "sí" || data.discapacidad === "true",
+        is_premium: data.is_premium === true || data.is_premium === "true" || data.role === "premium"
+    };
+}
 
 export const UserProvider = ({ children }) => {
     const [usuario, setUsuario] = useState(() => {
         const usuarioGuardado = localStorage.getItem("usuario");
-        return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
+        return usuarioGuardado ? normalizarUsuario(JSON.parse(usuarioGuardado)) : null;
     });
 
-    const [showLogin, setShowLogin] = useState(false); // ✅ ahora está dentro
+    const [showLogin, setShowLogin] = useState(false);
 
     const login = (userData) => {
-        localStorage.setItem("usuario", JSON.stringify(userData));
-        setUsuario(userData);
+        const userNormalizado = normalizarUsuario(userData);
+        localStorage.setItem("usuario", JSON.stringify(userNormalizado));
+        setUsuario(userNormalizado);
     };
 
     const logout = () => {
@@ -27,7 +35,7 @@ export const UserProvider = ({ children }) => {
             setUsuario: login,
             logout,
             showLogin,
-            setShowLogin, // ✅ ahora lo exportas
+            setShowLogin,
         }}>
             {children}
         </UserContext.Provider>
