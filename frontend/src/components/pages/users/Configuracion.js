@@ -67,60 +67,56 @@ const Configuracion = () => {
         }
     }, [usuario]);
 
-<<<<<<< Updated upstream
-useEffect(() => {
-    const obtenerEstado = async () => {
-        try {
-            const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
-            if (res.data.success) {
-                setEstadoDiscapacidad(res.data.estado);
-            } else {
+    useEffect(() => {
+        const obtenerEstado = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
+                if (res.data.success) {
+                    setEstadoDiscapacidad(res.data.estado);
+                } else {
+                    setEstadoDiscapacidad("error");
+                }
+            } catch (error) {
+                console.error("Error al obtener estado discapacidad:", error);
                 setEstadoDiscapacidad("error");
             }
-        } catch (error) {
-            console.error("Error al obtener estado discapacidad:", error);
-            setEstadoDiscapacidad("error");
+        };
+
+        if (usuario && usuario.user) {
+            obtenerEstado();
         }
-    };
+    }, [usuario]);
 
-    if (usuario && usuario.user) {
-        obtenerEstado();
-    }
-}, [usuario]);
-
-=======
     useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const success = params.get("success");
-    const userId = params.get("user_id");
-    const paymentStatus = params.get("payment_status");
+        const params = new URLSearchParams(location.search);
+        const success = params.get("success");
+        const userId = params.get("user_id");
+        const paymentStatus = params.get("payment_status");
 
-    const confirmarPremium = async () => {
-        if (success === "true" && userId && paymentStatus === "COMPLETED") {
-            try {
-                const res = await axios.post("http://localhost:5000/update-role-to-premium", {
-                    user_id: userId,
-                    payment_status: "COMPLETED"
-                });
+        const confirmarPremium = async () => {
+            if (success === "true" && userId && paymentStatus === "COMPLETED") {
+                try {
+                    const res = await axios.post("http://localhost:5000/update-role-to-premium", {
+                        user_id: userId,
+                        payment_status: "COMPLETED"
+                    });
 
-                if (res.data.success) {
-                    setSubscriptionExpiry(res.data.expiry_date);
-                    alert("🎉 ¡Tu cuenta ahora es Premium!");
-                    window.location.href = "/configuracion";
-                } else {
-                    alert(res.data.message || "Error al actualizar tu cuenta.");
+                    if (res.data.success) {
+                        setSubscriptionExpiry(res.data.expiry_date);
+                        alert("🎉 ¡Tu cuenta ahora es Premium!");
+                        window.location.href = "/configuracion";
+                    } else {
+                        alert(res.data.message || "Error al actualizar tu cuenta.");
+                    }
+                } catch (err) {
+                    console.error("Error al actualizar rol premium:", err);
+                    alert("Error al conectar con el servidor.");
                 }
-            } catch (err) {
-                console.error("Error al actualizar rol premium:", err);
-                alert("Error al conectar con el servidor.");
             }
-        }
-    };
+        };
 
-    confirmarPremium();
-}, [location]);
->>>>>>> Stashed changes
-
+        confirmarPremium();
+    }, [location]);
 
     if (!usuario) {
         return null;
@@ -412,48 +408,28 @@ useEffect(() => {
                     </Modal.Body>
                 </Modal>
 
-<<<<<<< HEAD
-               {estadoDiscapacidad && (
-  <Alert
-    variant={
-      estadoDiscapacidad === "aprobada"
-        ? "success"
-        : estadoDiscapacidad === "rechazada"
-        ? "danger"
-        : "secondary"
-    }
-    className="mt-3 text-center"
-  >
-    {t("Estado de la solicitud")}:{" "}
-    {estadoDiscapacidad === "aprobada"
-      ? t("✅ Aprobada (cuenta con discapacidad activa)")
-      : estadoDiscapacidad === "rechazada"
-      ? t("❌ Rechazada")
-      : estadoDiscapacidad === "no solicitado"
-      ? t("⚠️ Todavía no se ha solicitado")
-      : t("Cargando...")}
-  </Alert>
-)}
-
-=======
-                <Alert
-                    variant={
-                        estadoSolicitud === "pendiente"
-                            ? "warning"
-                            : estadoSolicitud === "aprobada"
+                {estadoDiscapacidad && (
+                    <Alert
+                        variant={
+                            estadoDiscapacidad === "aprobada"
                                 ? "success"
-                                : "secondary"
-                    }
-                    className="mt-3 text-center"
-                >
-                    {t("Estado de la solicitud")}:{" "}
-                    {estadoSolicitud === "pendiente"
-                        ? t("Pendiente de validación")
-                        : estadoSolicitud === "aprobada"
-                            ? t("Aprobada (cuenta con discapacidad activa)")
-                            : t("No se ha solicitado o ha sido rechazada")}
-                </Alert>
->>>>>>> 1762cef77f7344c65d1fcbe24ac2ae5b9795167f
+                                : estadoDiscapacidad === "rechazada"
+                                    ? "danger"
+                                    : "secondary"
+                        }
+                        className="mt-3 text-center"
+                    >
+                        {t("Estado de la solicitud")}:{" "}
+                        {estadoDiscapacidad === "aprobada"
+                            ? t("✅ Aprobada (cuenta con discapacidad activa)")
+                            : estadoDiscapacidad === "rechazada"
+                                ? t("❌ Rechazada")
+                                : estadoDiscapacidad === "no solicitado"
+                                    ? t("⚠️ Todavía no se ha solicitado")
+                                    : t("Cargando...")}
+                    </Alert>
+                )}
+
             </section>
 
 
