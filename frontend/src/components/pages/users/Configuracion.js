@@ -32,6 +32,22 @@ const Configuracion = () => {
     const [estadoDiscapacidad, setEstadoDiscapacidad] = useState(null);
     const [reporte, setReporte] = useState("");
     const location = useLocation();
+    const [estadoSolicitud, setEstadoSolicitud] = useState("");
+
+    useEffect(() => {
+        const fetchEstado = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/estado-discapacidad/${usuario.user}`);
+                if (res.data.success) {
+                    setEstadoSolicitud(res.data.estado);
+                }
+            } catch (err) {
+                console.error("Error al obtener el estado de discapacidad:", err);
+            }
+        };
+
+        fetchEstado();
+    }, [usuario]);
 
     useEffect(() => {
         if (location.hash) {
@@ -221,7 +237,7 @@ useEffect(() => {
 
     return (
         <div className="bg-white py-5">
-            {usuario.discapacidad === true && (
+            {usuario.discapacidad === "sí" && (
                 <div className="text-center mb-3">
                     <span className="badge bg-success">♿ Cuenta con discapacidad activa</span>
                 </div>
@@ -336,6 +352,7 @@ useEffect(() => {
                     </Modal.Body>
                 </Modal>
 
+<<<<<<< HEAD
                {estadoDiscapacidad && (
   <Alert
     variant={
@@ -358,6 +375,25 @@ useEffect(() => {
   </Alert>
 )}
 
+=======
+                <Alert
+                    variant={
+                        estadoSolicitud === "pendiente"
+                            ? "warning"
+                            : estadoSolicitud === "aprobada"
+                                ? "success"
+                                : "secondary"
+                    }
+                    className="mt-3 text-center"
+                >
+                    {t("Estado de la solicitud")}:{" "}
+                    {estadoSolicitud === "pendiente"
+                        ? t("Pendiente de validación")
+                        : estadoSolicitud === "aprobada"
+                            ? t("Aprobada (cuenta con discapacidad activa)")
+                            : t("No se ha solicitado o ha sido rechazada")}
+                </Alert>
+>>>>>>> 1762cef77f7344c65d1fcbe24ac2ae5b9795167f
             </section>
 
 

@@ -21,6 +21,8 @@ export default function Eventos() {
     const [precioMaximo, setPrecioMaximo] = useState(1000);
     const [precioSeleccionado, setPrecioSeleccionado] = useState(1000); // valor actual elegido
     const idAperturaDirecta = queryParams.get("abrir");
+    const [cantidadEntradas, setCantidadEntradas] = useState(1);
+
 
     useEffect(() => {
         fetch("http://localhost:5000/eventos")
@@ -78,13 +80,14 @@ export default function Eventos() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                precio: precioFinal,
+                precio: precioFinal * cantidadEntradas,
                 evento: evento.nombre_evento,
                 event_id: evento.id,
                 user_id: usuario.id,
-                asiento: "A12", // o cualquier valor generado
+                asiento: "A12", // puedes adaptar si es necesario
                 nombre_comprador: usuario.nombre,
-                email_comprador: usuario.email
+                email_comprador: usuario.email,
+                cantidad: cantidadEntradas // este campo sí es enviado
             })
         });
 
@@ -308,7 +311,7 @@ export default function Eventos() {
 
                                             // fallback de seguridad en caso de que el usuario venga incompleto
                                             const isPremium = usuario?.is_premium || usuario?.role === "premium";
-                                            const isDiscapacidad = Boolean(usuario?.discapacidad);
+                                            const isDiscapacidad = usuario?.discapacidad === "sí";
 
                                             let descuento = 0;
                                             let tipoDescuento = null;
@@ -344,6 +347,27 @@ export default function Eventos() {
                                             : <p className="text-success">✅ Apto para todos los públicos</p>}
                                         <p><strong>🧍‍♂️ Tipo de espacio:</strong> {eventoSeleccionado.tipo_espacio}</p>
                                     </div>
+                                    {/* Mostrar cantidad SOLO si es de tipo 'normal' */}
+                                    {eventoSeleccionado.tipo_espacio === "normal" && (
+                                        <div className="mb-3">
+                                            <label htmlFor="cantidad" className="form-label">🎟️ ¿Cuántas entradas deseas comprar?</label>
+                                            <input
+                                                type="number"
+                                                id="cantidad"
+                                                className="form-control"
+                                                min={1}
+                                                max={8}
+                                                value={cantidadEntradas}
+                                                onChange={(e) => {
+                                                    const val = Number(e.target.value);
+                                                    if (val >= 1 && val <= 8) {
+                                                        setCantidadEntradas(val);
+                                                    }
+                                                }}
+                                            />
+                                            <small className="text-muted">Puedes comprar hasta 8 entradas por usuario</small>
+                                        </div>
+                                    )}
 
                                     <div className="modal-footer border-0 pt-0">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -351,9 +375,16 @@ export default function Eventos() {
 
                                         {/* Condición para botones según tipo_espacio */}
                                         {eventoSeleccionado.tipo_espacio === "normal" && (
-                                            <button className="btn btn-primary" onClick={() => iniciarPago(eventoSeleccionado)}>
-                                                Comprar con Stripe
-                                            </button>
+                                            usuario ? (
+
+                                                <button className="btn btn-primary" onClick={() => iniciarPago(eventoSeleccionado)}>
+                                                    Comprar con Stripe
+                                                </button>
+                                            ) : (
+                                                <button className="btn btn-secondary" disabled>
+                                                    Inicia sesión para comprar
+                                                </button>
+                                            )
                                         )}
 
                                         {eventoSeleccionado.tipo_espacio === "teatro" && (

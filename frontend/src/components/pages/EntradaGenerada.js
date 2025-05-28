@@ -9,13 +9,18 @@ export default function EntradaGenerada() {
     const [entrada, setEntrada] = useState(null);
 
     useEffect(() => {
+        if (!email || !evento) return;
+
         fetch(`http://localhost:5000/tickets-por-email?email=${email}&evento=${evento}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.entrada) {
                     setEntrada(data.entrada);
+                } else {
+                    console.warn("Entrada no encontrada:", data.message);
                 }
-            });
+            })
+            .catch(err => console.error("Error al buscar entrada:", err));
     }, [email, evento]);
 
     if (!entrada) return <p>Cargando entrada...</p>;
