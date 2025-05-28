@@ -39,7 +39,7 @@ def login():
             apellido=user_data['surname'],
             role=user_data['role'],
             is_premium=(user_data['role'] == 'premium'),  # ✅ AÑADIDO
-            discapacidad = bool(user_data.get('discapacidad', False)),
+            discapacidad=user_data.get('discapacidad', 'no'),
             profile=profile_base64,
             email=user_data['email'],
         )
