@@ -68,7 +68,6 @@ const Configuracion = () => {
     }, [usuario]);
 
     useEffect(() => {
-<<<<<<< Updated upstream
         const obtenerEstado = async () => {
             try {
                 const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
@@ -118,38 +117,6 @@ const Configuracion = () => {
 
         confirmarPremium();
     }, [location]);
-=======
-    const params = new URLSearchParams(location.search);
-    const success = params.get("success");
-    const userId = params.get("user_id");
-    const paymentStatus = params.get("payment_status");
-
-    const confirmarPremium = async () => {
-        if (success === "true" && userId && paymentStatus === "COMPLETED") {
-            try {
-                const res = await axios.post("http://localhost:5000/update-role-to-premium", {
-                    user_id: userId,
-                    payment_status: "COMPLETED"
-                });
-
-                if (res.data.success) {
-                    setSubscriptionExpiry(res.data.expiry_date);
-                    alert("🎉 ¡Tu cuenta ahora es Premium!");
-                    window.location.href = "/configuracion";
-                } else {
-                    alert(res.data.message || "Error al actualizar tu cuenta.");
-                }
-            } catch (err) {
-                console.error("Error al actualizar rol premium:", err);
-                alert("Error al conectar con el servidor.");
-            }
-        }
-    };
-
-    confirmarPremium();
-}, [location]);
-
->>>>>>> Stashed changes
 
     if (!usuario) {
         return null;
