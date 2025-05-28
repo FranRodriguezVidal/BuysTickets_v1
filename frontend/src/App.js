@@ -6,6 +6,7 @@ import Administracion from "./components/pages/admins/Administracion";
 import Usuarios from "./components/pages/admins/Usuarios";
 import Ventas from "./components/pages/admins/Ventas";
 import Asientos3D from "./components/pages/Asiento3D";
+import EntradaGenerada from "./components/pages/EntradaGenerada";
 import Eventos from "./components/pages/Eventos";
 import Inicio from "./components/pages/Inicio";
 import Licencias from "./components/pages/Licencias";
@@ -25,6 +26,12 @@ function App() {
           <Route path="/inicio" element={<Inicio />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/seleccionar-asientos/:id" element={<Asientos3D />} />
+
+        <Route path="/entrada-generada" element={
+          <PrivateRoute>
+            <EntradaGenerada />
+          </PrivateRoute>} />
+
           <Route path="/configuracion" element={
             <PrivateRoute>
               <Configuracion />

@@ -351,9 +351,15 @@ export default function Eventos() {
 
                                         {/* Condición para botones según tipo_espacio */}
                                         {eventoSeleccionado.tipo_espacio === "normal" && (
-                                            <button className="btn btn-primary" onClick={() => iniciarPago(eventoSeleccionado)}>
-                                                Comprar con Stripe
-                                            </button>
+                                            usuario ? (
+                                                <button className="btn btn-primary" onClick={() => iniciarPago(eventoSeleccionado)}>
+                                                    Comprar con Stripe
+                                                </button>
+                                            ) : (
+                                                <button className="btn btn-secondary" disabled>
+                                                    Inicia sesión para comprar
+                                                </button>
+                                            )
                                         )}
 
                                         {eventoSeleccionado.tipo_espacio === "teatro" && (

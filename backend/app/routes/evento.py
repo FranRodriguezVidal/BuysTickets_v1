@@ -340,3 +340,25 @@ def ticket_por_email():
         return jsonify(success=True, entrada=entrada)
     else:
         return jsonify(success=False, message="Entrada no encontrada")
+    
+@eventos_bp.route('/registrar-ticket-directo', methods=['POST'])
+def registrar_ticket_directo():
+    data = request.get_json()
+
+    try:
+        cursor.execute("""
+            INSERT INTO tickets (user_id, event_id, precio_total, asiento, nombre_comprador, email_comprador, fecha_compra)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """, (
+            data["user_id"],
+            data["event_id"],
+            data["precio_total"],
+            data["asiento"],
+            data["nombre_comprador"],
+            data["email_comprador"]
+        ))
+        db.commit()
+        return jsonify(success=True)
+    except Exception as e:
+        db.rollback()
+        return jsonify(success=False, message=str(e)), 500
