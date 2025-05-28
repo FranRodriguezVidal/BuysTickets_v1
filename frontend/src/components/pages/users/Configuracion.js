@@ -344,6 +344,16 @@ const Configuracion = () => {
                         </button>
                     </div>
                 )}
+                {!usuario.is_premium && usuario.role !== "premium" && (
+                    <div className="text-center mb-4">
+                        <button
+                            className="btn btn-warning"  // Bootstrap class for yellow button
+                            onClick={handleUpgradeToPremium}
+                        >
+                            {t("Hazte Premium por solo 2,99 €")}
+                        </button>
+                    </div>
+                )}
 
                 {usuario.is_premium || usuario.role === "premium" ? (
                     <div className="alert alert-success text-center">
