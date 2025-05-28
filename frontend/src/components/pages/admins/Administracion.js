@@ -37,7 +37,7 @@ const AdminSolicitudesYReportes = () => {
 
     const obtenerReportes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/reportes");
+            const res = await axios.get("http://localhost:5000/reportes/reportar-obtener");
             console.log("Reportes recibidos:", res.data);
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
@@ -151,31 +151,37 @@ const AdminSolicitudesYReportes = () => {
 
     // Enviar respuesta por correo
     const enviarRespuesta = async () => {
-        if (!respuesta) {
-            setError(t("Por favor, escribe una respuesta."));
-            return;
+    if (!respuesta) {
+        setError(t("Por favor, escribe una respuesta."));
+        return;
+    }
+
+    try {
+        const res = await axios.post("http://localhost:5000/reportes/enviar-correo-estado", {
+            usuario: reporteSeleccionado.usuario,
+            estado: reporteSeleccionado.estado,
+            mensaje: respuesta
+        });
+
+        if (res.data.success) {
+            setSuccess(t("Respuesta enviada correctamente"));
+            await actualizarEstadoReporte(reporteSeleccionado.id, "resuelta");
+            setShowModal(false);
+            obtenerReportes();
+        } else {
+            setError(res.data.message);
         }
-
-        try {
-            const res = await axios.post("http://localhost:5000/reportes/enviar-correo-estado", {
-                usuario: reporteSeleccionado.usuario,
-                estado: reporteSeleccionado.estado,
-                mensaje: respuesta
-            });
-
-            if (res.data.success) {
-                setSuccess(t("Respuesta enviada correctamente"));
-                // Actualizar el estado del reporte a 'resuelta'
-                await actualizarEstadoReporte(reporteSeleccionado.id, "resuelta");
-                setShowModal(false); // Cerrar el modal
-                obtenerReportes(); // Recargar los reportes
-            } else {
-                setError(res.data.message);
-            }
-        } catch {
+    } catch(error) {
+        console.error("Error detalle axios:", error);
+        // Si hay respuesta del servidor, mostrar mensaje específico
+        if (error.response && error.response.data && error.response.data.message) {
+            setError(error.response.data.message);
+        } else {
             setError(t("Error al enviar la respuesta"));
         }
-    };
+    }
+};
+
 
     // Enviar el anuncio a todos los usuarios excepto los administradores
     const enviarAnuncio = async () => {
@@ -238,24 +244,27 @@ const AdminSolicitudesYReportes = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {solicitudes.map((s) => (
-                        <tr key={s.id}>
-                            <td>{s.nombre}</td>
-                            <td>{s.apellido}</td>
-                            <td>{s.dni}</td>
-                            <td>{s.grado_discapacidad}</td>
-                            <td>
-                                <a href={`http://localhost:5000/descargar-archivo/${s.id}`} target="_blank" rel="noreferrer">
-                                    {t("Descargar archivo")}
-                                </a>
-                            </td>
-                            <td>{t(s.estado)}</td>
-                            <td>
-                                <Button variant="success" size="sm" onClick={() => actualizarEstadoSolicitud(s.id, "aprobada")} className="me-2">{t("Aprobar")}</Button>
-                                <Button variant="danger" size="sm" onClick={() => actualizarEstadoSolicitud(s.id, "rechazada")}>{t("Rechazar")}</Button>
-                            </td>
-                        </tr>
-                    ))}
+                    {solicitudes
+                        .filter((s) => s.estado === "pendiente")
+                        .map((s) => (
+
+                            <tr key={s.id}>
+                                <td>{s.nombre}</td>
+                                <td>{s.apellido}</td>
+                                <td>{s.dni}</td>
+                                <td>{s.grado_discapacidad}</td>
+                                <td>
+                                    <a href={`http://localhost:5000/descargar-archivo/${s.id}`} target="_blank" rel="noreferrer">
+                                        {t("Descargar archivo")}
+                                    </a>
+                                </td>
+                                <td>{t(s.estado)}</td>
+                                <td>
+                                    <Button variant="success" size="sm" onClick={() => actualizarEstadoSolicitud(s.id, "aprobada")} className="me-2">{t("Aprobar")}</Button>
+                                    <Button variant="danger" size="sm" onClick={() => actualizarEstadoSolicitud(s.id, "rechazada")}>{t("Rechazar")}</Button>
+                                </td>
+                            </tr>
+                        ))}
                 </tbody>
             </Table>
 

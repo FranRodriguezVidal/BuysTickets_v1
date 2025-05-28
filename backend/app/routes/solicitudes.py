@@ -6,7 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-from utils.db import cursor, db  # Asegúrate de que `db` esté correctamente importado
+from utils.db import cursor, db  # Asegúrate de que db esté correctamente importado
 
 # Configuración de la contraseña de Gmail desde una variable de entorno
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
@@ -173,6 +173,9 @@ def actualizar_estado_solicitud():
         # Cambiar campo discapacidad del usuario según el estado
         nuevo_valor_discapacidad = "sí" if nuevo_estado == "aprobada" else "no"
         cursor.execute("UPDATE users SET discapacidad = %s WHERE user = %s", (nuevo_valor_discapacidad, usuario))
+
+         # Eliminar solicitud una vez se aprueba o rechaza
+        cursor.execute("DELETE FROM solicitudes_discapacidad WHERE id = %s", (solicitud_id,))
 
         db.commit()
 

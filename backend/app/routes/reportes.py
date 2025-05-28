@@ -3,12 +3,12 @@ import mysql.connector
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
-from utils.db import cursor, db  # Asegúrate de que está correctamente importado
 import os
-from app.utils.db import cursor
+from app.utils.db import cursor, db
 
 # Configuración de la contraseña de Gmail desde una variable de entorno
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
+REMITENTE = "buystickets.customer@gmail.com"
 
 # Definición del Blueprint
 reportes_bp = Blueprint('reportes', __name__)
@@ -27,13 +27,26 @@ def reportar_error():
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
     
     try:
-        # Insertar el nuevo reporte
+        # 👉 Crear la tabla reportes si no existe
         cursor.execute("""
-            INSERT INTO reportes (usuario, reporte, estado, fecha_creacion)
-            VALUES (%s, %s, 'pendiente', NOW())
+            CREATE TABLE IF NOT EXISTS reportes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                usuario VARCHAR(255) NOT NULL,
+                reporte TEXT NOT NULL,
+                estado VARCHAR(50) DEFAULT 'pendiente',
+                fecha_creacion DATETIME DEFAULT NOW()
+            )
+        """)
+        
+        # 👉 Insertar el nuevo reporte con valores por defecto
+        cursor.execute("""
+            INSERT INTO reportes (usuario, reporte)
+            VALUES (%s, %s)
         """, (usuario, reporte))
+        
         db.commit()
         return jsonify(success=True, message="Reporte enviado correctamente."), 201
+
     except mysql.connector.Error as err:
         db.rollback()
         print(f"❌ Error SQL al guardar el reporte: {err}")
@@ -43,7 +56,7 @@ def reportar_error():
 # 📌 **2️⃣ Obtener reportes**
 # ==============================
 
-@reportes_bp.route('/', methods=['GET'])
+@reportes_bp.route('/reportar-obtener', methods=['GET'])
 def obtener_reportes():
 
     estado = request.args.get('estado')
@@ -88,27 +101,29 @@ def actualizar_reporte():
     if not reporte_id or not nuevo_estado:
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
     
-    # Validar el estado
     if nuevo_estado not in ['pendiente', 'arreglada', 'resuelta', 'eliminado']:
         return jsonify(success=False, message="Estado inválido."), 400
     
     try:
         if nuevo_estado == 'eliminado':
+            # 🗑️ Eliminar el reporte directamente
             cursor.execute("DELETE FROM reportes WHERE id = %s", (reporte_id,))
-            db.commit()
-            return jsonify(success=True, message="Reporte eliminado correctamente."), 200
+        else:
+            # ✅ Actualizar el estado
+            cursor.execute("UPDATE reportes SET estado = %s WHERE id = %s", (nuevo_estado, reporte_id))
         
-        cursor.execute("UPDATE reportes SET estado = %s WHERE id = %s", (nuevo_estado, reporte_id))
         db.commit()
 
         if cursor.rowcount == 0:
             return jsonify(success=False, message="Reporte no encontrado."), 404
-        
-        return jsonify(success=True, message="Estado del reporte actualizado correctamente."), 200
+
+        return jsonify(success=True, message="Actualización exitosa."), 200
+
     except mysql.connector.Error as err:
         db.rollback()
-        print(f"❌ Error SQL al actualizar el reporte: {err}")
-        return jsonify(success=False, message=f"Error al actualizar el reporte: {str(err)}"), 500
+        print(f"❌ Error SQL: {err}")
+        return jsonify(success=False, message=f"Error: {str(err)}"), 500
+
 
 # ==============================
 # 📌 **4️⃣ Enviar correo de estado**
@@ -123,35 +138,36 @@ def enviar_correo_estado():
     if not usuario or not estado:
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
 
-    # Buscar el correo del usuario
-    cursor.execute("SELECT email FROM users WHERE user = %s", (usuario,))
-    user_data = cursor.fetchone()
+    try:
+        cursor.execute("SELECT email FROM users WHERE user = %s", (usuario,))
+        user_data = cursor.fetchone()
+    except Exception as db_error:
+        return jsonify(success=False, message="Error al buscar el usuario en la base de datos."), 500
 
     if not user_data:
         return jsonify(success=False, message="Usuario no encontrado."), 404
 
     email = user_data["email"]
-
-    # Crear el asunto y cuerpo del correo
     asunto = f"Reporte {estado.capitalize()}"
     cuerpo = f"Tu reporte ha sido marcado como {estado}.\n\nMensaje del administrador:\n{mensaje}"
 
-    # Configuración del correo
-    remitente = "buystickets.customer@gmail.com"
-
     mensaje_correo = MIMEMultipart("alternative")
     mensaje_correo["Subject"] = asunto
-    mensaje_correo["From"] = remitente
+    mensaje_correo["From"] = REMITENTE
     mensaje_correo["To"] = email
     mensaje_correo.attach(MIMEText(cuerpo, "plain"))
 
     try:
+        if not GMAIL_PASSWORD:
+            raise ValueError("GMAIL_PASSWORD no está configurada.")
+
         servidor = smtplib.SMTP("smtp.gmail.com", 587)
         servidor.starttls()
-        servidor.login(remitente, GMAIL_PASSWORD)
-        servidor.sendmail(remitente, email, mensaje_correo.as_string())
+        servidor.login(REMITENTE, GMAIL_PASSWORD)
+        servidor.sendmail(REMITENTE, email, mensaje_correo.as_string())
         servidor.quit()
-        print(f"✅ Correo de notificación enviado a {email}")
+
+        print(f"✅ Correo enviado a {email}")
         return jsonify(success=True, message="Correo enviado correctamente."), 200
     except Exception as e:
         print(f"❌ Error al enviar correo: {e}")
