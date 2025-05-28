@@ -67,25 +67,25 @@ const Configuracion = () => {
         }
     }, [usuario]);
 
-useEffect(() => {
-    const obtenerEstado = async () => {
-        try {
-            const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
-            if (res.data.success) {
-                setEstadoDiscapacidad(res.data.estado);
-            } else {
+    useEffect(() => {
+        const obtenerEstado = async () => {
+            try {
+                const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
+                if (res.data.success) {
+                    setEstadoDiscapacidad(res.data.estado);
+                } else {
+                    setEstadoDiscapacidad("error");
+                }
+            } catch (error) {
+                console.error("Error al obtener estado discapacidad:", error);
                 setEstadoDiscapacidad("error");
             }
-        } catch (error) {
-            console.error("Error al obtener estado discapacidad:", error);
-            setEstadoDiscapacidad("error");
-        }
-    };
+        };
 
-    if (usuario && usuario.user) {
-        obtenerEstado();
-    }
-}, [usuario]);
+        if (usuario && usuario.user) {
+            obtenerEstado();
+        }
+    }, [usuario]);
 
 
 
@@ -237,7 +237,7 @@ useEffect(() => {
 
     return (
         <div className="bg-white py-5">
-            {usuario.discapacidad === "sí" && (
+            {usuario.discapacidad === true && (
                 <div className="text-center mb-3">
                     <span className="badge bg-success">♿ Cuenta con discapacidad activa</span>
                 </div>
@@ -352,48 +352,29 @@ useEffect(() => {
                     </Modal.Body>
                 </Modal>
 
-<<<<<<< HEAD
-               {estadoDiscapacidad && (
-  <Alert
-    variant={
-      estadoDiscapacidad === "aprobada"
-        ? "success"
-        : estadoDiscapacidad === "rechazada"
-        ? "danger"
-        : "secondary"
-    }
-    className="mt-3 text-center"
-  >
-    {t("Estado de la solicitud")}:{" "}
-    {estadoDiscapacidad === "aprobada"
-      ? t("✅ Aprobada (cuenta con discapacidad activa)")
-      : estadoDiscapacidad === "rechazada"
-      ? t("❌ Rechazada")
-      : estadoDiscapacidad === "no solicitado"
-      ? t("⚠️ Todavía no se ha solicitado")
-      : t("Cargando...")}
-  </Alert>
-)}
-
-=======
-                <Alert
-                    variant={
-                        estadoSolicitud === "pendiente"
-                            ? "warning"
-                            : estadoSolicitud === "aprobada"
+                {estadoDiscapacidad && (
+                    <Alert
+                        variant={
+                            estadoDiscapacidad === "aprobada"
                                 ? "success"
-                                : "secondary"
-                    }
-                    className="mt-3 text-center"
-                >
-                    {t("Estado de la solicitud")}:{" "}
-                    {estadoSolicitud === "pendiente"
-                        ? t("Pendiente de validación")
-                        : estadoSolicitud === "aprobada"
-                            ? t("Aprobada (cuenta con discapacidad activa)")
-                            : t("No se ha solicitado o ha sido rechazada")}
-                </Alert>
->>>>>>> 1762cef77f7344c65d1fcbe24ac2ae5b9795167f
+                                : estadoDiscapacidad === "rechazada"
+                                    ? "danger"
+                                    : "secondary"
+                        }
+                        className="mt-3 text-center"
+                    >
+                        {t("Estado de la solicitud")}:{" "}
+                        {estadoDiscapacidad === "aprobada"
+                            ? t("✅ Aprobada (cuenta con discapacidad activa)")
+                            : estadoDiscapacidad === "rechazada"
+                                ? t("❌ Rechazada")
+                                : estadoDiscapacidad === "no solicitado"
+                                    ? t("⚠️ Todavía no se ha solicitado")
+                                    : t("Cargando...")}
+                    </Alert>
+                )}
+
+
             </section>
 
 

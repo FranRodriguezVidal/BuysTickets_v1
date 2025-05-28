@@ -225,9 +225,11 @@ def estado_discapacidad_usuario(user):
             estado_solicitud = solicitud['estado']
             return jsonify(success=True, estado=estado_solicitud)
 
-        # Si no hay solicitud, el valor viene de 'users.discapacidad'
+        # No hay solicitud pero campo discapacidad tiene valor
         if discapacidad == "sí":
             return jsonify(success=True, estado="aprobada")
+        elif discapacidad == "no":
+            return jsonify(success=True, estado="rechazada")
         else:
             return jsonify(success=True, estado="no solicitado")
 
