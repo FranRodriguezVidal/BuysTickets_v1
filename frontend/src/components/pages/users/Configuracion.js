@@ -316,7 +316,7 @@ const Configuracion = () => {
 
     return (
         <div className="bg-white py-5">
-            {usuario.discapacidad === "sí" && (
+            {usuario.discapacidad === true && (
                 <div className="text-center mb-3">
                     <span className="badge bg-success">♿ Cuenta con discapacidad activa</span>
                 </div>
@@ -475,7 +475,6 @@ const Configuracion = () => {
                                     : t("Cargando...")}
                     </Alert>
                 )}
-
             </section>
 
 
