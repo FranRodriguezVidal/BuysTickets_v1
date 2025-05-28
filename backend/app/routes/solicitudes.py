@@ -174,7 +174,7 @@ def actualizar_estado_solicitud():
         nuevo_valor_discapacidad = "sí" if nuevo_estado == "aprobada" else "no"
         cursor.execute("UPDATE users SET discapacidad = %s WHERE user = %s", (nuevo_valor_discapacidad, usuario))
 
-         # Eliminar solicitud una vez se aprueba o rechaza
+        # Eliminar solicitud una vez se aprueba o rechaza
         cursor.execute("DELETE FROM solicitudes_discapacidad WHERE id = %s", (solicitud_id,))
 
         db.commit()
