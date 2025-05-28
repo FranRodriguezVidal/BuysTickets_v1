@@ -14,6 +14,7 @@ import AdminRoute from "./components/pages/routeSecure/AdminRoute";
 import PrivateRoute from "./components/pages/routeSecure/PrivateRoute";
 import Configuracion from "./components/pages/users/Configuracion";
 import Entradas from "./components/pages/users/Entradas";
+import PagoExitoso from "./components/pages/users/PagoExitoso";
 import { UserProvider } from "./context/UserContext";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/inicio" element={<Inicio />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/seleccionar-asientos/:id" element={<Asientos3D />} />
+          <Route path="/pago-exitoso" element={<PagoExitoso />} />
 
         <Route path="/entrada-generada" element={
           <PrivateRoute>

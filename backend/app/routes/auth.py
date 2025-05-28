@@ -54,7 +54,7 @@ def register():
     nombre = request.form.get('nombre')
     apellido = request.form.get('apellido')
     email = request.form.get('email')
-    role = "estandar"
+    role = "usuario"
 
     if not user or not password or not nombre or not apellido or not email:
         return jsonify(success=False, message="Todos los campos son obligatorios.")
