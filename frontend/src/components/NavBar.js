@@ -35,6 +35,7 @@ const NavBar = () => {
     const [recoveryError, setRecoveryError] = useState("");
     const [recoverySuccess, setRecoverySuccess] = useState("");
     const [sugerencias, setSugerencias] = useState([]);
+    const id = usuario?.id;
 
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
@@ -148,6 +149,7 @@ const NavBar = () => {
 
             if (response.data.success) {
                 const usuarioData = {
+                    id,
                     user,
                     nombre: response.data.nombre,
                     apellido: response.data.apellido,

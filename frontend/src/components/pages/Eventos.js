@@ -63,8 +63,8 @@ export default function Eventos() {
     async function iniciarPago(evento) {
         const base = Number(evento.precio);
         const user = {
-            is_premium: usuario?.is_premium || false,
-            discapacidad: usuario?.discapacidad || false
+            is_premium: usuario?.role === "premium",
+            discapacidad: (usuario?.discapacidad || "").toString().trim().toLowerCase() === "sí"
         };
 
         let descuento = 0;
@@ -309,9 +309,12 @@ export default function Eventos() {
                                         {(() => {
                                             const base = Number(eventoSeleccionado.precio);
 
-                                            // fallback de seguridad en caso de que el usuario venga incompleto
-                                            const isPremium = usuario?.is_premium || usuario?.role === "premium";
-                                            const isDiscapacidad = usuario?.discapacidad === "sí";
+                                            if (!usuario) {
+                                                return <p><strong>💶 Precio final:</strong> {base.toFixed(2)} €</p>;
+                                            }
+
+                                            const isPremium = usuario.role === "premium";
+                                            const isDiscapacidad = (usuario.discapacidad || "").toString().trim().toLowerCase() === "sí";
 
                                             let descuento = 0;
                                             let tipoDescuento = null;

@@ -35,6 +35,7 @@ def login():
 
         return jsonify(
             success=True,
+            id=user_data['id'],
             nombre=user_data['name'],
             apellido=user_data['surname'],
             role=user_data['role'],
@@ -54,7 +55,7 @@ def register():
     nombre = request.form.get('nombre')
     apellido = request.form.get('apellido')
     email = request.form.get('email')
-    role = "usuario"
+    role = "estandar"
 
     if not user or not password or not nombre or not apellido or not email:
         return jsonify(success=False, message="Todos los campos son obligatorios.")
