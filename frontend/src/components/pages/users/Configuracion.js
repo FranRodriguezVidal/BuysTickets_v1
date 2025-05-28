@@ -370,7 +370,6 @@ const Configuracion = () => {
                         {t("Solicitar cuenta con discapacidad")}
                     </Button>
                 </div>
-
                 <Modal show={showSolicitudModal} onHide={() => setShowSolicitudModal(false)} centered>
                     <Modal.Header closeButton>
                         <Modal.Title>{t("Solicitud de cuenta con discapacidad")}</Modal.Title>
