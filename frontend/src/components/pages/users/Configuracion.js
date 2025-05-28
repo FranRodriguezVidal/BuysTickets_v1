@@ -29,6 +29,7 @@ const Configuracion = () => {
     const [dniSolicitud, setDniSolicitud] = useState("");
     const [gradoDiscapacidad, setGradoDiscapacidad] = useState("");
     const [archivoDiscapacidad, setArchivoDiscapacidad] = useState(null);
+    const [estadoDiscapacidad, setEstadoDiscapacidad] = useState(null);
     const [reporte, setReporte] = useState("");
     const location = useLocation();
 
@@ -49,6 +50,27 @@ const Configuracion = () => {
             setSubscriptionExpiry(usuario.subscription_expiry_date || null);
         }
     }, [usuario]);
+
+useEffect(() => {
+    const obtenerEstado = async () => {
+        try {
+            const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
+            if (res.data.success) {
+                setEstadoDiscapacidad(res.data.estado);
+            } else {
+                setEstadoDiscapacidad("error");
+            }
+        } catch (error) {
+            console.error("Error al obtener estado discapacidad:", error);
+            setEstadoDiscapacidad("error");
+        }
+    };
+
+    if (usuario && usuario.user) {
+        obtenerEstado();
+    }
+}, [usuario]);
+
 
 
     if (!usuario) {
@@ -314,15 +336,28 @@ const Configuracion = () => {
                     </Modal.Body>
                 </Modal>
 
-                <Alert
-                    variant={Boolean(usuario.discapacidad) ? "success" : "secondary"}
-                    className="mt-3 text-center"
-                >
-                    {t("Estado de la solicitud")}:{" "}
-                    {Boolean(usuario.discapacidad)
-                        ? t("Aprobada (cuenta con discapacidad activa)")
-                        : t("No se ha solicitado o ha sido rechazada")}
-                </Alert>
+               {estadoDiscapacidad && (
+  <Alert
+    variant={
+      estadoDiscapacidad === "aprobada"
+        ? "success"
+        : estadoDiscapacidad === "rechazada"
+        ? "danger"
+        : "secondary"
+    }
+    className="mt-3 text-center"
+  >
+    {t("Estado de la solicitud")}:{" "}
+    {estadoDiscapacidad === "aprobada"
+      ? t("✅ Aprobada (cuenta con discapacidad activa)")
+      : estadoDiscapacidad === "rechazada"
+      ? t("❌ Rechazada")
+      : estadoDiscapacidad === "no solicitado"
+      ? t("⚠️ Todavía no se ha solicitado")
+      : t("Cargando...")}
+  </Alert>
+)}
+
             </section>
 
 
