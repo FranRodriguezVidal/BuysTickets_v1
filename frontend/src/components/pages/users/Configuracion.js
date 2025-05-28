@@ -87,7 +87,36 @@ const Configuracion = () => {
         }
     }, [usuario]);
 
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const success = params.get("success");
+        const userId = params.get("user_id");
+        const paymentStatus = params.get("payment_status");
 
+        const confirmarPremium = async () => {
+            if (success === "true" && userId && paymentStatus === "COMPLETED") {
+                try {
+                    const res = await axios.post("http://localhost:5000/update-role-to-premium", {
+                        user_id: userId,
+                        payment_status: "COMPLETED"
+                    });
+
+                    if (res.data.success) {
+                        setSubscriptionExpiry(res.data.expiry_date);
+                        alert("🎉 ¡Tu cuenta ahora es Premium!");
+                        window.location.href = "/configuracion";
+                    } else {
+                        alert(res.data.message || "Error al actualizar tu cuenta.");
+                    }
+                } catch (err) {
+                    console.error("Error al actualizar rol premium:", err);
+                    alert("Error al conectar con el servidor.");
+                }
+            }
+        };
+
+        confirmarPremium();
+    }, [location]);
 
     if (!usuario) {
         return null;
@@ -235,6 +264,23 @@ const Configuracion = () => {
         }
     };
 
+    const handleUpgradeToPremium = async () => {
+        try {
+            const response = await axios.post("http://localhost:5000/create-checkout-session", {
+                user_id: usuario.user,
+            });
+
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                alert(t("Error al crear la sesión de pago."));
+            }
+        } catch (err) {
+            console.error(err);
+            alert(t("Error al conectar con el servidor."));
+        }
+    };
+
     return (
         <div className="bg-white py-5">
             {usuario.discapacidad === true && (
@@ -288,6 +334,16 @@ const Configuracion = () => {
                 <h5 className="text-center mb-4 text-muted">
                     {t("Disfruta de beneficios exclusivos como contenido adicional, descuentos y prioridad en eventos.")}
                 </h5>
+                {!usuario.is_premium && usuario.role !== "premium" && (
+                    <div className="text-center mb-4">
+                        <button
+                            className="btn btn-warning"  // Bootstrap class for yellow button
+                            onClick={handleUpgradeToPremium}
+                        >
+                            {t("Hazte Premium por solo 2,99 €")}
+                        </button>
+                    </div>
+                )}
 
                 {usuario.is_premium || usuario.role === "premium" ? (
                     <div className="alert alert-success text-center">
@@ -373,8 +429,6 @@ const Configuracion = () => {
                                     : t("Cargando...")}
                     </Alert>
                 )}
-
-
             </section>
 
 

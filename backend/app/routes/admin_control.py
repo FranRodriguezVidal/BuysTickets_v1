@@ -24,7 +24,7 @@ def register_adminControl():
     nombre = request.form.get('nombre')
     apellido = request.form.get('apellido')
     email = request.form.get('email')
-    role = request.form.get('role', 'estandar')
+    role = request.form.get('role', 'usuario')
     discapacidad = request.form.get('discapacidad', 'no')
     profile = request.files.get('profile')
 
