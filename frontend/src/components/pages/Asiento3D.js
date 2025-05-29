@@ -1,4 +1,4 @@
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, useTexture, useVideoTexture } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Modal } from 'react-bootstrap';
@@ -14,7 +14,7 @@ function Butaca({ position, ocupada, seleccionada, deshabilitada, onClick }) {
     });
     return (
         <group position={position} onClick={!ocupada && !deshabilitada ? onClick : null} rotation={[0, Math.PI, 0]}>
-            <mesh position={[0, 0.5, -0.15]} castShadow>
+            <mesh position={[0, 0.5, -0.25]} castShadow>
                 <boxGeometry args={[0.6, 0.6, 0.1]} />
                 <meshStandardMaterial color={ocupada ? 'gray' : deshabilitada ? 'red' : seleccionada ? 'green' : 'blue'} />
             </mesh>
@@ -26,20 +26,103 @@ function Butaca({ position, ocupada, seleccionada, deshabilitada, onClick }) {
     );
 }
 
-function Escenario() {
+function Escalera({ lado = 'derecha', filas = 25 }) {
+    const posicionBaseX = lado === 'izquierda' ? -21.5 : 20.5;
+
     return (
-        <mesh position={[0, -0.5, -14]} receiveShadow>
-            <boxGeometry args={[20, 1, 3]} />
-            <meshStandardMaterial color="black" />
+        <group>
+            {Array.from({ length: filas }).map((_, idx) => {
+                const ancho = 2 + idx * 0.2;  // cada peldaño más ancho
+                const y = idx * 0.2;
+                const z = idx - filas / 2;
+                const offsetX = (lado === 'izquierda' ? -1 : 1) * (ancho - 2) / 2;
+
+                return (
+                    <mesh
+                        key={idx}
+                        position={[posicionBaseX + offsetX, y, z]}
+                        castShadow
+                        receiveShadow
+                    >
+                        <boxGeometry args={[ancho, 0.5, 1]} />
+                        <meshStandardMaterial color="#888" />
+                    </mesh>
+                );
+            })}
+        </group>
+    );
+}
+
+function Escenario() {
+    const texture = useTexture('/images/wood.png');
+
+    return (
+        <mesh position={[0, 0.2, -20]} receiveShadow>
+            <boxGeometry args={[50, 1.5, 10]} />
+            <meshStandardMaterial map={texture} />
         </mesh>
     );
 }
 
-function Suelo() {
+function ParedDetrasEscenario() {
     return (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]} receiveShadow>
-            <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color="#555" />
+        <mesh position={[0, 5, -26]} receiveShadow>
+            <boxGeometry args={[60, 40, 1]} />
+            <meshStandardMaterial color="#222" />
+        </mesh>
+    );
+}
+
+
+
+function PantallaCineVideo() {
+    const texture = useVideoTexture('/videos/yoda.mp4');
+
+    return (
+        <mesh position={[0, 13, -25.4]}>
+            <planeGeometry args={[50, 20]} />
+            <meshStandardMaterial map={texture} toneMapped={false} />
+        </mesh>
+    );
+
+}
+
+function SueloEscalonadoBajoButacas({ filas = 25, columnas = 45 }) {
+    const anchoTotal = columnas * 1.1; // cada columna = 1 unidad
+
+    return (
+        <group>
+            {Array.from({ length: filas }).map((_, idx) => {
+                const y = idx * 0.2; // altura escalonada como las butacas
+                const z = idx - filas / 2;
+
+                return (
+                    <mesh
+                        key={idx}
+                        position={[0, y - 0, z]} // bajamos un poco para que no choque con las butacas
+                        receiveShadow
+                    >
+                        <boxGeometry args={[anchoTotal, 0.2, 1]} />
+                        <meshStandardMaterial color="#444" />
+                    </mesh>
+                );
+            })}
+        </group>
+    );
+}
+
+function Actor() {
+    const ref = useRef();
+    useFrame(() => {
+        if (ref.current) {
+            ref.current.rotation.y += 0.01; // Gira lentamente
+        }
+    });
+
+    return (
+        <mesh ref={ref} position={[0, 1, -16]} castShadow>
+            <sphereGeometry args={[1, 32, 32]} />
+            <meshStandardMaterial color="orange" />
         </mesh>
     );
 }
@@ -115,24 +198,27 @@ export default function Asientos3D() {
                         <button className="btn btn-outline-dark btn-sm mt-2" onClick={() => setShowVista(true)}>
                             Ver cómo se ve desde aquí
                         </button>
-                    </div>
-
-                    <div className="d-flex justify-content-end pe-5 mb-2">
-                        <div className="text-end">
-                            <p><span className="badge bg-success">🟩</span> Seleccionado</p>
-                            <p><span className="badge bg-danger">🟥</span> Reservado discapacidad</p>
-                            <p><span className="badge bg-secondary">⬜</span> Ocupado</p>
-                            <p><span className="badge bg-primary">🟦</span> Disponible</p>
+                        <div className="mt-3">
+                            <p className="mb-0">
+                                <span className="badge bg-success d-inline-block me-2">&nbsp;</span>Seleccionado
+                                <span className="badge bg-danger d-inline-block mx-2">&nbsp;</span>Reservado discapacidad
+                                <span className="badge bg-secondary d-inline-block mx-2">&nbsp;</span>Ocupado
+                                <span className="badge bg-primary d-inline-block mx-2">&nbsp;</span>Disponible
+                            </p>
                         </div>
                     </div>
-
                     <div style={{ width: '100%', height: '80vh' }}>
                         <Canvas shadows camera={{ position: [0, 40, 60], fov: 50 }}>
                             <ambientLight intensity={0.4} />
                             <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow />
                             <OrbitControls />
                             <Escenario />
-                            <Suelo />
+                            <ParedDetrasEscenario />
+                            <PantallaCineVideo />
+                            <Actor />
+                            <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
+                            <Escalera lado="izquierda" filas={filas} />
+                            <Escalera lado="derecha" filas={filas} />
                             {Array.from({ length: filas }).map((_, filaIdx) =>
                                 Array.from({ length: columnas }).map((_, colIdx) => {
                                     const nombre = `F${filaIdx + 1}-S${colIdx + 1}`;
@@ -210,7 +296,12 @@ export default function Asientos3D() {
                                     })()}
 
                                     <Escenario />
-                                    <Suelo />
+                                    <ParedDetrasEscenario />
+                                    <PantallaCineVideo />
+                                    <Actor />
+                                    <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
+                                    <Escalera position={[-21, 0.05, 0]} /> {/* Escalera izquierda */}
+                                    <Escalera position={[21, 0.05, 0]} />  {/* Escalera derecha */}
                                     {Array.from({ length: filas }).map((_, filaIdx) =>
                                         Array.from({ length: columnas }).map((_, colIdx) => {
                                             const nombre = `F${filaIdx + 1}-S${colIdx + 1}`;
