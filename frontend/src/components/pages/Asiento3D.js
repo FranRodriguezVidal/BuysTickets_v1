@@ -57,8 +57,8 @@ function Escenario() {
     const texture = useTexture('/images/wood.png');
 
     return (
-        <mesh position={[0, 0.2, -20]} receiveShadow>
-            <boxGeometry args={[50, 1.5, 10]} />
+        <mesh position={[0, 0.2, -30]} receiveShadow>
+            <boxGeometry args={[50, 1.5, 30]} />
             <meshStandardMaterial map={texture} />
         </mesh>
     );
@@ -66,20 +66,28 @@ function Escenario() {
 
 function ParedDetrasEscenario() {
     return (
-        <mesh position={[0, 5, -26]} receiveShadow>
+        <mesh position={[0, 5, -36]} receiveShadow>
             <boxGeometry args={[60, 40, 1]} />
             <meshStandardMaterial color="#222" />
         </mesh>
     );
 }
 
-
+function Cortina({ lado = 'izquierda' }) {
+    const x = lado === 'izquierda' ? -26 : 26; // posiciones a ambos lados del escenario
+    return (
+        <mesh position={[x, 10, -30]}>
+            <boxGeometry args={[3, 20, 1]} />
+            <meshStandardMaterial color="#8B0000" /> {/* Rojo teatral */}
+        </mesh>
+    );
+}
 
 function PantallaCineVideo() {
     const texture = useVideoTexture('/videos/yoda.mp4');
 
     return (
-        <mesh position={[0, 13, -25.4]}>
+        <mesh position={[0, 13, -35.4]}>
             <planeGeometry args={[50, 20]} />
             <meshStandardMaterial map={texture} toneMapped={false} />
         </mesh>
@@ -215,6 +223,8 @@ export default function Asientos3D() {
                             <Escenario />
                             <ParedDetrasEscenario />
                             <PantallaCineVideo />
+                            <Cortina lado="izquierda" />
+                            <Cortina lado="derecha" />
                             <Actor />
                             <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
                             <Escalera lado="izquierda" filas={filas} />
@@ -298,6 +308,8 @@ export default function Asientos3D() {
                                     <Escenario />
                                     <ParedDetrasEscenario />
                                     <PantallaCineVideo />
+                                    <Cortina lado="izquierda" />
+                                    <Cortina lado="derecha" />
                                     <Actor />
                                     <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
                                     <Escalera position={[-21, 0.05, 0]} /> {/* Escalera izquierda */}
