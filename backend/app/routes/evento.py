@@ -206,6 +206,12 @@ def comprar_tickets():
                 e["nombre_comprador"],
                 e["email_comprador"]
             ))
+        # Añade esto justo antes de db.commit()
+        cursor.execute("""
+            UPDATE events SET entradas_vendidas = entradas_vendidas + %s
+            WHERE id = %s
+        """, (len(tickets), event_id))
+
         db.commit()
         return jsonify(success=True, message="tickets compradas", precio=precio_final, descuento=descuento)
     except Exception as e:
@@ -314,6 +320,11 @@ def stripe_webhook():
                 metadata["nombre_comprador"],
                 metadata["email_comprador"]
             ))
+
+            cursor.execute("""
+                UPDATE events SET entradas_vendidas = entradas_vendidas + 1
+                WHERE id = %s
+            """, (metadata["event_id"],))
             db.commit()
             print("✅ Entrada registrada automáticamente.")
         except Exception as e:

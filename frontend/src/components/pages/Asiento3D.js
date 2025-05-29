@@ -1,20 +1,30 @@
-import { OrbitControls, PerspectiveCamera, useTexture, useVideoTexture } from '@react-three/drei';
+import { Html, OrbitControls, PerspectiveCamera, useTexture, useVideoTexture } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 
+
 function Butaca({ position, ocupada, seleccionada, deshabilitada, onClick }) {
     const ref = useRef();
+    const [hovered, setHovered] = useState(false);
+
     useFrame(() => {
         if (seleccionada && ref.current) {
             ref.current.rotation.y += 0.02;
         }
     });
+
     return (
-        <group position={position} onClick={!ocupada && !deshabilitada ? onClick : null} rotation={[0, Math.PI, 0]}>
-            <mesh position={[0, 0.5, -0.25]} castShadow>
+        <group
+            position={position}
+            onClick={!ocupada && !deshabilitada ? onClick : null}
+            onPointerOver={() => setHovered(true)}
+            onPointerOut={() => setHovered(false)}
+            rotation={[0, Math.PI, 0]}
+        >
+            <mesh ref={ref} position={[0, 0.5, -0.25]} castShadow>
                 <boxGeometry args={[0.6, 0.6, 0.1]} />
                 <meshStandardMaterial color={ocupada ? 'gray' : deshabilitada ? 'red' : seleccionada ? 'green' : 'blue'} />
             </mesh>
@@ -22,9 +32,26 @@ function Butaca({ position, ocupada, seleccionada, deshabilitada, onClick }) {
                 <boxGeometry args={[0.6, 0.2, 0.6]} />
                 <meshStandardMaterial color={ocupada ? 'gray' : deshabilitada ? 'red' : seleccionada ? 'green' : 'blue'} />
             </mesh>
+            {hovered && deshabilitada && (
+                <Html center distanceFactor={8}>
+                    <div style={{
+                        background: 'rgba(0,0,0,0.7)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        textAlign: 'center',
+                    }}>
+                        {ocupada
+                            ? "⛔ Asiento ocupado"
+                            : "♿ Reservado para personas con discapacidad"}
+                    </div>
+                </Html>
+            )}
         </group>
     );
 }
+
 
 function Escalera({ lado = 'derecha', filas = 25 }) {
     const posicionBaseX = lado === 'izquierda' ? -21.5 : 20.5;
@@ -32,7 +59,7 @@ function Escalera({ lado = 'derecha', filas = 25 }) {
     return (
         <group>
             {Array.from({ length: filas }).map((_, idx) => {
-                const ancho = 2 + idx * 0.2;  // cada peldaño más ancho
+                const ancho = 2 + idx * 0.2;
                 const y = idx * 0.2;
                 const z = idx - filas / 2;
                 const offsetX = (lado === 'izquierda' ? -1 : 1) * (ancho - 2) / 2;
@@ -74,11 +101,57 @@ function ParedDetrasEscenario() {
 }
 
 function Cortina({ lado = 'izquierda' }) {
-    const x = lado === 'izquierda' ? -26 : 26; // posiciones a ambos lados del escenario
+    const x = lado === 'izquierda' ? -24 : 24;
     return (
         <mesh position={[x, 10, -30]}>
-            <boxGeometry args={[3, 20, 1]} />
-            <meshStandardMaterial color="#8B0000" /> {/* Rojo teatral */}
+            <boxGeometry args={[10, 40, 1]} />
+            <meshStandardMaterial color="#8B0000" />
+        </mesh>
+    );
+}
+
+function CortinaCentral() {
+    return (
+        <mesh position={[0, 27, -30]}>
+            <boxGeometry args={[40, 6, 1]} />
+            <meshStandardMaterial color="#8B0000" />
+        </mesh>
+    );
+}
+
+function ParedFinalButacas({ altura = 40, ancho = 60 }) {
+    return (
+        <mesh position={[0, altura / 2, 25]} receiveShadow>
+            <boxGeometry args={[ancho, altura, 1]} />
+            <meshStandardMaterial color="#333" />
+        </mesh>
+    );
+}
+
+function Tejado({ ancho = 60, largo = 100 }) {
+    return (
+        <mesh position={[0, 25, 0]} receiveShadow rotation={[Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[ancho, largo]} />
+            <meshStandardMaterial color="#222" side={2} />
+        </mesh>
+    );
+}
+
+function ParedLateral({ lado = 'izquierda', altura = 40, largo = 100 }) {
+    const x = lado === 'izquierda' ? -26 : 26;
+    return (
+        <mesh position={[x, altura / 2, 0]} receiveShadow>
+            <boxGeometry args={[1, altura, largo]} />
+            <meshStandardMaterial color="#333" />
+        </mesh>
+    );
+}
+
+function SueloGeneral() {
+    return (
+        <mesh position={[0, 0, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[80, 100]} />
+            <meshStandardMaterial color="#222" />
         </mesh>
     );
 }
@@ -92,22 +165,21 @@ function PantallaCineVideo() {
             <meshStandardMaterial map={texture} toneMapped={false} />
         </mesh>
     );
-
 }
 
 function SueloEscalonadoBajoButacas({ filas = 25, columnas = 45 }) {
-    const anchoTotal = columnas * 1.1; // cada columna = 1 unidad
+    const anchoTotal = columnas * 1.1;
 
     return (
         <group>
             {Array.from({ length: filas }).map((_, idx) => {
-                const y = idx * 0.2; // altura escalonada como las butacas
+                const y = idx * 0.2;
                 const z = idx - filas / 2;
 
                 return (
                     <mesh
                         key={idx}
-                        position={[0, y - 0, z]} // bajamos un poco para que no choque con las butacas
+                        position={[0, y - 0, z]}
                         receiveShadow
                     >
                         <boxGeometry args={[anchoTotal, 0.2, 1]} />
@@ -123,7 +195,7 @@ function Actor() {
     const ref = useRef();
     useFrame(() => {
         if (ref.current) {
-            ref.current.rotation.y += 0.01; // Gira lentamente
+            ref.current.rotation.y += 0.01;
         }
     });
 
@@ -147,6 +219,24 @@ export default function Asientos3D() {
     const [asientosOcupados, setAsientosOcupados] = useState([]);
     const [asientosSeleccionados, setAsientosSeleccionados] = useState([]);
     const [showVista, setShowVista] = useState(false);
+    const [vistaButaca, setVistaButaca] = useState(null);
+    const [scrollBloqueado, setScrollBloqueado] = useState(false);
+
+    const precioUnitario = evento?.precio || 0;
+    const cantidad = asientosSeleccionados.length;
+
+    const esDiscapacidad = usuario?.discapacidad === "sí";
+    const esPremium = usuario?.is_premium === true;
+
+    let descuento = 0;
+    if (esDiscapacidad) {
+        descuento = 0.5; // 50%
+    } else if (esPremium) {
+        descuento = 0.25; // 25%
+    }
+
+    const totalSinDescuento = precioUnitario * cantidad;
+    const totalConDescuento = totalSinDescuento * (1 - descuento);
 
     useEffect(() => {
         if (!usuario) return;
@@ -162,8 +252,18 @@ export default function Asientos3D() {
 
         fetch(`http://localhost:5000/asientos-ocupados/${id}`)
             .then(res => res.json())
-            .then(data => setAsientosOcupados(data.asientos || []));
+            .then(data => {
+                console.log("🪑 Asientos ocupados:", data.asientos);
+                setAsientosOcupados(data.asientos || []);
+            });
     }, [id, usuario]);
+
+    useEffect(() => {
+        document.body.style.overflow = scrollBloqueado ? 'hidden' : 'auto';
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [scrollBloqueado]);
 
     const toggleSeleccion = (nombre) => {
         if (asientosSeleccionados.includes(nombre)) {
@@ -174,14 +274,30 @@ export default function Asientos3D() {
         }
     };
 
-    const confirmar = () => {
-        if (asientosSeleccionados.length === 0) return;
-        navigate("/pago", {
-            state: {
-                evento,
-                asientos: asientosSeleccionados
-            }
+    const checkoutHandler = async () => {
+        if (!usuario || !evento || asientosSeleccionados.length === 0) return;
+
+        const response = await fetch("http://localhost:5000/comprar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_id: usuario.id,
+                event_id: evento.id,
+                tickets: asientosSeleccionados.map(nombre => ({
+                    asiento: nombre,
+                    nombre_comprador: `${usuario.nombre} ${usuario.apellido}`,
+                    email_comprador: usuario.email
+                }))
+            })
         });
+
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ Compra completada.\nEntradas registradas por ${data.precio.toFixed(2)} € c/u\nDescuento aplicado: ${data.descuento * 100}%`);
+            navigate('/mis-entradas');
+        } else {
+            alert("❌ Error al registrar las entradas: " + data.message);
+        }
     };
 
     if (!usuario) {
@@ -203,9 +319,6 @@ export default function Asientos3D() {
                     <div className="alert alert-info text-center mb-3">
                         Usa el botón izquierdo para girar la cámara, la rueda para hacer zoom y el botón derecho para moverte.<br />
                         Puedes seleccionar hasta <strong>8 asientos</strong>. Los asientos grises están ocupados, los rojos reservados para discapacidad.<br />
-                        <button className="btn btn-outline-dark btn-sm mt-2" onClick={() => setShowVista(true)}>
-                            Ver cómo se ve desde aquí
-                        </button>
                         <div className="mt-3">
                             <p className="mb-0">
                                 <span className="badge bg-success d-inline-block me-2">&nbsp;</span>Seleccionado
@@ -215,12 +328,37 @@ export default function Asientos3D() {
                             </p>
                         </div>
                     </div>
-                    <div style={{ width: '100%', height: '80vh' }}>
-                        <Canvas shadows camera={{ position: [0, 40, 60], fov: 50 }}>
+                    <div style={{ width: '100%', height: '80vh', position: 'relative' }}>
+                        <Canvas shadows >
                             <ambientLight intensity={0.4} />
                             <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow />
-                            <OrbitControls />
+                            <OrbitControls
+                                makeDefault
+                                enableRotate={true}              // Rotar con botón izquierdo
+                                enableZoom={true}                // Zoom con rueda
+                                enablePan={true}                 // Mover con botón derecho
+                                enableDamping={true}
+                                dampingFactor={0.1}
+                                minPolarAngle={Math.PI / 6}      // evita mirar desde debajo
+                                maxPolarAngle={Math.PI / 2.1}    // evita ver desde muy arriba
+                                target={[0, 8, 0]}               // Apunta a las butacas
+                                onChange={(e) => {
+                                    const cam = e.target.object;
+                                    // Limita solo movimiento fuera del teatro
+                                    cam.position.x = Math.max(-25, Math.min(25, cam.position.x));
+                                    cam.position.y = Math.max(5, Math.min(25, cam.position.y));
+                                    cam.position.z = Math.max(-50, Math.min(50, cam.position.z));
+                                }}
+                            />
+
+
+
                             <Escenario />
+                            <CortinaCentral />
+                            <ParedFinalButacas />
+                            <SueloGeneral />
+                            <ParedLateral lado="izquierda" />
+                            <ParedLateral lado="derecha" />
                             <ParedDetrasEscenario />
                             <PantallaCineVideo />
                             <Cortina lado="izquierda" />
@@ -229,36 +367,89 @@ export default function Asientos3D() {
                             <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
                             <Escalera lado="izquierda" filas={filas} />
                             <Escalera lado="derecha" filas={filas} />
-                            {Array.from({ length: filas }).map((_, filaIdx) =>
-                                Array.from({ length: columnas }).map((_, colIdx) => {
-                                    const nombre = `F${filaIdx + 1}-S${colIdx + 1}`;
-                                    const ocupado = asientosOcupados.includes(nombre);
-                                    const esPrimeraFila = filaIdx === 0;
-                                    const esDiscapacidad = usuario?.discapacidad;
-                                    const deshabilitado = ocupado || (esPrimeraFila && !esDiscapacidad);
-                                    const seleccionado = asientosSeleccionados.includes(nombre);
 
-                                    return (
-                                        <Butaca
-                                            key={nombre}
-                                            position={[colIdx - columnas / 2, filaIdx * 0.2, filaIdx - filas / 2]}
-                                            ocupada={ocupado}
-                                            seleccionada={seleccionado}
-                                            deshabilitada={deshabilitado}
-                                            onClick={() => toggleSeleccion(nombre)}
-                                        />
-                                    );
-                                })
-                            )}
+                            {(() => {
+                                const esDiscapacidad = usuario?.discapacidad === "sí"; // ✅ definición aquí
+
+                                return Array.from({ length: filas }).map((_, filaIdx) =>
+                                    Array.from({ length: columnas }).map((_, colIdx) => {
+                                        const nombre = `Fila ${filaIdx + 1} Butaca ${colIdx + 1}`;
+                                        const ocupado = asientosOcupados.includes(nombre);
+                                        const esPrimeraFila = filaIdx === 0;
+                                        const deshabilitado = ocupado || (esPrimeraFila && !esDiscapacidad);
+                                        const seleccionado = asientosSeleccionados.includes(nombre);
+
+                                        return (
+                                            <Butaca
+                                                key={nombre}
+                                                position={[colIdx - columnas / 2, filaIdx * 0.2, filaIdx - filas / 2]}
+                                                ocupada={ocupado}
+                                                seleccionada={seleccionado}
+                                                deshabilitada={deshabilitado}
+                                                onClick={() => toggleSeleccion(nombre)}
+                                                esDiscapacidad={esDiscapacidad}
+                                            />
+                                        );
+                                    })
+                                );
+                            })()}
                         </Canvas>
+                        <button
+                            onClick={() => setScrollBloqueado(prev => !prev)}
+                            style={{
+                                position: 'absolute',
+                                bottom: '15px',
+                                right: '15px',
+                                zIndex: 10,
+                                backgroundColor: scrollBloqueado ? '#dc3545' : '#0d6efd',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '50px',
+                                padding: '10px 20px',
+                                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {scrollBloqueado ? '🔓 Desbloquear scroll' : '🔒 Bloquear scroll'}
+                        </button>
+
                     </div>
 
                     <div className="text-center mt-4">
                         {asientosSeleccionados.length > 0 ? (
                             <>
                                 <p><strong>Asientos seleccionados:</strong> {asientosSeleccionados.join(", ")}</p>
-                                <button className="btn btn-success" onClick={confirmar}>
-                                    Continuar con el pago
+                                <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                    {asientosSeleccionados.map((nombre, index) => (
+                                        <button
+                                            key={index}
+                                            className="btn btn-outline-primary btn-sm"
+                                            onClick={() => {
+                                                setVistaButaca(nombre);  // 👈 nuevo estado para ver esa butaca
+                                                setShowVista(true);
+                                            }}
+                                        >
+                                            👁 Ver vista desde {nombre}
+                                        </button>
+                                    ))}
+                                </div>
+                                <p className="mt-2">
+                                    <strong>Precio base:</strong> {precioUnitario} € × {cantidad} = {totalSinDescuento.toFixed(2)} €
+                                </p>
+                                {descuento > 0 && (
+                                    <p className="text-success">
+                                        <strong>Descuento aplicado:</strong> {descuento * 100}% → Nuevo total: <strong>{totalConDescuento.toFixed(2)} €</strong>
+                                    </p>
+                                )}
+                                {descuento === 0 && (
+                                    <p>
+                                        <strong>Total:</strong> {totalSinDescuento.toFixed(2)} €
+                                    </p>
+                                )}
+
+
+                                <button className="btn btn-success mt-3" onClick={checkoutHandler}>
+                                    Proceder al pago seguro
                                 </button>
                             </>
                         ) : (
@@ -272,12 +463,12 @@ export default function Asientos3D() {
                         </Modal.Header>
                         <Modal.Body>
                             <div style={{ width: '100%', height: '70vh' }}>
-                                <Canvas shadows>
+                                <Canvas shadows camera={{ position: [0, 10, -40], fov: 50 }}>
                                     <ambientLight intensity={0.4} />
                                     <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow />
 
                                     {(() => {
-                                        const match = asientosSeleccionados[0]?.match(/F(\d+)-S(\d+)/);
+                                        const match = vistaButaca?.match(/Fila (\d+) Butaca (\d+)/);
                                         if (!match) return null;
                                         const filaIdx = parseInt(match[1]) - 1;
                                         const colIdx = parseInt(match[2]) - 1;
@@ -285,7 +476,6 @@ export default function Asientos3D() {
                                         const camY = filaIdx * 0.2 + 1.5;
                                         const camZ = filaIdx - filas / 2 + 0.5;
 
-                                        // Target un poco más adelante desde la butaca
                                         const targetZ = camZ - 5;
 
                                         return (
@@ -306,29 +496,42 @@ export default function Asientos3D() {
                                     })()}
 
                                     <Escenario />
+                                    <CortinaCentral />
+                                    <Tejado />
+                                    <ParedFinalButacas />
+                                    <SueloGeneral />
+                                    <ParedLateral lado="izquierda" />
+                                    <ParedLateral lado="derecha" />
                                     <ParedDetrasEscenario />
                                     <PantallaCineVideo />
                                     <Cortina lado="izquierda" />
                                     <Cortina lado="derecha" />
                                     <Actor />
                                     <SueloEscalonadoBajoButacas filas={filas} columnas={columnas} />
-                                    <Escalera position={[-21, 0.05, 0]} /> {/* Escalera izquierda */}
-                                    <Escalera position={[21, 0.05, 0]} />  {/* Escalera derecha */}
+                                    <Escalera position={[-21, 0.05, 0]} />
+                                    <Escalera position={[21, 0.05, 0]} />
                                     {Array.from({ length: filas }).map((_, filaIdx) =>
                                         Array.from({ length: columnas }).map((_, colIdx) => {
-                                            const nombre = `F${filaIdx + 1}-S${colIdx + 1}`;
+                                            const nombre = `Fila ${filaIdx + 1} Butaca ${colIdx + 1}`;
+                                            const ocupado = asientosOcupados.includes(nombre);
+                                            const esPrimeraFila = filaIdx === 0;
+                                            const esDiscapacidad = usuario?.discapacidad === "sí"; // ✅ se compara con string "sí"
+                                            const deshabilitado = ocupado || (esPrimeraFila && !esDiscapacidad); // solo usuarios con discapacidad pueden usar primera fila
+                                            const seleccionado = asientosSeleccionados.includes(nombre);
+
                                             return (
                                                 <Butaca
                                                     key={nombre}
                                                     position={[colIdx - columnas / 2, filaIdx * 0.2, filaIdx - filas / 2]}
-                                                    ocupada={false}
-                                                    seleccionada={asientosSeleccionados.includes(nombre)}
-                                                    deshabilitada={false}
-                                                    onClick={() => { }}
+                                                    ocupada={ocupado}
+                                                    seleccionada={seleccionado}
+                                                    deshabilitada={deshabilitado}
+                                                    onClick={() => toggleSeleccion(nombre)}
                                                 />
                                             );
                                         })
                                     )}
+
                                 </Canvas>
                             </div>
                         </Modal.Body>
