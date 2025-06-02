@@ -4,7 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "rc-slider/assets/index.css";
 import { useContext, useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
 
 export default function Eventos() {
@@ -21,6 +21,7 @@ export default function Eventos() {
     const [precioSeleccionado, setPrecioSeleccionado] = useState(1000); // valor actual elegido
     const idAperturaDirecta = queryParams.get("abrir");
     const [cantidadEntradas, setCantidadEntradas] = useState(1);
+    const navigate = useNavigate();
     const { usuario, setUsuario } = useContext(UserContext);
 
 
@@ -82,7 +83,7 @@ export default function Eventos() {
 
         const data = await res.json();
         if (data.url) {
-            window.location.href = data.url;
+            navigate(`/entrada-generadan?email=${data.email}&evento=${encodeURIComponent(data.evento)}`);
         } else {
             alert("Error al iniciar el pago: " + data.message);
         }

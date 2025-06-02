@@ -90,7 +90,7 @@ export default function EntradaGenerada() {
 
     return (
         <div className="container text-center mt-5">
-            <h2>🎟️ Entrada generada correctamente</h2>
+            <h2>🎟️ Entrada comprada existosa</h2>
             <p><strong>Evento:</strong> {entrada.nombre_evento}</p>
             <p><strong>Asiento:</strong> {entrada.asiento}</p>
             <p><strong>Fecha:</strong> {entrada.fecha_compra}</p>

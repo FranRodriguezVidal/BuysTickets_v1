@@ -29,10 +29,16 @@ function App() {
           <Route path="/seleccionar-asientos/:id" element={<Asientos3D />} />
           <Route path="/pago-exitoso" element={<PagoExitoso />} />
 
-        <Route path="/entrada-generada" element={
-          <PrivateRoute>
-            <EntradaGenerada />
-          </PrivateRoute>} />
+          <Route path="/entrada-generada" element={
+            <PrivateRoute>
+              <EntradaGenerada />
+            </PrivateRoute>} />
+
+          <Route path="/entrada-generadan" element={
+            <PrivateRoute>
+              <EntradaGenerada />
+            </PrivateRoute>} />
+
 
           <Route path="/configuracion" element={
             <PrivateRoute>
@@ -61,7 +67,7 @@ function App() {
             </AdminRoute>
           } />
           <Route path="/licencia" element={<Licencias />} />
-        <Route path="*" element={<Navigate to="/inicio" replace />} />
+          <Route path="*" element={<Navigate to="/inicio" replace />} />
         </Routes>
         <Footer />
       </Router>

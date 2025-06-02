@@ -315,7 +315,7 @@ def crear_checkout():
                 },
                 "quantity": 1,
             }],
-            success_url=f"http://localhost:3000/entrada-generada?email={data.get('email_comprador')}&evento={data.get('evento')}",
+            success_url=f"http://localhost:3000/entrada-generadan?email={data.get('email_comprador')}&evento={data.get('evento')}",
             cancel_url="http://localhost:3000/cancel",
         )
         return jsonify(url=session.url)
@@ -445,3 +445,53 @@ def obtener_entradas_usuario():
         return jsonify(success=False, message="Faltan parámetros de búsqueda"), 400
 
     return jsonify(success=True, entradas=cursor.fetchall())
+
+@eventos_bp.route('/ticket-por-id', methods=['GET'])
+def ticket_por_id():
+    ticket_id = request.args.get("id")
+    cursor.execute("""
+        SELECT t.*, e.nombre_evento
+        FROM tickets t
+        JOIN events e ON t.event_id = e.id
+        WHERE t.id = %s
+    """, (ticket_id,))
+    entrada = cursor.fetchone()
+    if entrada:
+        return jsonify(success=True, entrada=entrada)
+    else:
+        return jsonify(success=False, message="Entrada no encontrada")
+
+@eventos_bp.route("/comprar-ticket", methods=["POST"])
+def comprar_ticket():
+    data = request.json
+    event_id = data.get("event_id")
+    email_comprador = data.get("email")
+    nombre_comprador = data.get("nombre")
+    nombre_evento = data.get("nombre_evento")
+
+    try:
+        db.ping(reconnect=True, attempts=3, delay=2)
+
+        # 1. Insertar ticket provisionalmente
+        cursor.execute("""
+            INSERT INTO tickets (event_id, email_comprador, nombre_comprador, asiento, fecha_compra)
+            VALUES (%s, %s, %s, '', NOW())
+        """, (event_id, email_comprador, nombre_comprador))
+
+        # 2. Obtener ID generado
+        ticket_id = cursor.lastrowid
+
+        # 3. Generar texto del asiento como "Entrada Nº: #000123"
+        asiento_texto = f"Entrada Nº: #{str(ticket_id).zfill(6)}"
+
+        # 4. Actualizar ese ticket con el asiento generado
+        cursor.execute("UPDATE tickets SET asiento = %s WHERE id = %s", (asiento_texto, ticket_id))
+
+        # 5. Confirmar cambios
+        db.commit()
+
+        return jsonify(success=True, email=email_comprador, evento=nombre_evento)
+
+    except Error as err:
+        print("❌ Error al crear ticket:", err)
+        return jsonify(success=False, message=str(err)), 500
