@@ -230,8 +230,7 @@ def comprar_tickets():
                 e["nombre_comprador"],
                 e["email_comprador"]
             ))
-
-        # Actualizar evento
+        # Añade esto justo antes de db.commit()
         cursor.execute("""
             UPDATE events SET entradas_vendidas = entradas_vendidas + %s
             WHERE id = %s
