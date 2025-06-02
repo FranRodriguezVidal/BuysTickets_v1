@@ -57,7 +57,7 @@ def verify_payment():
             UPDATE users 
             SET role = 'premium', 
                 subscription_expiry_date = %s 
-            WHERE id = %s
+            WHERE user = %s
             RETURNING id
         """, (expiry_date, user_id))
         
@@ -75,31 +75,33 @@ def verify_payment():
     except Exception as e:
         db.rollback()
         return jsonify(success=False, message=str(e)), 500
+
 @premium_bp.route('/convert-to-premium', methods=['POST'])
 def convert_to_premium():
-    # Verificación básica de autenticación
     token = request.headers.get('Authorization')
     if not token:
         return jsonify(success=False, message="No autorizado"), 401
-    
+
     try:
         user_id = request.json.get('user_id')
-        expiry_date = datetime.now() + timedelta(weeks=13)  # 3 meses
-        
+        print("ID recibido para convertir a premium:", user_id)
+
+        expiry_date = datetime.now() + timedelta(weeks=13)
+
         cursor.execute("""
             UPDATE users 
             SET role = 'premium', 
                 subscription_expiry_date = %s 
-            WHERE id = %s
+            WHERE user = %s
         """, (expiry_date, user_id))
-        
+
         db.commit()
-        
+
         return jsonify(
             success=True,
             expiry_date=expiry_date.strftime("%Y-%m-%d")
         )
-    
+
     except Exception as e:
         db.rollback()
         return jsonify(success=False, message=str(e)), 500

@@ -5,8 +5,10 @@ export const UserContext = createContext();
 function normalizarUsuario(data) {
     return {
         ...data,
-        discapacidad: data.discapacidad === true || data.discapacidad === "sí" || data.discapacidad === "true",
-        is_premium: data.is_premium === true || data.is_premium === "true" || data.role === "premium"
+        is_discapacidad: data.discapacidad === true || data.discapacidad === "sí" || data.discapacidad === "true",
+        is_premium: data.is_premium === true || data.is_premium === "true" || data.role === "premium",
+        // Mantenemos el valor original de discapacidad como string si viene del backend
+        discapacidad: data.discapacidad
     };
 }
 

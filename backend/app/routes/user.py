@@ -13,41 +13,42 @@ import random
 user_bp = Blueprint('user', __name__)
 UPLOAD_FOLDER = 'uploads'
 reset_codes = {}  # Diccionario en memoria temporal
-
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
     user = data.get('user')
     password = data.get('password')
 
+    if not user or not password:
+        return jsonify(success=False, message="Usuario y contraseña obligatorios.")
+
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     user_data = cursor.fetchone()
 
-    if user_data and verify_password(user_data['password'], password):
+    if user_data and check_password_hash(user_data['password'], password):
         profile_base64 = None
-
         if user_data['profile']:
-            # ⚠️ Convertir de bytes a string
-            try:
-                profile_filename = user_data['profile'].decode('utf-8')  # o 'latin-1' si tienes nombres con tildes
-            except Exception as e:
-                return jsonify(success=False, message="Error al decodificar el nombre de imagen de perfil.")
+            profile_filename = user_data['profile']
+            if isinstance(profile_filename, bytes):
+                profile_filename = profile_filename.decode('utf-8', errors='ignore')
 
             profile_path = os.path.join(UPLOAD_FOLDER, profile_filename)
-
             if os.path.exists(profile_path):
                 with open(profile_path, 'rb') as img_file:
-                    mime_type, _ = mimetypes.guess_type(profile_path)
-                    mime_type = mime_type or "image/png"  # fallback
-                    profile_base64 = f"data:{mime_type};base64,{base64.b64encode(img_file.read()).decode('utf-8')}"
+                    profile_base64 = f"data:image/png;base64,{base64.b64encode(img_file.read()).decode('utf-8')}"
+
 
         return jsonify(
             success=True,
+            id=user_data['id'],
             nombre=user_data['name'],
             apellido=user_data['surname'],
             role=user_data['role'],
+            discapacidad=user_data.get('discapacidad'),
+            estadoDiscapacidad=user_data.get('estado_discapacidad'),
             profile=profile_base64,
-            email=user_data['email']
+            email=user_data['email'],
+            user=user_data['user'],
         )
 
     return jsonify(success=False, message="Usuario o contraseña incorrectos.")
@@ -166,3 +167,28 @@ def change_password():
         return jsonify(success=True, message="Contraseña actualizada.")
     except Exception as e:
         return jsonify(success=False, message=f"Error al cambiar la contraseña: {str(e)}")
+
+@user_bp.route('/descuento/<int:user_id>', methods=['GET'])
+def obtener_descuento_usuario(user_id):
+    try:
+        cursor.execute("SELECT discapacidad, is_premium FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify(success=False, message="Usuario no encontrado"), 404
+
+        # Debug temporal
+        print("🧪 discapacidad:", repr(user["discapacidad"]))
+        print("🧪 is_premium:", user["is_premium"])
+
+        discapacidad = (user["discapacidad"] or "").strip().lower()
+
+        if discapacidad in ["sí", "si"]:
+            return jsonify(success=True, tipo="discapacidad", porcentaje=0.50), 200
+        elif user["is_premium"]:
+            return jsonify(success=True, tipo="premium", porcentaje=0.25), 200
+        else:
+            return jsonify(success=True, tipo="ninguno", porcentaje=0.0), 200
+
+    except Exception as e:
+        return jsonify(success=False, message="Error interno: " + str(e)), 500

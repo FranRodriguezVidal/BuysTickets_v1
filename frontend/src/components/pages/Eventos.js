@@ -11,7 +11,6 @@ export default function Eventos() {
     const [eventos, setEventos] = useState([]);
     const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
     const stripePromise = loadStripe("pk_test_...");
-    const { usuario } = useContext(UserContext);
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const busqueda = queryParams.get("search")?.toLowerCase() || "";
@@ -22,6 +21,7 @@ export default function Eventos() {
     const [precioSeleccionado, setPrecioSeleccionado] = useState(1000); // valor actual elegido
     const idAperturaDirecta = queryParams.get("abrir");
     const [cantidadEntradas, setCantidadEntradas] = useState(1);
+    const { usuario, setUsuario } = useContext(UserContext);
 
 
     useEffect(() => {
@@ -62,18 +62,7 @@ export default function Eventos() {
 
     async function iniciarPago(evento) {
         const base = Number(evento.precio);
-        const user = {
-            is_premium: usuario?.role === "premium",
-            discapacidad: (usuario?.discapacidad || "").toString().trim().toLowerCase() === "sí"
-        };
-
-        let descuento = 0;
-        if (user.discapacidad) {
-            descuento = 0.50;
-        } else if (user.is_premium) {
-            descuento = 0.25;
-        }
-
+        const descuento = usuario?.descuento_porcentaje || 0;
         const precioFinal = base * (1 - descuento);
 
         const res = await fetch("http://localhost:5000/crear-checkout", {
@@ -84,10 +73,10 @@ export default function Eventos() {
                 evento: evento.nombre_evento,
                 event_id: evento.id,
                 user_id: usuario.id,
-                asiento: "A12", // puedes adaptar si es necesario
+                asiento: "A12",
                 nombre_comprador: usuario.nombre,
                 email_comprador: usuario.email,
-                cantidad: cantidadEntradas // este campo sí es enviado
+                cantidad: cantidadEntradas
             })
         });
 
@@ -98,6 +87,7 @@ export default function Eventos() {
             alert("Error al iniciar el pago: " + data.message);
         }
     }
+
 
     function verMas(id) {
         const evento = eventos.find(e => e.id === id);
@@ -149,6 +139,27 @@ export default function Eventos() {
             }, 300); // Asegura que el modal esté montado en el DOM
         }
     }, [eventos, idAperturaDirecta]);
+
+    useEffect(() => {
+        if (!usuario?.id) return;
+
+        const obtenerDescuento = async () => {
+            const res = await fetch(`http://localhost:5000/descuento/${usuario.id}`);
+            const data = await res.json();
+            if (data.success) {
+                setUsuario(prev => ({
+                    ...prev,
+                    descuento_tipo: data.tipo,          // "discapacidad", "premium" o "ninguno"
+                    descuento_porcentaje: data.porcentaje // 0.5, 0.25 o 0
+                }));
+            }
+        };
+
+        obtenerDescuento();
+    }, [usuario?.id]);
+
+
+
 
     return (
         <div className="container py-5">
@@ -308,23 +319,20 @@ export default function Eventos() {
 
                                         {(() => {
                                             const base = Number(eventoSeleccionado.precio);
-
-                                            if (!usuario) {
-                                                return <p><strong>💶 Precio final:</strong> {base.toFixed(2)} €</p>;
-                                            }
-
-                                            const isPremium = usuario.role === "premium";
-                                            const isDiscapacidad = (usuario.discapacidad || "").toString().trim().toLowerCase() === "sí";
-
                                             let descuento = 0;
                                             let tipoDescuento = null;
 
-                                            if (isDiscapacidad) {
+                                            // 1. Primero verifica discapacidad (50%)
+                                            const tieneDiscapacidad = usuario?.discapacidad === "sí";
+
+                                            if (tieneDiscapacidad) {
                                                 descuento = 0.50;
                                                 tipoDescuento = "Descuento por discapacidad (50%)";
-                                            } else if (isPremium) {
+                                            }
+                                            // 2. Luego premium (25%)
+                                            else if (usuario?.is_premium || usuario?.role === "premium") {
                                                 descuento = 0.25;
-                                                tipoDescuento = "Descuento por cuenta premium (25%)";
+                                                tipoDescuento = "Descuento premium (25%)";
                                             }
 
                                             const final = base * (1 - descuento);
@@ -343,6 +351,7 @@ export default function Eventos() {
                                                 </>
                                             );
                                         })()}
+
 
                                         <p>{eventoSeleccionado.informacion}</p>
                                         {eventoSeleccionado.mayores_18

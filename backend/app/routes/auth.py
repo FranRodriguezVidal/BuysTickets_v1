@@ -33,19 +33,25 @@ def login():
                 with open(profile_path, 'rb') as img_file:
                     profile_base64 = f"data:image/png;base64,{base64.b64encode(img_file.read()).decode('utf-8')}"
 
+        # Nueva lógica uniforme
+        is_premium = (user_data['role'] == 'premium')
+        is_discapacidad = (user_data.get('discapacidad') == 'sí')
+
         return jsonify(
             success=True,
             id=user_data['id'],
             nombre=user_data['name'],
             apellido=user_data['surname'],
             role=user_data['role'],
-            is_premium=(user_data['role'] == 'premium'),  # ✅ AÑADIDO
-            discapacidad=user_data.get('discapacidad', 'no'),
+            discapacidad=user_data['discapacidad'],
+            is_premium=is_premium,
+            is_discapacidad=is_discapacidad,
             profile=profile_base64,
             email=user_data['email'],
         )
 
     return jsonify(success=False, message="Usuario o contraseña incorrectos.")
+
 
 # Ruta para registro
 @auth_bp.route('/register', methods=['POST'])

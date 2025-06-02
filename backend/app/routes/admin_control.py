@@ -24,21 +24,23 @@ def register_adminControl():
     nombre = request.form.get('nombre')
     apellido = request.form.get('apellido')
     email = request.form.get('email')
-    role = request.form.get('role', 'usuario')
+    role = request.form.get('role', 'estandar')
     discapacidad = request.form.get('discapacidad', 'no')
     profile = request.files.get('profile')
 
     if not all([user, password, nombre, apellido, email]):
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
 
+    # Validación de duplicados
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     if cursor.fetchone():
         return jsonify(success=False, message="El nombre de usuario ya está en uso.")
-
+    
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     if cursor.fetchone():
         return jsonify(success=False, message="Este correo ya está registrado.")
 
+    # Guardar imagen si se sube
     profile_filename = None
     if profile:
         profile_filename = secure_filename(profile.filename)
@@ -59,7 +61,6 @@ def register_adminControl():
     except mysql.connector.Error as err:
         db.rollback()
         return jsonify(success=False, message="Error al registrar el usuario: " + str(err))
-
 
 # ==========================
 # 📌 **2️⃣ Obtener Usuarios**
@@ -107,6 +108,9 @@ def lista_usuarios_adminControl():
 def update_user_adminControl():
     data = request.form
     user_id = data.get('id')
+    if not user_id:
+        return jsonify(success=False, message="ID de usuario no proporcionado."), 400
+
     user = data.get('user')
     password = data.get('password')
     nombre = data.get('nombre')
@@ -115,27 +119,25 @@ def update_user_adminControl():
     role = data.get('role')
     discapacidad = data.get('discapacidad')
 
+    profile = request.files.get('profile')
+
     try:
+        if user:
+            cursor.execute("UPDATE users SET user = %s WHERE id = %s", (user, user_id))
         if password:
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
             cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, user_id))
-
         if nombre:
             cursor.execute("UPDATE users SET name = %s WHERE id = %s", (nombre, user_id))
-
         if apellido:
             cursor.execute("UPDATE users SET surname = %s WHERE id = %s", (apellido, user_id))
-
         if email:
             cursor.execute("UPDATE users SET email = %s WHERE id = %s", (email, user_id))
-
         if role:
             cursor.execute("UPDATE users SET role = %s WHERE id = %s", (role, user_id))
-
         if discapacidad:
             cursor.execute("UPDATE users SET discapacidad = %s WHERE id = %s", (discapacidad, user_id))
 
-        profile = request.files.get('profile')
         if profile:
             profile_filename = secure_filename(profile.filename)
             profile.save(os.path.join(UPLOAD_FOLDER, profile_filename))
