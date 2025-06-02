@@ -168,11 +168,17 @@ def actualizar_estado_solicitud():
         usuario = result["usuario"]
 
         # Actualizar el estado de la solicitud
-        cursor.execute("UPDATE solicitudes_discapacidad SET estado = %s WHERE id = %s", (nuevo_estado, solicitud_id))
+        # Inicializar estado como pendiente
+        # Inicializar estado como pendiente
+        cursor.execute("UPDATE users SET discapacidad = 'sí', estado_discapacidad = 'pendiente' WHERE user = %s", (usuario,))
 
-        # Cambiar campo discapacidad del usuario según el estado
-        nuevo_valor_discapacidad = "sí" if nuevo_estado == "aprobada" else "no"
-        cursor.execute("UPDATE users SET discapacidad = %s WHERE user = %s", (nuevo_valor_discapacidad, usuario))
+
+
+        # Cambiar campos discapacidad y estado_discapacidad del usuario
+        if nuevo_estado == "aprobada":
+            cursor.execute("UPDATE users SET discapacidad = 'sí', estado_discapacidad = 'aprobada' WHERE user = %s", (usuario,))
+        elif nuevo_estado == "rechazada":
+            cursor.execute("UPDATE users SET discapacidad = 'no', estado_discapacidad = 'rechazada' WHERE user = %s", (usuario,))
 
         # Eliminar solicitud una vez se aprueba o rechaza
         cursor.execute("DELETE FROM solicitudes_discapacidad WHERE id = %s", (solicitud_id,))

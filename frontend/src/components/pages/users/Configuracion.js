@@ -347,8 +347,7 @@ const Configuracion = () => {
 
                 {usuario.is_premium || usuario.role === "premium" ? (
                     <div className="alert alert-success text-center">
-                        {t("Eres un usuario Premium.")} <br />
-                        {t("Tu suscripción vence el")} {subscriptionExpiry}.
+                        {t("Eres un usuario Premium. Disfruta de tus descuentos.")} <br />
                     </div>
                 ) : (
                     <div className="alert alert-warning text-center">
