@@ -23,6 +23,8 @@ export default function Eventos() {
     const [cantidadEntradas, setCantidadEntradas] = useState(1);
     const navigate = useNavigate();
     const { usuario, setUsuario } = useContext(UserContext);
+    const [codigoDescuento, setCodigoDescuento] = useState("");
+
 
 
     useEffect(() => {
@@ -63,8 +65,16 @@ export default function Eventos() {
 
     async function iniciarPago(evento) {
         const base = Number(evento.precio);
-        const descuento = usuario?.descuento_porcentaje || 0;
+
+        let descuento = 0;
+        if (codigoDescuento === "BuysTickets_Discapacidad_2025") {
+            descuento = 0.5;
+        } else if (usuario?.descuento_porcentaje) {
+            descuento = usuario.descuento_porcentaje;
+        }
+
         const precioFinal = base * (1 - descuento);
+
 
         const res = await fetch("http://localhost:5000/crear-checkout", {
             method: "POST",
@@ -323,15 +333,13 @@ export default function Eventos() {
                                             let descuento = 0;
                                             let tipoDescuento = null;
 
-                                            // 1. Primero verifica discapacidad (50%)
-                                            const tieneDiscapacidad = usuario?.discapacidad === "sí";
-
-                                            if (tieneDiscapacidad) {
-                                                descuento = 0.50;
-                                                tipoDescuento = "Descuento por discapacidad (50%)";
-                                            }
-                                            // 2. Luego premium (25%)
-                                            else if (usuario?.is_premium || usuario?.role === "premium") {
+                                            if (codigoDescuento === "BuysTickets_Discapacidad_2025") {
+                                                descuento = 0.5;
+                                                tipoDescuento = "🔐 Código de discapacidad válido (50%)";
+                                            } else if (usuario?.discapacidad === "sí") {
+                                                descuento = 0.5;
+                                                tipoDescuento = "Descuento automático por discapacidad (50%)";
+                                            } else if (usuario?.is_premium || usuario?.role === "premium") {
                                                 descuento = 0.25;
                                                 tipoDescuento = "Descuento premium (25%)";
                                             }
@@ -341,18 +349,22 @@ export default function Eventos() {
                                             return (
                                                 <>
                                                     <p><strong>💶 Precio base:</strong> {base.toFixed(2)} €</p>
-                                                    {descuento > 0 ? (
+                                                    {tipoDescuento ? (
                                                         <>
                                                             <p className="text-success mb-1">✅ {tipoDescuento}</p>
                                                             <p><strong>💶 Precio con descuento:</strong> {final.toFixed(2)} €</p>
                                                         </>
                                                     ) : (
-                                                        <p><strong>💶 Precio final:</strong> {final.toFixed(2)} €</p>
+                                                        <>
+                                                            {codigoDescuento && (
+                                                                <p className="text-danger mb-1">❌ Código inválido o sin efecto</p>
+                                                            )}
+                                                            <p><strong>💶 Precio final:</strong> {final.toFixed(2)} €</p>
+                                                        </>
                                                     )}
                                                 </>
                                             );
                                         })()}
-
 
                                         <p>{eventoSeleccionado.informacion}</p>
                                         {eventoSeleccionado.mayores_18
@@ -360,27 +372,22 @@ export default function Eventos() {
                                             : <p className="text-success">✅ Apto para todos los públicos</p>}
                                         <p><strong>🧍‍♂️ Tipo de espacio:</strong> {eventoSeleccionado.tipo_espacio}</p>
                                     </div>
-                                    {/* Mostrar cantidad SOLO si es de tipo 'normal' */}
                                     {eventoSeleccionado.tipo_espacio === "normal" && (
-                                        <div className="mb-3">
-                                            <label htmlFor="cantidad" className="form-label">🎟️ ¿Cuántas entradas deseas comprar?</label>
-                                            <input
-                                                type="number"
-                                                id="cantidad"
-                                                className="form-control"
-                                                min={1}
-                                                max={8}
-                                                value={cantidadEntradas}
-                                                onChange={(e) => {
-                                                    const val = Number(e.target.value);
-                                                    if (val >= 1 && val <= 8) {
-                                                        setCantidadEntradas(val);
-                                                    }
-                                                }}
-                                            />
-                                            <small className="text-muted">Puedes comprar hasta 8 entradas por usuario</small>
-                                        </div>
+                                        <>
+                                            <div className="mb-3">
+                                                <label htmlFor="codigoDescuento" className="form-label">🔐 Código de descuento por discapacidad</label>
+                                                <input
+                                                    type="text"
+                                                    id="codigoDescuento"
+                                                    className="form-control"
+                                                    placeholder="Introduce tu código"
+                                                    value={codigoDescuento}
+                                                    onChange={(e) => setCodigoDescuento(e.target.value)}
+                                                />
+                                            </div>
+                                        </>
                                     )}
+
 
                                     <div className="modal-footer border-0 pt-0">
                                         <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

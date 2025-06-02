@@ -419,7 +419,7 @@ const Configuracion = () => {
                     >
                         {t("Estado de la solicitud")}:{" "}
                         {estadoDiscapacidad === "aprobada"
-                            ? t("✅ Aprobada (cuenta con discapacidad activa)")
+                            ? t("✅ Aprobada (cuenta con discapacidad activa) Tu codigo de descuento es BuysTickets_Discapacidad_2025")
                             : estadoDiscapacidad === "rechazada"
                                 ? t("❌ Rechazada")
                                 : estadoDiscapacidad === "no solicitado"

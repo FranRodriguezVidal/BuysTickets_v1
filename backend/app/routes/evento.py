@@ -301,12 +301,13 @@ def crear_checkout():
             mode="payment",
             customer_email=data.get("email_comprador"),
             metadata={
-                "user_id": data.get("user_id"),
-                "event_id": data.get("event_id"),
-                "asiento": data.get("asiento"),
-                "nombre_comprador": data.get("nombre_comprador"),
-                "email_comprador": data.get("email_comprador")
-            },
+        "user_id": data.get("user_id"),
+        "event_id": data.get("event_id"),
+        "asiento": data.get("asiento"),
+        "nombre_comprador": data.get("nombre_comprador"),
+        "email_comprador": data.get("email_comprador"),
+        "cantidad": str(data.get("cantidad", 1))  # <-- AÑADIR ESTO
+    },
             line_items=[{
                 "price_data": {
                     "currency": "eur",
@@ -315,7 +316,9 @@ def crear_checkout():
                 },
                 "quantity": 1,
             }],
-            success_url=f"http://localhost:3000/post-pago?email={data.get('email_comprador')}&evento={data.get('evento')}&nombre={data.get('nombre_comprador')}",
+            success_url=f"http://localhost:3000/post-pago?email={data.get('email_comprador')}&evento={data.get('evento')}&nombre_completo={data.get('nombre_comprador')}",
+
+
             cancel_url="http://localhost:3000/cancel",
         )
 
@@ -360,26 +363,32 @@ def stripe_webhook():
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         metadata = session.get("metadata", {})
+        cantidad = int(metadata.get("cantidad", 1))
 
         try:
-            cursor.execute("""
-                INSERT INTO tickets (user_id, event_id, precio_total, asiento, nombre_comprador, email_comprador, fecha_compra)
-                VALUES (%s, %s, %s, %s, %s, %s, NOW())
-            """, (
-                metadata["user_id"],
-                metadata["event_id"],
-                float(session["amount_total"]) / 100,
-                metadata["asiento"],
-                metadata["nombre_comprador"],
-                metadata["email_comprador"]
-            ))
+            for _ in range(cantidad):
+                cursor.execute("""
+                    INSERT INTO tickets (user_id, event_id, precio_total, asiento, nombre_comprador, email_comprador, fecha_compra)
+                    VALUES (%s, %s, %s, '', %s, %s, NOW())
+                """, (
+                    metadata["user_id"],
+                    metadata["event_id"],
+                    float(session["amount_total"]) / cantidad / 100,
+                    metadata["nombre_comprador"],
+                    metadata["email_comprador"]
+                ))
+                ticket_id = cursor.lastrowid
+                asiento_texto = f"#{str(ticket_id).zfill(6)}"
+                cursor.execute("UPDATE tickets SET asiento = %s WHERE id = %s", (asiento_texto, ticket_id))
 
             cursor.execute("""
-                UPDATE events SET entradas_vendidas = entradas_vendidas + 1
+                UPDATE events SET entradas_vendidas = entradas_vendidas + %s
                 WHERE id = %s
-            """, (metadata["event_id"],))
+            """, (cantidad, metadata["event_id"]))
+
             db.commit()
-            print("✅ Entrada registrada automáticamente.")
+            print("✅ Entradas registradas correctamente.")
+
         except Exception as e:
             db.rollback()
             print("❌ Error al registrar entrada:", str(e))
@@ -445,9 +454,10 @@ def obtener_entradas_usuario():
             SELECT t.*, e.nombre_evento, e.fecha
             FROM tickets t
             JOIN events e ON t.event_id = e.id
-            WHERE t.nombre_comprador = %s
+            WHERE t.nombre_comprador LIKE %s
             ORDER BY t.fecha_compra DESC
-        """, (nombre_comprador,))
+        """, (f"{nombre_comprador.split()[0]}%",))
+
     else:
         return jsonify(success=False, message="Faltan parámetros de búsqueda"), 400
 
@@ -474,7 +484,7 @@ def comprar_ticket():
     data = request.json
     event_id = data.get("event_id")
     email_comprador = data.get("email")
-    nombre_comprador = data.get("nombre")
+    nombre_comprador = data.get("nombre_comprador") or data.get("nombre")
     nombre_evento = data.get("nombre_evento")
     user_id = 1  # ✅ ID fijo
 
@@ -482,26 +492,34 @@ def comprar_ticket():
         db.ping(reconnect=True, attempts=3, delay=2)
 
         if not event_id:
-            # Buscar ID del evento por su nombre
-            cursor.execute("SELECT id FROM events WHERE nombre_evento = %s", (nombre_evento,))
+            cursor.execute("SELECT id, precio FROM events WHERE nombre_evento = %s", (nombre_evento,))
             resultado = cursor.fetchone()
             if resultado:
                 event_id = resultado["id"]
+                precio = float(resultado["precio"])
             else:
                 return jsonify(success=False, message="Evento no encontrado por nombre")
+        else:
+            cursor.execute("SELECT precio FROM events WHERE id = %s", (event_id,))
+            res_precio = cursor.fetchone()
+            if res_precio:
+                precio = float(res_precio["precio"])
+            else:
+                return jsonify(success=False, message="Evento no encontrado por ID")
 
         cursor.execute("""
-            INSERT INTO tickets (user_id, event_id, email_comprador, nombre_comprador, asiento, fecha_compra)
-            VALUES (%s, %s, %s, %s, '', NOW())
-        """, (user_id, event_id, email_comprador, nombre_comprador))
+            INSERT INTO tickets (user_id, event_id, precio_total, email_comprador, nombre_comprador, asiento, fecha_compra)
+            VALUES (%s, %s, %s, %s, %s, '', NOW())
+        """, (user_id, event_id, precio, email_comprador, nombre_comprador))
 
         ticket_id = cursor.lastrowid
-        asiento_texto = f"Entrada Nº: #{str(ticket_id).zfill(6)}"
+        asiento_texto = f"#{str(ticket_id).zfill(6)}"
         cursor.execute("UPDATE tickets SET asiento = %s WHERE id = %s", (asiento_texto, ticket_id))
 
         db.commit()
 
         return jsonify(success=True, email=email_comprador, evento=nombre_evento)
     except Error as err:
+        db.rollback()
         print("❌ Error al crear ticket:", err)
         return jsonify(success=False, message=str(err)), 500

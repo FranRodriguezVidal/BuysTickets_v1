@@ -65,7 +65,8 @@ export default function EntradaGenerada() {
             doc.setFontSize(12);
             doc.setTextColor(30);
             doc.text(`Evento: ${entrada.nombre_evento}`, 25, y);
-            doc.text(`Asiento: ${entrada.asiento}`, 25, y + espacio);
+            doc.text(`${entrada.asiento.startsWith("#") ? "Número de entrada" : "Asiento"}: ${entrada.asiento}`, 25, y + espacio);
+
             doc.text(`Nombre: ${entrada.nombre_comprador}`, 25, y + espacio * 2);
             doc.text(`Email: ${entrada.email_comprador}`, 25, y + espacio * 3);
             doc.text(`Fecha de compra: ${entrada.fecha_compra}`, 25, y + espacio * 4);
@@ -92,7 +93,10 @@ export default function EntradaGenerada() {
         <div className="container text-center mt-5">
             <h2>🎟️ Entrada comprada existosa</h2>
             <p><strong>Evento:</strong> {entrada.nombre_evento}</p>
-            <p><strong>Asiento:</strong> {entrada.asiento}</p>
+            <p>
+                <strong>{entrada.asiento.startsWith("#") ? "Número de entrada" : "Asiento"}:</strong> {entrada.asiento}
+            </p>
+
             <p><strong>Fecha:</strong> {entrada.fecha_compra}</p>
 
             <div className="d-flex justify-content-center mt-4">

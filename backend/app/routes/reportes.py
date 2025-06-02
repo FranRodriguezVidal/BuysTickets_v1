@@ -133,11 +133,12 @@ def enviar_correo_estado():
     data = request.get_json()
     usuario = data.get('usuario')
     estado = data.get('estado')
-    mensaje = data.get('mensaje')
+    mensaje_admin = data.get('mensaje', '')
 
     if not usuario or not estado:
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
 
+    # Buscar email del usuario
     try:
         cursor.execute("SELECT email FROM users WHERE user = %s", (usuario,))
         user_data = cursor.fetchone()
@@ -148,25 +149,33 @@ def enviar_correo_estado():
         return jsonify(success=False, message="Usuario no encontrado."), 404
 
     email = user_data["email"]
-    asunto = f"Reporte {estado.capitalize()}"
-    cuerpo = f"Tu reporte ha sido marcado como {estado}.\n\nMensaje del administrador:\n{mensaje}"
+    remitente = "buystickets.customer@gmail.com"
+    contraseña = "ikch pecb cuzu dkdn"  # tu contraseña de aplicación fija
 
-    mensaje_correo = MIMEMultipart("alternative")
-    mensaje_correo["Subject"] = asunto
-    mensaje_correo["From"] = REMITENTE
-    mensaje_correo["To"] = email
-    mensaje_correo.attach(MIMEText(cuerpo, "plain"))
+    asunto = f"Estado de tu reporte: {estado.capitalize()}"
+    cuerpo = f"""
+Hola {usuario},
+
+Tu reporte ha sido actualizado a estado: **{estado.upper()}**
+
+📩 Mensaje del equipo:
+{mensaje_admin if mensaje_admin else '(sin mensaje adicional)'}
+
+Gracias por utilizar BuyTickets.
+"""
+
+    mensaje = MIMEMultipart("alternative")
+    mensaje["Subject"] = asunto
+    mensaje["From"] = remitente
+    mensaje["To"] = email
+    mensaje.attach(MIMEText(cuerpo, "plain"))
 
     try:
-        if not GMAIL_PASSWORD:
-            raise ValueError("GMAIL_PASSWORD no está configurada.")
-
         servidor = smtplib.SMTP("smtp.gmail.com", 587)
         servidor.starttls()
-        servidor.login(REMITENTE, GMAIL_PASSWORD)
-        servidor.sendmail(REMITENTE, email, mensaje_correo.as_string())
+        servidor.login(remitente, contraseña)
+        servidor.sendmail(remitente, email, mensaje.as_string())
         servidor.quit()
-
         print(f"✅ Correo enviado a {email}")
         return jsonify(success=True, message="Correo enviado correctamente."), 200
     except Exception as e:

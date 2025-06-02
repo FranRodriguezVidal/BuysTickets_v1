@@ -221,6 +221,8 @@ export default function Asientos3D() {
     const [showVista, setShowVista] = useState(false);
     const [vistaButaca, setVistaButaca] = useState(null);
     const [scrollBloqueado, setScrollBloqueado] = useState(false);
+    const [codigoDescuento, setCodigoDescuento] = useState("");
+
 
     const precioUnitario = evento?.precio || 0;
     const cantidad = asientosSeleccionados.length;
@@ -229,11 +231,19 @@ export default function Asientos3D() {
     const esPremium = usuario?.is_premium === true;
 
     let descuento = 0;
-    if (esDiscapacidad) {
-        descuento = 0.5; // 50%
+    let origenDescuento = "";
+
+    if (codigoDescuento === "BuysTickets_Discapacidad_2025") {
+        descuento = 0.5;
+        origenDescuento = "🔐 Código válido de discapacidad (50%)";
+    } else if (esDiscapacidad) {
+        descuento = 0.5;
+        origenDescuento = "Descuento automático por discapacidad (50%)";
     } else if (esPremium) {
-        descuento = 0.25; // 25%
+        descuento = 0.25;
+        origenDescuento = "Descuento premium (25%)";
     }
+
 
     const totalSinDescuento = precioUnitario * cantidad;
     const totalConDescuento = totalSinDescuento * (1 - descuento);
@@ -441,19 +451,35 @@ export default function Asientos3D() {
                                         </button>
                                     ))}
                                 </div>
-                                <p className="mt-2">
-                                    <strong>Precio base:</strong> {precioUnitario} € × {cantidad} = {totalSinDescuento.toFixed(2)} €
-                                </p>
-                                {descuento > 0 && (
+                                <p><strong>Precio base:</strong> {precioUnitario} € × {cantidad} = {totalSinDescuento.toFixed(2)} €</p>
+                                {descuento > 0 ? (
                                     <p className="text-success">
-                                        <strong>Descuento aplicado:</strong> {descuento * 100}% → Nuevo total: <strong>{totalConDescuento.toFixed(2)} €</strong>
+                                        ✅ {origenDescuento}<br />
+                                        <strong>Precio final:</strong> {totalConDescuento.toFixed(2)} €
                                     </p>
+                                ) : (
+                                    <>
+                                        {codigoDescuento && (
+                                            <p className="text-danger mb-1">❌ Código inválido o sin efecto</p>
+                                        )}
+                                        <p><strong>Total:</strong> {totalSinDescuento.toFixed(2)} €</p>
+                                    </>
                                 )}
-                                {descuento === 0 && (
-                                    <p>
-                                        <strong>Total:</strong> {totalSinDescuento.toFixed(2)} €
-                                    </p>
-                                )}
+
+
+                                <div className="mt-3" style={{ maxWidth: "300px", margin: "0 auto" }}>
+                                    <label htmlFor="codigoDescuento" className="form-label">
+                                        🔐 Código de descuento
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="codigoDescuento"
+                                        className="form-control text-center"
+                                        placeholder="Introduce tu código"
+                                        value={codigoDescuento}
+                                        onChange={(e) => setCodigoDescuento(e.target.value)}
+                                    />
+                                </div>
 
 
                                 <button className="btn btn-success mt-3" onClick={checkoutHandler}>
