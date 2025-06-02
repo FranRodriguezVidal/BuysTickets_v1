@@ -275,27 +275,35 @@ export default function Asientos3D() {
     };
 
     const checkoutHandler = async () => {
-        if (!usuario || !evento || asientosSeleccionados.length === 0) return;
+        if (!usuario || !evento || asientosSeleccionados.length === 0) {
+            alert("⚠️ Faltan datos");
+            return;
+        }
+
+        const payload = {
+            user_id: usuario.user_id || usuario.id || 1,
+            event_id: evento.id,
+            tickets: asientosSeleccionados.map(nombre => ({
+                asiento: nombre,
+                nombre_comprador: `${usuario.nombre} ${usuario.apellido}`,
+                email_comprador: usuario.email
+            }))
+        };
+
+        console.log("📤 Payload que se enviará:", payload); // <--- ✅ Esto nos dirá la verdad
 
         const response = await fetch("http://localhost:5000/comprar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                user_id: usuario.id,
-                event_id: evento.id,
-                tickets: asientosSeleccionados.map(nombre => ({
-                    asiento: nombre,
-                    nombre_comprador: `${usuario.nombre} ${usuario.apellido}`,
-                    email_comprador: usuario.email
-                }))
-            })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
         if (data.success) {
-            alert(`✅ Compra completada.\nEntradas registradas por ${data.precio.toFixed(2)} € c/u\nDescuento aplicado: ${data.descuento * 100}%`);
-            navigate('/mis-entradas');
+            navigate(`/entrada-generada?email=${data.email}&evento=${encodeURIComponent(data.evento)}`);
+
         } else {
+            console.error("❌ Error en backend:", data.message);
             alert("❌ Error al registrar las entradas: " + data.message);
         }
     };

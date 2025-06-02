@@ -8,6 +8,8 @@ import stripe
 from flask import request
 from flask import send_from_directory
 from dotenv import load_dotenv
+from app.utils.mail import enviar_qr_por_email
+from datetime import datetime
 load_dotenv()
 
 UPLOAD_FOLDER = "uploads/eventos"
@@ -70,6 +72,7 @@ def crear_evento():
 def listar_eventos():
     try:
         db.ping(reconnect=True, attempts=3, delay=2)
+
         cursor.execute("""
             SELECT e.*, a.nombre AS nombre_artista
             FROM events e
@@ -77,9 +80,16 @@ def listar_eventos():
             ORDER BY e.fecha DESC
         """)
         eventos = cursor.fetchall()
+
+        for evento in eventos:
+            cursor.execute("SELECT COUNT(*) AS vendidas FROM tickets WHERE event_id = %s", (evento["id"],))
+            resultado = cursor.fetchone()
+            evento["entradas_vendidas"] = resultado["vendidas"]
+
         return jsonify(success=True, eventos=eventos)
     except Exception as e:
         return jsonify(success=False, message=str(e))
+
 
 @eventos_bp.route('/eventos/<int:evento_id>', methods=['DELETE'])
 def eliminar_evento(evento_id):
@@ -170,28 +180,42 @@ def comprar_tickets():
     try:
         db.ping(reconnect=True, attempts=3, delay=2)
         data = request.get_json()
+        print("📦 Payload recibido:", data)
+
+        # Validaciones defensivas
+        if not data:
+            return jsonify(success=False, message="JSON vacío o mal formado"), 400
+        if "user_id" not in data or "event_id" not in data or "tickets" not in data:
+            return jsonify(success=False, message="Faltan campos obligatorios: user_id, event_id o tickets"), 400
+
         user_id = data["user_id"]
         event_id = data["event_id"]
         tickets = data["tickets"]
 
         # Obtener datos del usuario
-        cursor.execute("SELECT discapacidad, is_premium FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT discapacidad, role FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
+
         discapacidad = user["discapacidad"]
-        is_premium = user["is_premium"]
+        role = user["role"]
+
 
         # Obtener precio base del evento
-        cursor.execute("SELECT aforo_total, entradas_vendidas, precio FROM events WHERE id = %s", (event_id,))
+        cursor.execute("SELECT aforo_total, entradas_vendidas, precio, nombre_evento FROM events WHERE id = %s", (event_id,))
         event = cursor.fetchone()
-        if not event or event["entradas_vendidas"] + len(tickets) > event["aforo_total"]:
+
+        if not event:
+            return jsonify(success=False, message="Evento no encontrado"), 404
+        if event["entradas_vendidas"] + len(tickets) > event["aforo_total"]:
             return jsonify(success=False, message="No hay suficientes entradas disponibles"), 400
 
         # Calcular descuento
         descuento = 0
-        if discapacidad:
+        if discapacidad == "sí":
             descuento = 0.50
-        elif is_premium:
+        elif role == "premium":
             descuento = 0.25
+
         precio_final = float(event["precio"]) * (1 - descuento)
 
         for e in tickets:
@@ -206,17 +230,39 @@ def comprar_tickets():
                 e["nombre_comprador"],
                 e["email_comprador"]
             ))
-        # Añade esto justo antes de db.commit()
+
+        # Actualizar evento
         cursor.execute("""
             UPDATE events SET entradas_vendidas = entradas_vendidas + %s
             WHERE id = %s
         """, (len(tickets), event_id))
 
         db.commit()
-        return jsonify(success=True, message="tickets compradas", precio=precio_final, descuento=descuento)
+# ✅ Enviar el QR del primer ticket por email
+        primer_ticket = tickets[0]
+        entrada = {
+            "nombre_evento": event["nombre_evento"],
+            "asiento": primer_ticket["asiento"],
+            "nombre_comprador": primer_ticket["nombre_comprador"],
+            "email_comprador": primer_ticket["email_comprador"],
+            "fecha_compra": datetime.today().strftime("%Y-%m-%d")
+        }
+        enviar_qr_por_email(primer_ticket["email_comprador"], entrada)
+
+        return jsonify(
+            success=True,
+            message="Tickets compradas",
+            precio=precio_final,
+            descuento=descuento,
+            evento=event["nombre_evento"],
+            email=primer_ticket["email_comprador"]
+        )
+
     except Exception as e:
         db.rollback()
-        return jsonify(success=False, message=str(e))
+        print("❌ Error en /comprar:", str(e))
+        return jsonify(success=False, message=str(e)), 500
+
     
 @eventos_bp.route('/uploads/<filename>')
 def serve_uploads(filename):
@@ -373,3 +419,29 @@ def registrar_ticket_directo():
     except Exception as e:
         db.rollback()
         return jsonify(success=False, message=str(e)), 500
+
+@eventos_bp.route('/entradas', methods=['GET'])
+def obtener_entradas_usuario():
+    user_id = request.args.get("user_id")
+    nombre_comprador = request.args.get("nombre_comprador")
+
+    if user_id:
+        cursor.execute("""
+            SELECT t.*, e.nombre_evento, e.fecha
+            FROM tickets t
+            JOIN events e ON t.event_id = e.id
+            WHERE t.user_id = %s
+            ORDER BY t.fecha_compra DESC
+        """, (user_id,))
+    elif nombre_comprador:
+        cursor.execute("""
+            SELECT t.*, e.nombre_evento, e.fecha
+            FROM tickets t
+            JOIN events e ON t.event_id = e.id
+            WHERE t.nombre_comprador = %s
+            ORDER BY t.fecha_compra DESC
+        """, (nombre_comprador,))
+    else:
+        return jsonify(success=False, message="Faltan parámetros de búsqueda"), 400
+
+    return jsonify(success=True, entradas=cursor.fetchall())

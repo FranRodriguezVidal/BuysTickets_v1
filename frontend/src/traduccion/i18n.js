@@ -79,7 +79,7 @@ i18n.use(initReactI18next).init({
         "y está destinado a demostrar la capacidad técnica de los estudiantes que lo desarrollan. El pago simulado que aparece en esta plataforma es completamente": "y está destinado a demostrar la capacidad técnica de los estudiantes que lo desarrollan. El pago simulado que aparece en esta plataforma es completamente",
         "ficticio": "ficticio",
         "y solo se utiliza con fines educativos para ilustrar el proceso de integración de": "y solo se utiliza con fines educativos para ilustrar el proceso de integración de",
-        "PayPal Sandbox": "PayPal Sandbox",
+        "Stripe": "Stripe",
         "No se realizará ninguna transacción real, y no se almacenará dinero ni información financiera": "No se realizará ninguna transacción real, y no se almacenará dinero ni información financiera",
         "Es importante que sepas que la información ingresada, aunque se procese a través de un sistema simulado, no será utilizada para ningún otro fin fuera del ámbito de esta prueba educativa.": "Es importante que sepas que la información ingresada, aunque se procese a través de un sistema simulado, no será utilizada para ningún otro fin fuera del ámbito de esta prueba educativa.",
         //Condiciones de Política
