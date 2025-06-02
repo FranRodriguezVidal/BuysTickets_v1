@@ -83,7 +83,7 @@ export default function Eventos() {
 
         const data = await res.json();
         if (data.url) {
-            navigate(`/entrada-generadan?email=${data.email}&evento=${encodeURIComponent(data.evento)}`);
+            window.location.href = data.url;
         } else {
             alert("Error al iniciar el pago: " + data.message);
         }

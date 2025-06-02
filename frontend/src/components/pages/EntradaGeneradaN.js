@@ -1,65 +1,121 @@
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
+import QRCode from "qrcode";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function EntradaGeneradaN() {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const email = queryParams.get("email");
-  const evento = queryParams.get("evento");
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const email = queryParams.get("email");
+    const evento = queryParams.get("evento");
+    const [entrada, setEntrada] = useState(null);
+    const navigate = useNavigate();
 
-  const [entrada, setEntrada] = useState(null);
+    useEffect(() => {
+        if (!email || !evento) return;
+        fetch(`http://localhost:5000/tickets-por-email?email=${email}&evento=${evento}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.entrada) {
+                    setEntrada(data.entrada);
+                } else {
+                    console.warn("Entrada no encontrada:", data.message);
+                }
+            })
+            .catch(err => console.error("Error al buscar entrada:", err));
+    }, [email, evento]);
 
-  useEffect(() => {
-    async function fetchEntrada() {
-      try {
-        const response = await fetch(
-          `/tickets-por-email?email=${email}&evento=${evento}`
-        );
-        const data = await response.json();
-        if (data.success) {
-          setEntrada(data.entrada);
-        } else {
-          alert("Entrada no encontrada");
+    if (!entrada) return <p className="text-center mt-5">🎫 Cargando entrada...</p>;
+
+    const descargarQR = async () => {
+        const qrData = {
+            evento: entrada.nombre_evento,
+            numero_entrada: entrada.asiento,
+            nombre: entrada.nombre_comprador,
+            email: entrada.email_comprador,
+            fecha: entrada.fecha_compra,
+        };
+
+        try {
+            const qrBase64 = await QRCode.toDataURL(JSON.stringify(qrData));
+            const doc = new jsPDF();
+
+            doc.setDrawColor(0);
+            doc.setFillColor(245, 245, 245);
+            doc.rect(10, 10, 190, 277, "F");
+
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 150);
+            doc.setFont("helvetica", "bold");
+            doc.text("Entrada Oficial - BuyTickets", 105, 40, null, null, "center");
+
+            doc.setFontSize(13);
+            doc.setTextColor(0);
+            doc.setFont("helvetica", "normal");
+            doc.text("Detalles de tu entrada", 105, 48, null, null, "center");
+
+            doc.setDrawColor(100, 100, 255);
+            doc.line(20, 52, 190, 52);
+
+            const y = 65;
+            const espacio = 10;
+            doc.setFontSize(12);
+            doc.setTextColor(30);
+            doc.text(`Evento: ${entrada.nombre_evento}`, 25, y);
+            doc.text(`Número de Entrada: ${entrada.asiento}`, 25, y + espacio);
+            doc.text(`Nombre: ${entrada.nombre_comprador}`, 25, y + espacio * 2);
+            doc.text(`Email: ${entrada.email_comprador}`, 25, y + espacio * 3);
+            doc.text(`Fecha de compra: ${entrada.fecha_compra}`, 25, y + espacio * 4);
+
+            doc.setFontSize(11);
+            doc.text("Escanea este código para validar tu entrada:", 105, y + espacio * 6, null, null, "center");
+            doc.addImage(qrBase64, "PNG", 60, y + espacio * 6 + 5, 90, 90);
+
+            doc.setDrawColor(180);
+            doc.line(20, 270, 190, 270);
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text("Preséntalo en la entrada. No es necesario imprimir.", 105, 277, null, null, "center");
+
+            doc.save("entrada_buytickets.pdf");
+        } catch (error) {
+            console.error("❌ Error al generar el PDF:", error);
+            alert("Hubo un error al generar el PDF con tu entrada.");
         }
-      } catch (error) {
-        console.error("Error al obtener la entrada:", error);
-      }
-    }
-    if (email && evento) {
-      fetchEntrada();
-    }
-  }, [email, evento]);
+    };
 
-  const descargarPDF = () => {
-    if (!entrada) return;
-    const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text("🎫 Entrada Evento", 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Evento: ${entrada.nombre_evento}`, 20, 40);
-    doc.text(`Nombre: ${entrada.nombre_comprador}`, 20, 50);
-    doc.text(`Email: ${entrada.email_comprador}`, 20, 60);
-    doc.text(`Fecha de Compra: ${entrada.fecha_compra}`, 20, 70);
-    doc.text(`${entrada.asiento}`, 20, 80);
-    doc.save("entrada.pdf");
-  };
+    return (
+        <div className="container text-center mt-5">
+            <h2>🎟️ Entrada comprada exitosa</h2>
+            <p><strong>Evento:</strong> {entrada.nombre_evento}</p>
+            <p><strong>Número de Entrada:</strong> {entrada.asiento}</p>
+            <p><strong>Fecha:</strong> {entrada.fecha_compra}</p>
 
-  if (!entrada) return <div>Cargando entrada...</div>;
+            <div className="d-flex justify-content-center mt-4">
+                <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                        JSON.stringify({
+                            evento: entrada.nombre_evento,
+                            numero_entrada: entrada.asiento,
+                            nombre: entrada.nombre_comprador,
+                            email: entrada.email_comprador,
+                            fecha: entrada.fecha_compra
+                        })
+                    )}&size=200x200`}
+                    alt="Código QR"
+                />
+            </div>
 
-  return (
-    <div className="container mt-5">
-      <h2 className="mb-4">Entrada Confirmada</h2>
-      <div className="card p-4">
-        <p><strong>Evento:</strong> {entrada.nombre_evento}</p>
-        <p><strong>Nombre:</strong> {entrada.nombre_comprador}</p>
-        <p><strong>Email:</strong> {entrada.email_comprador}</p>
-        <p><strong>Fecha:</strong> {entrada.fecha_compra}</p>
-        <p><strong>{entrada.asiento}</strong></p>
-        <button className="btn btn-primary mt-3" onClick={descargarPDF}>
-          Descargar PDF
-        </button>
-      </div>
-    </div>
-  );
+            <button className="btn btn-outline-primary mt-4" onClick={descargarQR}>
+                ⬇️ Descargar entrada en PDF
+            </button>
+
+            <p className="mt-3">
+                ¿Has comprado más entradas? Puedes verlas todas en Mis Entradas.
+            </p>
+            <button className="btn btn-info my-2" onClick={() => navigate("/entradas")}>
+                Ir a Mis Entradas
+            </button>
+        </div>
+    );
 }

@@ -299,7 +299,8 @@ def crear_checkout():
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            mode="payment",customer_email=data.get("email_comprador"),
+            mode="payment",
+            customer_email=data.get("email_comprador"),
             metadata={
                 "user_id": data.get("user_id"),
                 "event_id": data.get("event_id"),
@@ -311,16 +312,23 @@ def crear_checkout():
                 "price_data": {
                     "currency": "eur",
                     "product_data": {"name": evento},
-                    "unit_amount": int(precio * 100),  # en céntimos
+                    "unit_amount": int(precio * 100),
                 },
                 "quantity": 1,
             }],
-            success_url=f"http://localhost:3000/entrada-generadan?email={data.get('email_comprador')}&evento={data.get('evento')}",
+            success_url=f"http://localhost:3000/post-pago?email={data.get('email_comprador')}&evento={data.get('evento')}&nombre={data.get('nombre_comprador')}",
             cancel_url="http://localhost:3000/cancel",
         )
-        return jsonify(url=session.url)
+
+        return jsonify(
+            url=session.url,
+            email=data.get("email_comprador"),
+            evento=data.get("evento")
+        )
+
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
+
     
 @eventos_bp.route('/asientos-ocupados/<int:event_id>', methods=['GET'])
 def obtener_asientos_ocupados(event_id):
@@ -461,6 +469,7 @@ def ticket_por_id():
     else:
         return jsonify(success=False, message="Entrada no encontrada")
 
+
 @eventos_bp.route("/comprar-ticket", methods=["POST"])
 def comprar_ticket():
     data = request.json
@@ -468,30 +477,32 @@ def comprar_ticket():
     email_comprador = data.get("email")
     nombre_comprador = data.get("nombre")
     nombre_evento = data.get("nombre_evento")
+    user_id = 1  # ✅ ID fijo
 
     try:
         db.ping(reconnect=True, attempts=3, delay=2)
 
-        # 1. Insertar ticket provisionalmente
+        if not event_id:
+            # Buscar ID del evento por su nombre
+            cursor.execute("SELECT id FROM events WHERE nombre_evento = %s", (nombre_evento,))
+            resultado = cursor.fetchone()
+            if resultado:
+                event_id = resultado["id"]
+            else:
+                return jsonify(success=False, message="Evento no encontrado por nombre")
+
         cursor.execute("""
-            INSERT INTO tickets (event_id, email_comprador, nombre_comprador, asiento, fecha_compra)
-            VALUES (%s, %s, %s, '', NOW())
-        """, (event_id, email_comprador, nombre_comprador))
+            INSERT INTO tickets (user_id, event_id, email_comprador, nombre_comprador, asiento, fecha_compra)
+            VALUES (%s, %s, %s, %s, '', NOW())
+        """, (user_id, event_id, email_comprador, nombre_comprador))
 
-        # 2. Obtener ID generado
         ticket_id = cursor.lastrowid
-
-        # 3. Generar texto del asiento como "Entrada Nº: #000123"
         asiento_texto = f"Entrada Nº: #{str(ticket_id).zfill(6)}"
-
-        # 4. Actualizar ese ticket con el asiento generado
         cursor.execute("UPDATE tickets SET asiento = %s WHERE id = %s", (asiento_texto, ticket_id))
 
-        # 5. Confirmar cambios
         db.commit()
 
         return jsonify(success=True, email=email_comprador, evento=nombre_evento)
-
     except Error as err:
         print("❌ Error al crear ticket:", err)
         return jsonify(success=False, message=str(err)), 500

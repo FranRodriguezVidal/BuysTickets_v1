@@ -10,6 +10,7 @@ import EntradaGenerada from "./components/pages/EntradaGenerada";
 import Eventos from "./components/pages/Eventos";
 import Inicio from "./components/pages/Inicio";
 import Licencias from "./components/pages/Licencias";
+import PostPago from "./components/pages/PostPago";
 import AdminRoute from "./components/pages/routeSecure/AdminRoute";
 import PrivateRoute from "./components/pages/routeSecure/PrivateRoute";
 import Configuracion from "./components/pages/users/Configuracion";
@@ -38,6 +39,11 @@ function App() {
             <PrivateRoute>
               <EntradaGenerada />
             </PrivateRoute>} />
+
+            <Route path="/post-pago" element={
+              <PrivateRoute>
+              <PostPago />
+              </PrivateRoute>} />
 
 
           <Route path="/configuracion" element={
