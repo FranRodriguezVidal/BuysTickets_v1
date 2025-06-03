@@ -222,7 +222,19 @@ export default function Asientos3D() {
     const [vistaButaca, setVistaButaca] = useState(null);
     const [scrollBloqueado, setScrollBloqueado] = useState(false);
     const [codigoDescuento, setCodigoDescuento] = useState("");
+    const [codigoValido, setCodigoValido] = useState(false);
+    const [mensajeCodigo, setMensajeCodigo] = useState("");
 
+    // Función para validar el código al pulsar el botón
+    const aplicarCodigo = () => {
+        if (codigoDescuento.trim() === "BuysTickets_Discapacidad_2025") {
+            setCodigoValido(true);
+            setMensajeCodigo("✅ Código válido, primera fila desbloqueada");
+        } else {
+            setCodigoValido(false);
+            setMensajeCodigo("❌ Código inválido");
+        }
+    };
 
     const precioUnitario = evento?.precio || 0;
     const cantidad = asientosSeleccionados.length;
@@ -233,7 +245,7 @@ export default function Asientos3D() {
     let descuento = 0;
     let origenDescuento = "";
 
-    if (codigoDescuento === "BuysTickets_Discapacidad_2025") {
+    if (codigoValido) {
         descuento = 0.5;
         origenDescuento = "🔐 Código válido de discapacidad (50%)";
     } else if (esDiscapacidad) {
@@ -243,7 +255,6 @@ export default function Asientos3D() {
         descuento = 0.25;
         origenDescuento = "Descuento premium (25%)";
     }
-
 
     const totalSinDescuento = precioUnitario * cantidad;
     const totalConDescuento = totalSinDescuento * (1 - descuento);
@@ -263,7 +274,6 @@ export default function Asientos3D() {
         fetch(`http://localhost:5000/asientos-ocupados/${id}`)
             .then(res => res.json())
             .then(data => {
-                console.log("🪑 Asientos ocupados:", data.asientos);
                 setAsientosOcupados(data.asientos || []);
             });
     }, [id, usuario]);
@@ -300,8 +310,6 @@ export default function Asientos3D() {
             }))
         };
 
-        console.log("📤 Payload que se enviará:", payload); // <--- ✅ Esto nos dirá la verdad
-
         const response = await fetch("http://localhost:5000/comprar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -311,9 +319,7 @@ export default function Asientos3D() {
         const data = await response.json();
         if (data.success) {
             navigate(`/entrada-generada?email=${data.email}&evento=${encodeURIComponent(data.evento)}`);
-
         } else {
-            console.error("❌ Error en backend:", data.message);
             alert("❌ Error al registrar las entradas: " + data.message);
         }
     };
@@ -346,30 +352,28 @@ export default function Asientos3D() {
                             </p>
                         </div>
                     </div>
+
                     <div style={{ width: '100%', height: '80vh', position: 'relative' }}>
-                        <Canvas shadows >
+                        <Canvas shadows>
                             <ambientLight intensity={0.4} />
                             <directionalLight position={[10, 20, 10]} intensity={0.8} castShadow />
                             <OrbitControls
                                 makeDefault
-                                enableRotate={true}              // Rotar con botón izquierdo
-                                enableZoom={true}                // Zoom con rueda
-                                enablePan={true}                 // Mover con botón derecho
+                                enableRotate={true}
+                                enableZoom={true}
+                                enablePan={true}
                                 enableDamping={true}
                                 dampingFactor={0.1}
-                                minPolarAngle={Math.PI / 6}      // evita mirar desde debajo
-                                maxPolarAngle={Math.PI / 2.1}    // evita ver desde muy arriba
-                                target={[0, 8, 0]}               // Apunta a las butacas
+                                minPolarAngle={Math.PI / 6}
+                                maxPolarAngle={Math.PI / 2.1}
+                                target={[0, 8, 0]}
                                 onChange={(e) => {
                                     const cam = e.target.object;
-                                    // Limita solo movimiento fuera del teatro
                                     cam.position.x = Math.max(-25, Math.min(25, cam.position.x));
                                     cam.position.y = Math.max(5, Math.min(25, cam.position.y));
                                     cam.position.z = Math.max(-50, Math.min(50, cam.position.z));
                                 }}
                             />
-
-
 
                             <Escenario />
                             <CortinaCentral />
@@ -386,32 +390,29 @@ export default function Asientos3D() {
                             <Escalera lado="izquierda" filas={filas} />
                             <Escalera lado="derecha" filas={filas} />
 
-                            {(() => {
-                                const esDiscapacidad = usuario?.discapacidad === "sí"; // ✅ definición aquí
+                            {Array.from({ length: filas }).map((_, filaIdx) =>
+                                Array.from({ length: columnas }).map((_, colIdx) => {
+                                    const nombre = `Fila ${filaIdx + 1} Butaca ${colIdx + 1}`;
+                                    const ocupado = asientosOcupados.includes(nombre);
+                                    const esPrimeraFila = filaIdx === 0;
+                                    const puedeUsarPrimeraFila = esDiscapacidad || codigoValido;
+                                    const deshabilitado = ocupado || (esPrimeraFila && !puedeUsarPrimeraFila);
+                                    const seleccionado = asientosSeleccionados.includes(nombre);
 
-                                return Array.from({ length: filas }).map((_, filaIdx) =>
-                                    Array.from({ length: columnas }).map((_, colIdx) => {
-                                        const nombre = `Fila ${filaIdx + 1} Butaca ${colIdx + 1}`;
-                                        const ocupado = asientosOcupados.includes(nombre);
-                                        const esPrimeraFila = filaIdx === 0;
-                                        const deshabilitado = ocupado || (esPrimeraFila && !esDiscapacidad);
-                                        const seleccionado = asientosSeleccionados.includes(nombre);
-
-                                        return (
-                                            <Butaca
-                                                key={nombre}
-                                                position={[colIdx - columnas / 2, filaIdx * 0.2, filaIdx - filas / 2]}
-                                                ocupada={ocupado}
-                                                seleccionada={seleccionado}
-                                                deshabilitada={deshabilitado}
-                                                onClick={() => toggleSeleccion(nombre)}
-                                                esDiscapacidad={esDiscapacidad}
-                                            />
-                                        );
-                                    })
-                                );
-                            })()}
+                                    return (
+                                        <Butaca
+                                            key={nombre}
+                                            position={[colIdx - columnas / 2, filaIdx * 0.2, filaIdx - filas / 2]}
+                                            ocupada={ocupado}
+                                            seleccionada={seleccionado}
+                                            deshabilitada={deshabilitado}
+                                            onClick={() => toggleSeleccion(nombre)}
+                                        />
+                                    );
+                                })
+                            )}
                         </Canvas>
+
                         <button
                             onClick={() => setScrollBloqueado(prev => !prev)}
                             style={{
@@ -430,65 +431,80 @@ export default function Asientos3D() {
                         >
                             {scrollBloqueado ? '🔓 Desbloquear scroll' : '🔒 Bloquear scroll'}
                         </button>
-
                     </div>
 
                     <div className="text-center mt-4">
-                        {asientosSeleccionados.length > 0 ? (
-                            <>
-                                <p><strong>Asientos seleccionados:</strong> {asientosSeleccionados.join(", ")}</p>
-                                <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
-                                    {asientosSeleccionados.map((nombre, index) => (
-                                        <button
-                                            key={index}
-                                            className="btn btn-outline-primary btn-sm"
-                                            onClick={() => {
-                                                setVistaButaca(nombre);  // 👈 nuevo estado para ver esa butaca
-                                                setShowVista(true);
-                                            }}
-                                        >
-                                            👁 Ver vista desde {nombre}
-                                        </button>
-                                    ))}
-                                </div>
-                                <p><strong>Precio base:</strong> {precioUnitario} € × {cantidad} = {totalSinDescuento.toFixed(2)} €</p>
-                                {descuento > 0 ? (
-                                    <p className="text-success">
-                                        ✅ {origenDescuento}<br />
-                                        <strong>Precio final:</strong> {totalConDescuento.toFixed(2)} €
-                                    </p>
-                                ) : (
-                                    <>
-                                        {codigoDescuento && (
-                                            <p className="text-danger mb-1">❌ Código inválido o sin efecto</p>
-                                        )}
-                                        <p><strong>Total:</strong> {totalSinDescuento.toFixed(2)} €</p>
-                                    </>
-                                )}
+                        <>
+                            {asientosSeleccionados.length > 0 && (
+                                <>
+                                    <p><strong>Asientos seleccionados:</strong> {asientosSeleccionados.join(", ")}</p>
+                                    <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                                        {asientosSeleccionados.map((nombre, index) => (
+                                            <button
+                                                key={index}
+                                                className="btn btn-outline-primary btn-sm"
+                                                onClick={() => {
+                                                    setVistaButaca(nombre);
+                                                    setShowVista(true);
+                                                }}
+                                            >
+                                                👁 Ver vista desde {nombre}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
 
+                            <p>
+                                <strong>Total:</strong>{" "}
+                                {totalConDescuento.toFixed(2)} €
+                            </p>
 
-                                <div className="mt-3" style={{ maxWidth: "300px", margin: "0 auto" }}>
-                                    <label htmlFor="codigoDescuento" className="form-label">
-                                        🔐 Código de descuento
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="codigoDescuento"
-                                        className="form-control text-center"
-                                        placeholder="Introduce tu código"
-                                        value={codigoDescuento}
-                                        onChange={(e) => setCodigoDescuento(e.target.value)}
-                                    />
-                                </div>
+                            {descuento > 0 && (
+                                <p className="text-success">
+                                    ✅ {origenDescuento}
+                                </p>
+                            )}
 
-
-                                <button className="btn btn-success mt-3" onClick={checkoutHandler}>
-                                    Proceder al pago seguro
+                            <div className="mt-3" style={{ maxWidth: "300px", margin: "0 auto" }}>
+                                <label htmlFor="codigoDescuento" className="form-label">
+                                    🔐 Código de descuento
+                                </label>
+                                <input
+                                    type="text"
+                                    id="codigoDescuento"
+                                    className="form-control text-center"
+                                    placeholder="Introduce tu código"
+                                    value={codigoDescuento}
+                                    onChange={(e) => {
+                                        setCodigoDescuento(e.target.value);
+                                        setMensajeCodigo("");
+                                        setCodigoValido(false);
+                                    }}
+                                    disabled={codigoValido}
+                                />
+                                <button
+                                    className="btn btn-primary mt-2 w-100"
+                                    onClick={aplicarCodigo}
+                                    disabled={codigoValido}
+                                >
+                                    Aplicar código
                                 </button>
-                            </>
-                        ) : (
-                            <p className="text-muted">Selecciona tus asientos (hasta 8)</p>
-                        )}
+                                {mensajeCodigo && (
+                                    <p className={codigoValido ? "text-success mt-2" : "text-danger mt-2"}>
+                                        {mensajeCodigo}
+                                    </p>
+                                )}
+                            </div>
+
+                            <button
+                                className="btn btn-success mt-3"
+                                onClick={checkoutHandler}
+                                disabled={cantidad === 0}
+                            >
+                                Proceder al pago seguro
+                            </button>
+                        </>
                     </div>
 
                     <Modal show={showVista} onHide={() => setShowVista(false)} size="xl" centered>
@@ -549,8 +565,8 @@ export default function Asientos3D() {
                                             const nombre = `Fila ${filaIdx + 1} Butaca ${colIdx + 1}`;
                                             const ocupado = asientosOcupados.includes(nombre);
                                             const esPrimeraFila = filaIdx === 0;
-                                            const esDiscapacidad = usuario?.discapacidad === "sí"; // ✅ se compara con string "sí"
-                                            const deshabilitado = ocupado || (esPrimeraFila && !esDiscapacidad); // solo usuarios con discapacidad pueden usar primera fila
+                                            const puedeUsarPrimeraFila = esDiscapacidad || codigoValido;
+                                            const deshabilitado = ocupado || (esPrimeraFila && !puedeUsarPrimeraFila);
                                             const seleccionado = asientosSeleccionados.includes(nombre);
 
                                             return (
@@ -565,7 +581,6 @@ export default function Asientos3D() {
                                             );
                                         })
                                     )}
-
                                 </Canvas>
                             </div>
                         </Modal.Body>

@@ -28,7 +28,7 @@ export default function Eventos() {
 
     const API_BASE_URL = "https://buystickets-v1.onrender.com";
     useEffect(() => {
-        fetch(`${API_BASE_URL}/eventos`)
+        fetch("http://localhost:5000/eventos")
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -76,7 +76,7 @@ export default function Eventos() {
         const precioFinal = base * (1 - descuento);
 
 
-        const res = await fetch(`${API_BASE_URL}/crear-checkout`, {
+        const res = await fetch("http://localhost:5000/crear-checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -155,7 +155,7 @@ export default function Eventos() {
         if (!usuario?.id) return;
 
         const obtenerDescuento = async () => {
-            const res = await fetch(`${API_BASE_URL}/descuento/${usuario.id}`);
+            const res = await fetch(`http://localhost:5000/descuento/${usuario.id}`);
             const data = await res.json();
             if (data.success) {
                 setUsuario(prev => ({
@@ -244,7 +244,7 @@ export default function Eventos() {
                                     {/* Imagen */}
                                     {ev.imagen ? (
                                         <img
-                                            src={`${API_BASE_URL}/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
+                                            src={`http://localhost:5000/uploads/${ev.imagen.replace(/^.*[\\/]/, '')}`}
                                             alt={ev.nombre_evento}
                                             style={{
                                                 width: "150px",
@@ -302,7 +302,7 @@ export default function Eventos() {
                                 <div className="me-3">
                                     {eventoSeleccionado.imagen ? (
                                         <img
-                                            src={`${API_BASE_URL}/uploads/${eventoSeleccionado.imagen.replace(/^.*[\\/]/, '')}`}
+                                            src={`http://localhost:5000/uploads/${eventoSeleccionado.imagen.replace(/^.*[\\/]/, '')}`}
                                             alt={eventoSeleccionado.nombre_evento}
                                             style={{ width: "200px", height: "300px", objectFit: "cover", borderRadius: "8px" }}
                                         />
