@@ -6,7 +6,7 @@ db = mysql.connector.connect(
     user=Config.DB_USER,
     port=int(Config.DB_PORT),
     password=Config.DB_PASSWORD,
-    database=Config.DB_NAME
+    database=Config.DB_NAME,
     ssl_disabled=True 
 )
 
