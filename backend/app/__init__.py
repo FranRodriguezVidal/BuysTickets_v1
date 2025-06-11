@@ -13,7 +13,8 @@ from flask import send_from_directory
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)  # ← Esto es importante
+    CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+
 
     app.register_blueprint(user_bp)
     app.register_blueprint(auth_bp)
