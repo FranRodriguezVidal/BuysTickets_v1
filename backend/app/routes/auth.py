@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from app.utils.db import cursor, db
+from app.utils.db import get_cursor
 import base64, re, os
+
+
+db, cursor = get_cursor()
 
 auth_bp = Blueprint('auth', __name__)
 UPLOAD_FOLDER = 'uploads'

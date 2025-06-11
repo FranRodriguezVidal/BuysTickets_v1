@@ -5,10 +5,12 @@ from app.utils.mail import enviar_correo_eliminacion
 import mimetypes
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app.utils.db import cursor, db
+from app.utils.db import get_cursor
 import base64
 import os
 import random
+
+db, cursor = get_cursor()
 
 user_bp = Blueprint('user', __name__)
 UPLOAD_FOLDER = 'uploads'

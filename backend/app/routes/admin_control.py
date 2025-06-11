@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.utils import secure_filename
-from utils.db import cursor, db
+from app.utils.db import get_cursor
 from werkzeug.security import generate_password_hash
 import os
 import base64
 import mysql.connector 
 from app.utils.mail import enviar_correo_eliminacion
+
+db, cursor = get_cursor()
 
 # Configuración
 UPLOAD_FOLDER = 'uploads'

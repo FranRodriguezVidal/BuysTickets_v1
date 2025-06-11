@@ -1,8 +1,10 @@
 import stripe
 from flask import Blueprint, request, jsonify
-from ..utils.db import cursor, db
+from app.utils.db import get_cursor
 from datetime import datetime, timedelta
 import os
+
+db, cursor = get_cursor()
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 premium_bp = Blueprint('premium', __name__)
