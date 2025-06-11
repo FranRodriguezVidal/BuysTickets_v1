@@ -6,9 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-from app.utils.db import get_cursor # Asegúrate de que db esté correctamente importado
-
-db, cursor = get_cursor()
+from utils.db import cursor, db  # Asegúrate de que db esté correctamente importado
 
 # Configuración de la contraseña de Gmail desde una variable de entorno
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")

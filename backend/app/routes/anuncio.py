@@ -6,9 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import smtplib
-from app.utils.db import get_cursor
-
-db, cursor = get_cursor()
+from app.utils.db import cursor
 
 anuncio_bp = Blueprint('anucnio', __name__)
 

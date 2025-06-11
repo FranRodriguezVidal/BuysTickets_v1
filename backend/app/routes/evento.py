@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.utils.db import cursor, db
+from utils.db import db, cursor
 from datetime import datetime, timedelta
 import os
 from werkzeug.utils import secure_filename
@@ -11,8 +11,6 @@ from dotenv import load_dotenv
 from app.utils.mail import enviar_qr_por_email
 from datetime import datetime
 load_dotenv()
-
-from app.utils.db import get_cursor
 
 UPLOAD_FOLDER = "uploads/eventos"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
