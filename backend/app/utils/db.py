@@ -1,12 +1,16 @@
 import mysql.connector
 from config import Config
 
-db = mysql.connector.connect(
-    host=Config.DB_HOST,
-    user=Config.DB_USER,
-    port=int(Config.DB_PORT),
-    password=Config.DB_PASSWORD,
-    database=Config.DB_NAME
-)
+def get_connection():
+    return mysql.connector.connect(
+        host=Config.DB_HOST,
+        user=Config.DB_USER,
+        port=int(Config.DB_PORT),
+        password=Config.DB_PASSWORD,
+        database=Config.DB_NAME
+    )
 
-cursor = db.cursor(dictionary=True)
+def get_cursor():
+    db = get_connection()
+    cursor = db.cursor(dictionary=True)
+    return db, cursor
