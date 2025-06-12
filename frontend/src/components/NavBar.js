@@ -37,7 +37,7 @@ const NavBar = () => {
     const [sugerencias, setSugerencias] = useState([]);
     const id = usuario?.id;
 
-    const API_BASE_URL = "https://buystickets-v1.onrender.com";
+    const API_BASE_URL = "https://buystickets-v1.onrender.com/";
 
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
