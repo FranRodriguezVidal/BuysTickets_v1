@@ -4,7 +4,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import os
-from app.utils.db import cursor, db
+from app.utils.db import cursor, db, ensure_connection
+
 
 # Configuración de la contraseña de Gmail desde una variable de entorno
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
@@ -27,6 +28,7 @@ def reportar_error():
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
     
     try:
+        ensure_connection()
         # 👉 Crear la tabla reportes si no existe
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS reportes (

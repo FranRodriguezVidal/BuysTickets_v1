@@ -1,6 +1,6 @@
 import stripe
 from flask import Blueprint, request, jsonify
-from ..utils.db import cursor, db
+from app.utils.db import cursor, db, ensure_connection
 from datetime import datetime, timedelta
 import os
 
@@ -53,6 +53,7 @@ def verify_payment():
         # Si el pago es exitoso, actualizar el usuario
         expiry_date = datetime.now() + timedelta(weeks=13)
         
+        ensure_connection()
         cursor.execute("""
             UPDATE users 
             SET role = 'premium', 

@@ -6,7 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import smtplib
-from app.utils.db import cursor
+from app.utils.db import cursor, db, ensure_connection
+
 
 anuncio_bp = Blueprint('anucnio', __name__)
 
@@ -43,6 +44,7 @@ def enviar_anuncio():
             return jsonify(success=False, message=f"Error al procesar la imagen: {str(e)}"), 400
 
     try:
+        ensure_connection()
         cursor.execute("SELECT email, user FROM users WHERE role != 'admin'")
         usuarios = cursor.fetchall()
     except Exception as e:

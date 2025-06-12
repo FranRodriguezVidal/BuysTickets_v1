@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.utils import secure_filename
-from utils.db import cursor, db
+from app.utils.db import cursor, db, ensure_connection
 from werkzeug.security import generate_password_hash
 import os
 import base64
@@ -32,10 +32,11 @@ def register_adminControl():
         return jsonify(success=False, message="Faltan datos obligatorios."), 400
 
     # Validación de duplicados
+    ensure_connection()
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     if cursor.fetchone():
         return jsonify(success=False, message="El nombre de usuario ya está en uso.")
-    
+    ensure_connection()
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     if cursor.fetchone():
         return jsonify(success=False, message="Este correo ya está registrado.")
@@ -69,6 +70,7 @@ def register_adminControl():
 def lista_usuarios_adminControl():
     try:
         cursor = db.cursor(dictionary=True)
+        ensure_connection()
         cursor.execute("SELECT id, user, role, name, surname, email, discapacidad, profile FROM users")
         users = cursor.fetchall()
         cursor.close()
@@ -121,6 +123,7 @@ def update_user_adminControl():
 
     profile = request.files.get('profile')
 
+    ensure_connection()
     try:
         if user:
             cursor.execute("UPDATE users SET user = %s WHERE id = %s", (user, user_id))
@@ -156,6 +159,7 @@ def update_user_adminControl():
 @admin_bp.route('/delete-user-adminControl/<int:user_id>', methods=['DELETE'])
 def delete_user_adminControl(user_id):
     try:
+        ensure_connection()
         cursor.execute("SELECT user, email, profile FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
 
@@ -168,6 +172,7 @@ def delete_user_adminControl(user_id):
             if os.path.exists(profile_path):
                 os.remove(profile_path)
 
+        ensure_connection()
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
         db.commit()
 

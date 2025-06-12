@@ -6,7 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-from utils.db import cursor, db  # Asegúrate de que db esté correctamente importado
+from app.utils.db import cursor, db, ensure_connection  # Asegúrate de que db esté correctamente importado
 
 # Configuración de la contraseña de Gmail desde una variable de entorno
 GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD")
@@ -33,6 +33,7 @@ def solicitar_discapacidad():
             archivo_nombre = secure_filename(archivo.filename)
             archivo_bytes = archivo.read()
 
+        ensure_connection()
         # Verificar duplicados
         cursor.execute("SELECT id FROM solicitudes_discapacidad WHERE dni = %s OR usuario = %s", (dni, usuario))
         if cursor.fetchone():

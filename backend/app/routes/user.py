@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..utils.db import cursor, db
+from app.utils.db import cursor, db, ensure_connection
 from utils.helpers import hash_password, verify_password
 from app.utils.mail import enviar_correo_eliminacion
 import mimetypes
@@ -22,6 +22,7 @@ def login():
     if not user or not password:
         return jsonify(success=False, message="Usuario y contraseña obligatorios.")
 
+    ensure_connection()
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     user_data = cursor.fetchone()
 

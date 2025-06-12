@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from app.utils.db import cursor, db
+from app.utils.db import cursor, db, ensure_connection
 import base64, re, os
 
 auth_bp = Blueprint('auth', __name__)
@@ -21,6 +21,7 @@ def login():
     if not user or not password:
         return jsonify(success=False, message="Usuario y contraseña son obligatorios.")
 
+    ensure_connection()
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     user_data = cursor.fetchone()
 
