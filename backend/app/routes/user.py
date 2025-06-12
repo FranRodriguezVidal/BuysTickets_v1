@@ -22,7 +22,6 @@ def login():
     if not user or not password:
         return jsonify(success=False, message="Usuario y contraseña obligatorios.")
 
-    ensure_connection()
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     user_data = cursor.fetchone()
 
@@ -58,6 +57,8 @@ def login():
 @user_bp.route('/verify-user', methods=['POST'])
 def verify_user():
     user = request.get_json().get('user')
+    ensure_connection()
+
     cursor.execute("SELECT * FROM users WHERE user = %s", (user,))
     return jsonify(exists=bool(cursor.fetchone()))
 

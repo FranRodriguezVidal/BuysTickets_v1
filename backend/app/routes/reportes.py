@@ -60,10 +60,11 @@ def reportar_error():
 
 @reportes_bp.route('/reportar-obtener', methods=['GET'])
 def obtener_reportes():
-
+    
     estado = request.args.get('estado')
 
     try:
+        ensure_connection()
         if estado:
             cursor.execute("SELECT * FROM reportes WHERE estado = %s", (estado,))
         else:
