@@ -71,7 +71,7 @@ def crear_evento():
 @eventos_bp.route('/eventos', methods=['GET'])
 def listar_eventos():
     try:
-        db.ping(reconnect=True, attempts=3, delay=2)
+        db.ping(reconnect=True, attempts=5, delay=5)
 
         cursor.execute("""
             SELECT e.*, a.nombre AS nombre_artista
