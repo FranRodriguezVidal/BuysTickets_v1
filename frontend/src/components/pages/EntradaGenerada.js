@@ -11,11 +11,13 @@ export default function EntradaGenerada() {
     const evento = searchParams.get("evento");
     const [entrada, setEntrada] = useState(null);
     const navigate = useNavigate();
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
+
 
     useEffect(() => {
         if (!email || !evento) return;
 
-        fetch(`http://localhost:5000/tickets-por-email?email=${email}&evento=${evento}`)
+        fetch(`${API_BASE_URL}/tickets-por-email?email=${email}&evento=${evento}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.entrada) {

@@ -37,6 +37,8 @@ const NavBar = () => {
     const [sugerencias, setSugerencias] = useState([]);
     const id = usuario?.id;
 
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
+
     // Verificación adicional para manejar el caso en que el usuario se elimina
     useEffect(() => {
         const verificarUsuario = async () => {
@@ -46,7 +48,7 @@ const NavBar = () => {
             const parsedUser = JSON.parse(usuarioGuardado);
 
             try {
-                const response = await axios.post("http://localhost:5000/verify-user", {
+                const response = await axios.post(`${API_BASE_URL}/verify-user`, {
                     user: parsedUser.user,
                 });
 
@@ -102,7 +104,7 @@ const NavBar = () => {
             }
 
             try {
-                const res = await axios.get("http://localhost:5000/eventos");
+                const res = await axios.get(`${API_BASE_URL}/eventos`);
                 if (res.data.success) {
                     const coincidencias = res.data.eventos.filter(ev =>
                         ev.nombre_evento.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -145,7 +147,7 @@ const NavBar = () => {
         e.preventDefault();
         setError("");
         try {
-            const response = await axios.post("http://127.0.0.1:5000/login", { user, password });
+            const response = await axios.post(`${API_BASE_URL}/login`, { user, password });
 
             if (response.data.success) {
                 const usuarioData = {
@@ -169,8 +171,10 @@ const NavBar = () => {
                 setError("Usuario o contraseña incorrectos.");
             }
         } catch (err) {
-            setError("Error al conectar con el servidor.");
-        }
+  console.error("Error en la petición:", err);
+  setError(err.response?.data?.message || err.message || "Error al conectar con el servidor.");
+}
+
     };
 
 
@@ -188,7 +192,7 @@ const NavBar = () => {
         formData.append("profile", profile); // Imagen de perfil
 
         try {
-            const response = await axios.post("http://127.0.0.1:5000/register", formData, {
+            const response = await axios.post(`${API_BASE_URL}/register`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
@@ -216,7 +220,7 @@ const NavBar = () => {
     const handleEnviarCodigo = async () => {
         setRecoveryError("");
         try {
-            const res = await axios.post("http://localhost:5000/send-recovery-code", { user: userRecovery });
+            const res = await axios.post(`${API_BASE_URL}/send-recovery-code`, { user: userRecovery });
             if (res.data.success) {
                 setCodigoEnviado(true);
             } else {
@@ -230,7 +234,7 @@ const NavBar = () => {
     // Lógica para verificar código
     const handleVerificarCodigo = async () => {
         try {
-            const res = await axios.post("http://localhost:5000/verify-recovery-code", {
+            const res = await axios.post(`${API_BASE_URL}/verify-recovery-code`, {
                 user: userRecovery,
                 code: codigoIngresado
             });
@@ -247,7 +251,7 @@ const NavBar = () => {
     // Lógica para cambiar la contraseña
     const handleCambiarPassword = async () => {
         try {
-            const res = await axios.post("http://localhost:5000/change-password", {
+            const res = await axios.post(`${API_BASE_URL}/change-password`, {
                 user: userRecovery,
                 new_password: nuevaPassword
             });
@@ -321,7 +325,7 @@ const NavBar = () => {
                                             >
                                                 {evento.imagen ? (
                                                     <img
-                                                        src={`http://localhost:5000/uploads/${evento.imagen.replace(/^.*[\\/]/, '')}`}
+                                                        src={`${API_BASE_URL}/uploads/${evento.imagen.replace(/^.*[\\/]/, '')}`}
                                                         alt={evento.nombre_evento}
                                                         style={{ width: "50px", height: "60px", objectFit: "cover", borderRadius: "4px" }}
                                                     />

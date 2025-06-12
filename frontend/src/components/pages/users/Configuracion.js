@@ -34,10 +34,16 @@ const Configuracion = () => {
     const location = useLocation();
     const [estadoSolicitud, setEstadoSolicitud] = useState("");
 
+
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
+    
+    
+
+    
     useEffect(() => {
         const fetchEstado = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/estado-discapacidad/${usuario.user}`);
+                const res = await axios.get(`${API_BASE_URL}/estado-discapacidad/${usuario.user}`);
                 if (res.data.success) {
                     setEstadoSolicitud(res.data.estado);
                 }
@@ -70,7 +76,7 @@ const Configuracion = () => {
     useEffect(() => {
         const obtenerEstado = async () => {
             try {
-                const res = await axios.get(`http://localhost:5000/solicitudes/estado-discapacidad/${usuario.user}`);
+                const res = await axios.get(`${API_BASE_URL}/solicitudes/estado-discapacidad/${usuario.user}`);
                 if (res.data.success) {
                     setEstadoDiscapacidad(res.data.estado);
                 } else {
@@ -96,7 +102,7 @@ const Configuracion = () => {
         const confirmarPremium = async () => {
             if (success === "true" && userId && paymentStatus === "COMPLETED") {
                 try {
-                    const res = await axios.post("http://localhost:5000/update-role-to-premium", {
+                    const res = await axios.post(`${API_BASE_URL}/update-role-to-premium`, {
                         user_id: userId,
                         payment_status: "COMPLETED"
                     });
@@ -151,7 +157,7 @@ const Configuracion = () => {
 
         // Llamar al backend para guardar los cambios
         try {
-            const response = await axios.post("http://localhost:5000/update-user", formData, {
+            const response = await axios.post(`${API_BASE_URL}/update-user`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data", // Asegúrate de enviar el FormData correctamente
                 },
@@ -179,7 +185,7 @@ const Configuracion = () => {
         }
 
         try {
-            const response = await axios.delete("http://localhost:5000/delete-user", {
+            const response = await axios.delete(`${API_BASE_URL}/delete-user`, {
                 data: {
                     user: usuario?.user,
                     password: password,
@@ -223,7 +229,7 @@ const Configuracion = () => {
         }
 
         try {
-            const res = await axios.post("http://localhost:5000/solicitudes/solicitar-discapacidad", formData, {
+            const res = await axios.post(`${API_BASE_URL}/solicitudes/solicitar-discapacidad`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
@@ -246,7 +252,7 @@ const Configuracion = () => {
         if (!reporte) return;
 
         try {
-            const response = await axios.post("http://localhost:5000/reportes/reportar-error", {
+            const response = await axios.post(`${API_BASE_URL}/reportes/reportar-error`, {
                 user: usuario.user,
                 reporte: reporte,
                 estado: "pendiente" // Estado inicial del reporte
@@ -266,7 +272,7 @@ const Configuracion = () => {
 
     const handleUpgradeToPremium = async () => {
         try {
-            const response = await axios.post("http://localhost:5000/create-checkout-session", {
+            const response = await axios.post(`${API_BASE_URL}/create-checkout-session`, {
                 user_id: usuario.user,
             });
 

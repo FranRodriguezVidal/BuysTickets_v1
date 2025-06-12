@@ -17,11 +17,11 @@ const AdminSolicitudesYReportes = () => {
     const [mensajeAnuncio, setMensajeAnuncio] = useState(""); // Mensaje del anuncio
     const [imagenAnuncio, setImagenAnuncio] = useState(null); // Imagen para el anuncio
     //const [usuarios, setUsuarios] = useState([]); // Usuarios para enviar anuncio
-
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/solicitudes/discapacidad");
+            const res = await axios.get(`${API_BASE_URL}/solicitudes/discapacidad`);
             console.log("Datos recibidos:", res.data); // 👈 Verifica qué llega
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
@@ -37,7 +37,7 @@ const AdminSolicitudesYReportes = () => {
 
     const obtenerReportes = async () => {
         try {
-            const res = await axios.get("http://localhost:5000/reportes/reportar-obtener");
+            const res = await axios.get(`${API_BASE_URL}/reportes/reportar-obtener`);
             console.log("Reportes recibidos:", res.data);
             if (res.data.success === false) {
                 setError(res.data.message);  // Mostrar mensaje de "no hay datos"
@@ -68,7 +68,7 @@ const AdminSolicitudesYReportes = () => {
     const actualizarEstadoSolicitud = async (id, nuevoEstado) => {
         try {
             // Hacer la solicitud al backend para actualizar el estado
-            const res = await axios.post("http://localhost:5000/solicitudes/actualizar-estado-solicitud", {
+            const res = await axios.post(`${API_BASE_URL}/solicitudes/actualizar-estado-solicitud`, {
                 id,
                 estado: nuevoEstado
             });
@@ -94,7 +94,7 @@ const AdminSolicitudesYReportes = () => {
     // Actualizar el estado de un reporte
     const actualizarEstadoReporte = async (id, nuevoEstado) => {
         try {
-            const res = await axios.post("http://localhost:5000/reportes/actualizar-reporte", {
+            const res = await axios.post(`${API_BASE_URL}/reportes/actualizar-reporte`, {
                 id,
                 estado: nuevoEstado
             });
@@ -124,7 +124,7 @@ const AdminSolicitudesYReportes = () => {
     // Eliminar reporte
     const eliminarReporte = async (id) => {
         try {
-            const res = await axios.post("http://localhost:5000/reportes/actualizar-reporte", {
+            const res = await axios.post(`${API_BASE_URL}/reportes/actualizar-reporte`, {
                 id,
                 estado: "eliminado"
             });
@@ -151,36 +151,36 @@ const AdminSolicitudesYReportes = () => {
 
     // Enviar respuesta por correo
     const enviarRespuesta = async () => {
-    if (!respuesta) {
-        setError(t("Por favor, escribe una respuesta."));
-        return;
-    }
-
-    try {
-        const res = await axios.post("http://localhost:5000/reportes/enviar-correo-estado", {
-            usuario: reporteSeleccionado.usuario,
-            estado: reporteSeleccionado.estado,
-            mensaje: respuesta
-        });
-
-        if (res.data.success) {
-            setSuccess(t("Respuesta enviada correctamente"));
-            await actualizarEstadoReporte(reporteSeleccionado.id, "resuelta");
-            setShowModal(false);
-            obtenerReportes();
-        } else {
-            setError(res.data.message);
+        if (!respuesta) {
+            setError(t("Por favor, escribe una respuesta."));
+            return;
         }
-    } catch(error) {
-        console.error("Error detalle axios:", error);
-        // Si hay respuesta del servidor, mostrar mensaje específico
-        if (error.response && error.response.data && error.response.data.message) {
-            setError(error.response.data.message);
-        } else {
-            setError(t("Error al enviar la respuesta"));
+
+        try {
+            const res = await axios.post(`${API_BASE_URL}/reportes/enviar-correo-estado`, {
+                usuario: reporteSeleccionado.usuario,
+                estado: reporteSeleccionado.estado,
+                mensaje: respuesta
+            });
+
+            if (res.data.success) {
+                setSuccess(t("Respuesta enviada correctamente"));
+                await actualizarEstadoReporte(reporteSeleccionado.id, "resuelta");
+                setShowModal(false);
+                obtenerReportes();
+            } else {
+                setError(res.data.message);
+            }
+        } catch (error) {
+            console.error("Error detalle axios:", error);
+            // Si hay respuesta del servidor, mostrar mensaje específico
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError(t("Error al enviar la respuesta"));
+            }
         }
-    }
-};
+    };
 
 
     // Enviar el anuncio a todos los usuarios excepto los administradores
@@ -199,7 +199,7 @@ const AdminSolicitudesYReportes = () => {
 
 
         try {
-            const res = await axios.post("http://localhost:5000/anuncios/enviar-anuncio", formData, {
+            const res = await axios.post(`${API_BASE_URL}/anuncios/enviar-anuncio`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -254,7 +254,7 @@ const AdminSolicitudesYReportes = () => {
                                 <td>{s.dni}</td>
                                 <td>{s.grado_discapacidad}</td>
                                 <td>
-                                    <a href={`http://localhost:5000/descargar-archivo/${s.id}`} target="_blank" rel="noreferrer">
+                                    <a href={`${API_BASE_URL}/descargar-archivo/${s.id}`} target="_blank" rel="noreferrer">
                                         {t("Descargar archivo")}
                                     </a>
                                 </td>

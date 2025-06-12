@@ -17,12 +17,15 @@ export default function Ventas() {
     const [modalVisible, setModalVisible] = useState(false);
     const [eventoAEliminar, setEventoAEliminar] = useState(null);
     const [confirmVisible, setConfirmVisible] = useState(false);
+   
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
+
     useEffect(() => {
-        fetch("http://localhost:5000/estadisticas")
+        fetch(`${API_BASE_URL}/estadisticas`)
             .then(res => res.json())
             .then(setEstadisticas);
 
-        fetch("http://localhost:5000/eventos")
+        fetch(`${API_BASE_URL}/eventos`)
             .then(res => res.json())
             .then(data => {
                 if (data && Array.isArray(data.eventos)) {
@@ -39,7 +42,7 @@ export default function Ventas() {
         Object.entries(form).forEach(([key, value]) => data.append(key, value));
         if (imagen) data.append("imagen", imagen);
 
-        fetch("http://localhost:5000/eventos", {
+        fetch(`${API_BASE_URL}/eventos`, {
             method: "POST",
             body: data,
         })
@@ -49,7 +52,7 @@ export default function Ventas() {
 
     function actualizarEvento() {
         const id = selected.id;
-        fetch(`http://localhost:5000/eventos/${id}`, {
+        fetch(`${API_BASE_URL}/eventos/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(selected)
@@ -388,7 +391,7 @@ export default function Ventas() {
                                 <button
                                     className="btn btn-danger"
                                     onClick={() => {
-                                        fetch(`http://localhost:5000/eventos/${eventoAEliminar}`, {
+                                        fetch(`${API_BASE_URL}/eventos/${eventoAEliminar}`, {
                                             method: "DELETE"
                                         }).then(() => {
                                             setConfirmVisible(false);

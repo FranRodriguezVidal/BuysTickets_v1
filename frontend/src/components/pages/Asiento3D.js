@@ -5,10 +5,12 @@ import { Modal } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 
+const API_BASE_URL = "https://buystickets-v1.onrender.com";
 
 function Butaca({ position, ocupada, seleccionada, deshabilitada, onClick }) {
     const ref = useRef();
     const [hovered, setHovered] = useState(false);
+    
 
     useFrame(() => {
         if (seleccionada && ref.current) {
@@ -262,7 +264,7 @@ export default function Asientos3D() {
     useEffect(() => {
         if (!usuario) return;
 
-        fetch(`http://localhost:5000/eventos`)
+        fetch(`${API_BASE_URL}/eventos`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && Array.isArray(data.eventos)) {
@@ -271,7 +273,7 @@ export default function Asientos3D() {
                 }
             });
 
-        fetch(`http://localhost:5000/asientos-ocupados/${id}`)
+        fetch(`${API_BASE_URL}/asientos-ocupados/${id}`)
             .then(res => res.json())
             .then(data => {
                 setAsientosOcupados(data.asientos || []);
@@ -310,7 +312,7 @@ export default function Asientos3D() {
             }))
         };
 
-        const response = await fetch("http://localhost:5000/comprar", {
+        const response = await fetch(`${API_BASE_URL}/comprar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)

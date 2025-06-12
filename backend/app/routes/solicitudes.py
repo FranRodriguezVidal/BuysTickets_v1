@@ -215,6 +215,7 @@ def obtener_estado_solicitud(dni):
 @solicitudes_bp.route('/estado-discapacidad/<user>', methods=['GET'])
 def estado_discapacidad_usuario(user):
     try:
+        ensure_connection()
         # Verificar si el usuario existe y obtener su campo discapacidad
         cursor.execute("SELECT discapacidad FROM users WHERE user = %s", (user,))
         user_data = cursor.fetchone()

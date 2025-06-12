@@ -26,6 +26,8 @@ export default function Usuarios() {
   const [errorMsg, setErrorMsg] = useState("");
   const [editMode, setEditMode] = useState(false);
 
+  const API_BASE_URL = "https://buystickets-v1.onrender.com";
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
@@ -39,7 +41,7 @@ export default function Usuarios() {
     setLoading(true);
     setErrorMsg("");
     try {
-      const response = await axios.get("http://localhost:5000/admin/lista-usuarios-adminControl");
+      const response = await axios.get(`${API_BASE_URL}/admin/lista-usuarios-adminControl`);
       if (!response.data.success || !Array.isArray(response.data.usuarios)) {
         setUsuarios([]);
         setErrorMsg("No se encontraron usuarios.");
@@ -79,8 +81,8 @@ export default function Usuarios() {
 
     try {
       const url = editMode
-        ? "http://localhost:5000/admin/update-user-adminControl"
-        : "http://localhost:5000/admin/register-adminControl";
+        ? `${API_BASE_URL}/admin/update-user-adminControl`
+        : `${API_BASE_URL}/admin/register-adminControl`;
 
       if (editMode) formData.append("id", userData.id);
 
@@ -137,7 +139,7 @@ export default function Usuarios() {
     if (window.confirm(`¿Eliminar a ${user.user}?`)) {
       try {
         const response = await axios.delete(
-          `http://localhost:5000/admin/delete-user-adminControl/${user.id}`
+          `${API_BASE_URL}/admin/delete-user-adminControl/${user.id}`
         );
         if (response.data.success) {
           alert(`Usuario ${user.user} eliminado.`);

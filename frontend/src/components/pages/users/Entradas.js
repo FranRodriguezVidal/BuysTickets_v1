@@ -13,10 +13,11 @@ export default function Entradas() {
 
     const nombreComprador = `${usuario?.nombre} ${usuario?.apellido}`;
 
+
     useEffect(() => {
         if (!nombreComprador) return;
 
-        fetch(`http://localhost:5000/entradas?nombre_comprador=${encodeURIComponent(nombreComprador)}`)
+        fetch(`https://buystickets-v1.onrender.com/entradas?nombre_comprador=${encodeURIComponent(nombreComprador)}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) setEntradas(data.entradas || []);

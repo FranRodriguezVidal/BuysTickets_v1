@@ -12,11 +12,12 @@ export default function PostPago() {
 
 
     const [comprando, setComprando] = useState(false);
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
 
     const registrarEntrada = async () => {
         setComprando(true);
         try {
-            const res = await fetch("http://localhost:5000/comprar-ticket", {
+            const res = await fetch(`${API_BASE_URL}/comprar-ticket`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

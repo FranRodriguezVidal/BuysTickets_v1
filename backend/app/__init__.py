@@ -13,7 +13,7 @@ from flask import send_from_directory
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "https://buystickets.pages.dev"}})
 
 
     app.register_blueprint(user_bp)

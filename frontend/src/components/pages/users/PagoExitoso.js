@@ -5,6 +5,7 @@ export default function PagoExitoso() {
     const { usuario, setUsuario } = useContext(UserContext);
     const [convirtiendo, setConvirtiendo] = useState(false);
 
+
     const convertirPremium = async () => {
         const aceptar = window.confirm("⚠️ Al convertir tu cuenta a Premium aceptas los términos, condiciones y licencias de uso. ¿Deseas continuar?");
         if (!aceptar) return;
@@ -12,7 +13,7 @@ export default function PagoExitoso() {
         setConvirtiendo(true);
 
         try {
-            const res = await fetch("http://localhost:5000/convert-to-premium", {
+      const res = await fetch("https://buystickets-v1.onrender.com/convert-to-premium", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
