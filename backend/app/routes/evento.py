@@ -20,7 +20,7 @@ eventos_bp = Blueprint('eventos', __name__)
 @eventos_bp.route('/eventos', methods=['POST'])
 def crear_evento():
     try:
-        db.ping(reconnect=True, attempts=3, delay=2)
+       ensure_connection() 
     except Error as err:
         return jsonify(success=False, message=str(err)), 500
 
@@ -71,7 +71,7 @@ def crear_evento():
 @eventos_bp.route('/eventos', methods=['GET'])
 def listar_eventos():
     try:
-        db.ping(reconnect=True, attempts=5, delay=5)
+        db.ping(reconnect=True, attempts=5, delay=2)
 
         cursor.execute("""
             SELECT e.*, a.nombre AS nombre_artista
