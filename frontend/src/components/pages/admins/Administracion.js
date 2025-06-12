@@ -17,7 +17,7 @@ const AdminSolicitudesYReportes = () => {
     const [mensajeAnuncio, setMensajeAnuncio] = useState(""); // Mensaje del anuncio
     const [imagenAnuncio, setImagenAnuncio] = useState(null); // Imagen para el anuncio
     //const [usuarios, setUsuarios] = useState([]); // Usuarios para enviar anuncio
-    const API_BASE_URL = "https://buystickets-v1.onrender.com/";
+    const API_BASE_URL = "https://buystickets-v1.onrender.com";
     // Obtener las solicitudes de cuenta con discapacidad
     const obtenerSolicitudes = async () => {
         try {
